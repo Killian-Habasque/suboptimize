@@ -6,7 +6,7 @@ import {
     ClockIcon,
     EllipsisHorizontalIcon,
 } from '@heroicons/react/20/solid'
-import { format, startOfToday } from 'date-fns'
+import { addDays, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameMonth, isToday, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
 import { useState } from 'react'
 
 const days = [
@@ -88,11 +88,39 @@ function classNames(...classes) {
 
 export default function Calendar() {
     let today = startOfToday()
-    let [selectedDay, setSelectedDay] = useState(today)
-    
+    // let [selectedDay2, setSelectedDay2] = useState(today)
+
     // console.log(today)
     // let today2 = format(today, 'MMM yyyy')
     // console.log(today2)
+    let newDays = eachDayOfInterval({ start: startOfWeek(startOfMonth(today)), end: endOfWeek(endOfMonth(today)) })
+    let newDaysDates = newDays.map((day) => ({
+        date: format(day, 'yyyy-MM-dd'), 
+        events: [] 
+    }));
+
+    let tomorrow = addDays(today, 1);
+
+    const formattedToday = format(today, 'yyyy-MM-dd');
+    const formattedTomorrow = format(tomorrow, 'yyyy-MM-dd');
+
+   
+    newDaysDates.forEach((day) => {
+        if (day.date === formattedToday) {
+            day.events.push(
+                { id: 10, name: 'Meeting with team', time: '3PM', datetime: `${formattedToday}T15:00`, href: '#' },
+                { id: 11, name: 'Doctor appointment', time: '5PM', datetime: `${formattedToday}T17:00`, href: '#' }
+            );
+        }
+        if (day.date === formattedTomorrow) {
+            day.events.push(
+                { id: 12, name: 'Project deadline', time: '11AM', datetime: `${formattedTomorrow}T11:00`, href: '#' },
+                { id: 13, name: 'Call with client', time: '4PM', datetime: `${formattedTomorrow}T16:00`, href: '#' }
+            );
+        }
+        console.log(day)
+    });
+
     return (
         <div className="lg:flex lg:h-full lg:flex-col">
             {/* <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4 lg:flex-none">
@@ -252,49 +280,50 @@ export default function Calendar() {
             <div className="shadow ring-1 ring-black ring-opacity-5 lg:flex lg:flex-auto lg:flex-col">
                 <div className="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-200 text-center text-xs font-semibold leading-6 text-gray-700 lg:flex-none">
                     <div className="bg-white py-2">
-                        M<span className="sr-only sm:not-sr-only">on</span>
+                        L<span className="sr-only sm:not-sr-only">undi</span>
                     </div>
                     <div className="bg-white py-2">
-                        T<span className="sr-only sm:not-sr-only">ue</span>
+                        M<span className="sr-only sm:not-sr-only">ardi</span>
                     </div>
                     <div className="bg-white py-2">
-                        W<span className="sr-only sm:not-sr-only">ed</span>
+                        M<span className="sr-only sm:not-sr-only">ercredi</span>
                     </div>
                     <div className="bg-white py-2">
-                        T<span className="sr-only sm:not-sr-only">hu</span>
+                        J<span className="sr-only sm:not-sr-only">eudi</span>
                     </div>
                     <div className="bg-white py-2">
-                        F<span className="sr-only sm:not-sr-only">ri</span>
+                        V<span className="sr-only sm:not-sr-only">endredi</span>
                     </div>
                     <div className="bg-white py-2">
-                        S<span className="sr-only sm:not-sr-only">at</span>
+                        S<span className="sr-only sm:not-sr-only">amedi</span>
                     </div>
                     <div className="bg-white py-2">
-                        S<span className="sr-only sm:not-sr-only">un</span>
+                        D<span className="sr-only sm:not-sr-only">imanche</span>
                     </div>
                 </div>
                 <div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
                     <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
-                        {days.map((day) => (
+                        {newDaysDates.map((day) => (
                             <div
-                                key={day.date}
+                                key={day.date.toString()}
                                 className={classNames(
-                                    day.isCurrentMonth ? 'bg-white' : 'bg-gray-50 text-gray-500',
+                                    isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50 text-gray-500',
                                     'relative px-3 py-2',
                                 )}
                             >
                                 <time
-                                    dateTime={day.date}
+                                    dateTime={format(day.date, 'yyyy-MM-dd')}
                                     className={
-                                        day.isToday
+                                        isToday(day.date)
                                             ? 'flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white'
                                             : undefined
                                     }
                                 >
-                                    {day.date.split('-').pop().replace(/^0/, '')}
+                                    {format(day.date, 'd')}
                                 </time>
-                                {day.events.length > 0 && (
+                                {day.events && day.events.length > 0 && (
                                     <ol className="mt-2">
+                                        { console.log(day.events)}
                                         {day.events.slice(0, 2).map((event) => (
                                             <li key={event.id}>
                                                 <a href={event.href} className="group flex">
