@@ -9,88 +9,14 @@ import {
 import { add, addDays, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameMonth, isToday, parse, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
 import { useState } from 'react'
 
-const days = [
-  { date: '2021-12-27', events: [] },
-  { date: '2021-12-28', events: [] },
-  { date: '2021-12-29', events: [] },
-  { date: '2021-12-30', events: [] },
-  { date: '2021-12-31', events: [] },
-  { date: '2022-01-01', isCurrentMonth: true, events: [] },
-  { date: '2022-01-02', isCurrentMonth: true, events: [] },
-  {
-    date: '2022-01-03',
-    isCurrentMonth: true,
-    events: [
-      { id: 1, name: 'Design review', time: '10AM', datetime: '2022-01-03T10:00', href: '#' },
-      { id: 2, name: 'Sales meeting', time: '2PM', datetime: '2022-01-03T14:00', href: '#' },
-    ],
-  },
-  { date: '2022-01-04', isCurrentMonth: true, events: [] },
-  { date: '2022-01-05', isCurrentMonth: true, events: [] },
-  { date: '2022-01-06', isCurrentMonth: true, events: [] },
-  {
-    date: '2022-01-07',
-    isCurrentMonth: true,
-    events: [{ id: 3, name: 'Date night', time: '6PM', datetime: '2022-01-08T18:00', href: '#' }],
-  },
-  { date: '2022-01-08', isCurrentMonth: true, events: [] },
-  { date: '2022-01-09', isCurrentMonth: true, events: [] },
-  { date: '2022-01-10', isCurrentMonth: true, events: [] },
-  { date: '2022-01-11', isCurrentMonth: true, events: [] },
-  {
-    date: '2022-01-12',
-    isCurrentMonth: true,
-    isToday: true,
-    events: [{ id: 6, name: "Sam's birthday party", time: '2PM', datetime: '2022-01-25T14:00', href: '#' }],
-  },
-  { date: '2022-01-13', isCurrentMonth: true, events: [] },
-  { date: '2022-01-14', isCurrentMonth: true, events: [] },
-  { date: '2022-01-15', isCurrentMonth: true, events: [] },
-  { date: '2022-01-16', isCurrentMonth: true, events: [] },
-  { date: '2022-01-17', isCurrentMonth: true, events: [] },
-  { date: '2022-01-18', isCurrentMonth: true, events: [] },
-  { date: '2022-01-19', isCurrentMonth: true, events: [] },
-  { date: '2022-01-20', isCurrentMonth: true, events: [] },
-  { date: '2022-01-21', isCurrentMonth: true, events: [] },
-  {
-    date: '2022-01-22',
-    isCurrentMonth: true,
-    isSelected: true,
-    events: [
-      { id: 4, name: 'Maple syrup museum', time: '3PM', datetime: '2022-01-22T15:00', href: '#' },
-      { id: 5, name: 'Hockey game', time: '7PM', datetime: '2022-01-22T19:00', href: '#' },
-    ],
-  },
-  { date: '2022-01-23', isCurrentMonth: true, events: [] },
-  { date: '2022-01-24', isCurrentMonth: true, events: [] },
-  { date: '2022-01-25', isCurrentMonth: true, events: [] },
-  { date: '2022-01-26', isCurrentMonth: true, events: [] },
-  { date: '2022-01-27', isCurrentMonth: true, events: [] },
-  { date: '2022-01-28', isCurrentMonth: true, events: [] },
-  { date: '2022-01-29', isCurrentMonth: true, events: [] },
-  { date: '2022-01-30', isCurrentMonth: true, events: [] },
-  { date: '2022-01-31', isCurrentMonth: true, events: [] },
-  { date: '2022-02-01', events: [] },
-  { date: '2022-02-02', events: [] },
-  { date: '2022-02-03', events: [] },
-  {
-    date: '2022-02-04',
-    events: [{ id: 7, name: 'Cinema with friends', time: '9PM', datetime: '2022-02-04T21:00', href: '#' }],
-  },
-  { date: '2022-02-05', events: [] },
-  { date: '2022-02-06', events: [] },
-]
 
 const subscribes = [
   { id: 4, name: 'Logoden biniou', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '22', term: 'monthly', href: '#' },
   { id: 5, name: 'Degemer mat', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '09', term: 'monthly', href: '#' },
   { id: 6, name: 'Penn ar bed', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-  { id: 7, name: 'Plouz holl ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+  { id: 7, name: 'Plouz holl', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+  { id: 8, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
 ]
-
-
-
-const selectedDay = days.find((day) => day.isSelected)
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -98,25 +24,15 @@ function classNames(...classes) {
 
 export default function Calendar() {
   let today = startOfToday()
-  let tomorrow = addDays(today, 1);
-  let [selectedDay2, setSelectedDay2] = useState(format(today, 'yyyy-MM-dd'))
-  console.log(selectedDay2)
+  let [selectedDay, setSelectedDay] = useState(format(today, 'yyyy-MM-dd'))
   let [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy'))
   let firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', new Date())
-  console.log(currentMonth)
-  // console.log(today)
-  // let today2 = format(today, 'MMM yyyy')
-  // console.log(today2)
-  let newDays = eachDayOfInterval({
+
+  let days = eachDayOfInterval({
     start: startOfWeek(startOfMonth(firstDayCurrentMonth)),
     end: endOfWeek(endOfMonth(firstDayCurrentMonth))
   })
-  let newDaysDates = newDays.map((day) => ({
-    date: format(day, 'yyyy-MM-dd'),
-    events: []
-  }));
 
-  // console.log(newDaysDates)
   function nextMonth() {
     let firstDayNextMonth = add(firstDayCurrentMonth, { months: 1 })
     setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'))
@@ -125,29 +41,6 @@ export default function Calendar() {
     let firstDayNextMonth = add(firstDayCurrentMonth, { months: -1 })
     setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'))
   }
-
-
-  // let tomorrow = addDays(today, 1);
-
-  // const formattedToday = format(today, 'yyyy-MM-dd');
-  // const formattedTomorrow = format(tomorrow, 'yyyy-MM-dd');
-
-
-  // newDaysDates.forEach((day) => {
-  //   if (day.date === formattedToday) {
-  //     day.events.push(
-  //       { id: 10, name: 'Meeting with team', time: '3PM', datetime: `${formattedToday}T15:00`, href: '#' },
-  //       { id: 11, name: 'Doctor appointment', time: '5PM', datetime: `${formattedToday}T17:00`, href: '#' }
-  //     );
-  //   }
-  //   if (day.date === formattedTomorrow) {
-  //     day.events.push(
-  //       { id: 12, name: 'Project deadline', time: '11AM', datetime: `${formattedTomorrow}T11:00`, href: '#' },
-  //       { id: 13, name: 'Call with client', time: '4PM', datetime: `${formattedTomorrow}T16:00`, href: '#' }
-  //     );
-  //   }
-  //   // console.log(day)
-  // });
 
   return (
     <div className="lg:flex lg:h-full lg:flex-col">
@@ -333,27 +226,27 @@ export default function Calendar() {
         </div>
         <div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
           <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
-            {newDaysDates.map((day) => (
+            {days.map((day) => (
               <div
-                onClick={() => setSelectedDay2(day.date)}
-                key={day.date.toString()}
+                onClick={() => setSelectedDay(day)}
+                key={day.toString()}
                 className={classNames(
-                  isSameMonth(day.date, today) ? 'bg-white' : 'bg-gray-50 text-gray-500',
+                  isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50 text-gray-500',
                   'relative px-3 py-2',
                 )}
               >
                 <time
-                  dateTime={format(day.date, 'yyyy-MM-dd')}
+                  dateTime={format(day, 'yyyy-MM-dd')}
                   className={
-                    isToday(day.date)
+                    isToday(day)
                       ? 'flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white'
                       : undefined
                   }
                 >
-                  {format(day.date, 'd')}
+                  {format(day, 'd')}
                 </time>
                 {subscribes
-                  .filter((subscribe) => subscribe.billingDay === format(day.date, 'dd'))
+                  .filter((subscribe) => subscribe.billingDay === format(day, 'dd'))
                   .slice(0, 2)
                   .map((subscribe) => (
                     <li key={subscribe.id}>
@@ -370,52 +263,60 @@ export default function Calendar() {
                       </a>
                     </li>
                   ))}
-                {subscribes.filter((subscribe) => subscribe.billingDay === format(day.date, 'dd')).length > 2 && (
+                {subscribes.filter((subscribe) => subscribe.billingDay === format(day, 'dd')).length > 2 && (
                   <li className="text-gray-500">
-                    + {subscribes.filter((subscribe) => subscribe.billingDay === format(day.date, 'dd')).length - 2} more
+                    + {subscribes.filter((subscribe) => subscribe.billingDay === format(day, 'dd')).length - 2} more
                   </li>
                 )}
               </div>
             ))}
           </div>
 
-
           <div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
-            {newDaysDates.map((day) => (
-              
+            {days.map((day) => (
               <button
-                key={day.date}
+                onClick={() => setSelectedDay(day)}
+                key={day}
                 type="button"
                 className={classNames(
-                  isSameMonth(day.date, today)  ? 'bg-white' : 'bg-gray-50',
-                  ((day.date === selectedDay2) || isToday(day.date)) && 'font-semibold',
-                  (day.date === selectedDay2) && 'text-white',
-                  !(day.date === selectedDay2) && isToday(day.date) && 'text-indigo-600',
-                  !(day.date === selectedDay2)&& isSameMonth(day.date, today)  && !isToday(day.date) && 'text-gray-900',
-                  !(day.date === selectedDay2) && !isSameMonth(day.date, today)  && !isToday(day.date) && 'text-gray-500',
+                  isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
+                  ((day === selectedDay) || isToday(day)) && 'font-semibold',
+                  (day === selectedDay) && 'text-white',
+                  !(day === selectedDay) && isToday(day) && 'text-indigo-600',
+                  !(day === selectedDay) && isSameMonth(day, today) && !isToday(day) && 'text-gray-900',
+                  !(day === selectedDay) && !isSameMonth(day, today) && !isToday(day) && 'text-gray-500',
                   'flex h-14 flex-col px-3 py-2 hover:bg-gray-100 focus:z-10',
                 )}
               >
-                {console.log(!(day.date === selectedDay2))}
                 <time
-                  dateTime={day.date}
+                  dateTime={day}
                   className={classNames(
-                    (day.date === selectedDay2) && 'flex h-6 w-6 items-center justify-center rounded-full',
-                    (day.date === selectedDay2) && isToday(day.date) && 'bg-indigo-600',
-                    (day.date === selectedDay2) && !isToday(day.date) && 'bg-gray-900',
+                    'flex h-6 w-6 items-center justify-center rounded-full',
+                    (day === selectedDay) && isToday(day) && 'bg-indigo-600',
+                    (day === selectedDay) && !isToday(day) && 'bg-gray-900',
                     'ml-auto',
                   )}
                 >
-                  {day.date.split('-').pop().replace(/^0/, '')}
+                  {format(day, 'd')}
                 </time>
-                {/* <span className="sr-only">{day.events.length} events</span> */}
-                {/* {day.events.length > 0 && (
+
+                <span className="sr-only">
+                  {subscribes.filter((subscribe) => subscribe.billingDay === format(day, 'dd')).length} abonnements
+                </span>
+                {subscribes.filter((subscribe) => subscribe.billingDay === format(day, 'dd')).length > 0 && (
                   <span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-                    {day.events.map((event) => (
-                      <span key={event.id} className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
-                    ))}
+                    {subscribes
+                      .filter((subscribe) => subscribe.billingDay === format(day, 'dd'))
+                      .slice(0, 2)
+                      .map((subscribe) => (
+                        <span
+                          key={subscribe.id}
+                          className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-blue-400"
+                          title={subscribe.name}
+                        />
+                      ))}
                   </span>
-                )} */}
+                )}
               </button>
             ))}
           </div>
@@ -425,7 +326,7 @@ export default function Calendar() {
       <div className="px-4 py-10 sm:px-6">
         <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black ring-opacity-5">
           {subscribes
-            .filter((subscribe) => subscribe.billingDay === format(selectedDay2, 'dd'))
+            .filter((subscribe) => subscribe.billingDay === format(selectedDay, 'dd'))
             .map((subscribe) => (
               <li key={subscribe.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
                 <div className="flex-auto">
