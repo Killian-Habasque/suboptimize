@@ -81,9 +81,11 @@ const days = [
   { date: '2022-02-06', events: [] },
 ]
 
-const subscribe = [
-  { id: 4, name: 'Maple syrup museum', datetime: '14', href: '#' },
-  { id: 5, name: 'Hockey game', datetime: '22', href: '#' },
+const subscribes = [
+  { id: 4, name: 'Logoden biniou', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '22', term: 'monthly', href: '#' },
+  { id: 5, name: 'Degemer mat', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '09', term: 'monthly', href: '#' },
+  { id: 6, name: 'Penn ar bed', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+  { id: 7, name: 'Plouz holl ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
 ]
 
 
@@ -96,6 +98,7 @@ function classNames(...classes) {
 
 export default function Calendar() {
   let today = startOfToday()
+  let tomorrow = addDays(today, 1);
   let [selectedDay2, setSelectedDay2] = useState(format(today, 'yyyy-MM-dd'))
   console.log(selectedDay2)
   let [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy'))
@@ -124,27 +127,27 @@ export default function Calendar() {
   }
 
 
-  let tomorrow = addDays(today, 1);
+  // let tomorrow = addDays(today, 1);
 
-  const formattedToday = format(today, 'yyyy-MM-dd');
-  const formattedTomorrow = format(tomorrow, 'yyyy-MM-dd');
+  // const formattedToday = format(today, 'yyyy-MM-dd');
+  // const formattedTomorrow = format(tomorrow, 'yyyy-MM-dd');
 
 
-  newDaysDates.forEach((day) => {
-    if (day.date === formattedToday) {
-      day.events.push(
-        { id: 10, name: 'Meeting with team', time: '3PM', datetime: `${formattedToday}T15:00`, href: '#' },
-        { id: 11, name: 'Doctor appointment', time: '5PM', datetime: `${formattedToday}T17:00`, href: '#' }
-      );
-    }
-    if (day.date === formattedTomorrow) {
-      day.events.push(
-        { id: 12, name: 'Project deadline', time: '11AM', datetime: `${formattedTomorrow}T11:00`, href: '#' },
-        { id: 13, name: 'Call with client', time: '4PM', datetime: `${formattedTomorrow}T16:00`, href: '#' }
-      );
-    }
-    // console.log(day)
-  });
+  // newDaysDates.forEach((day) => {
+  //   if (day.date === formattedToday) {
+  //     day.events.push(
+  //       { id: 10, name: 'Meeting with team', time: '3PM', datetime: `${formattedToday}T15:00`, href: '#' },
+  //       { id: 11, name: 'Doctor appointment', time: '5PM', datetime: `${formattedToday}T17:00`, href: '#' }
+  //     );
+  //   }
+  //   if (day.date === formattedTomorrow) {
+  //     day.events.push(
+  //       { id: 12, name: 'Project deadline', time: '11AM', datetime: `${formattedTomorrow}T11:00`, href: '#' },
+  //       { id: 13, name: 'Call with client', time: '4PM', datetime: `${formattedTomorrow}T16:00`, href: '#' }
+  //     );
+  //   }
+  //   // console.log(day)
+  // });
 
   return (
     <div className="lg:flex lg:h-full lg:flex-col">
@@ -349,93 +352,99 @@ export default function Calendar() {
                 >
                   {format(day.date, 'd')}
                 </time>
-                {day.events && day.events.length > 0 && (
-                  <ol className="mt-2">
-                    {/* {console.log(day.events)} */}
-                    {day.events.slice(0, 2).map((event) => (
-                      <li key={event.id}>
-                        <a href={event.href} className="group flex">
-                          <p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">
-                            {event.name}
-                          </p>
-                          <time
-                            dateTime={event.datetime}
-                            className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
-                          >
-                            {event.time}
-                          </time>
-                        </a>
-                      </li>
-                    ))}
-                    {day.events.length > 2 && <li className="text-gray-500">+ {day.events.length - 2} more</li>}
-                  </ol>
+                {subscribes
+                  .filter((subscribe) => subscribe.billingDay === format(day.date, 'dd'))
+                  .slice(0, 2)
+                  .map((subscribe) => (
+                    <li key={subscribe.id}>
+                      <a href={subscribe.href} className="group flex">
+                        <p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">
+                          {subscribe.name}
+                        </p>
+                        <time
+                          dateTime={subscribe.startDatetime}
+                          className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
+                        >
+                          {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
+                        </time>
+                      </a>
+                    </li>
+                  ))}
+                {subscribes.filter((subscribe) => subscribe.billingDay === format(day.date, 'dd')).length > 2 && (
+                  <li className="text-gray-500">
+                    + {subscribes.filter((subscribe) => subscribe.billingDay === format(day.date, 'dd')).length - 2} more
+                  </li>
                 )}
               </div>
             ))}
           </div>
+
+
           <div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
-            {days.map((day) => (
+            {newDaysDates.map((day) => (
+              
               <button
                 key={day.date}
                 type="button"
                 className={classNames(
-                  day.isCurrentMonth ? 'bg-white' : 'bg-gray-50',
-                  (day.isSelected || day.isToday) && 'font-semibold',
-                  day.isSelected && 'text-white',
-                  !day.isSelected && day.isToday && 'text-indigo-600',
-                  !day.isSelected && day.isCurrentMonth && !day.isToday && 'text-gray-900',
-                  !day.isSelected && !day.isCurrentMonth && !day.isToday && 'text-gray-500',
+                  isSameMonth(day.date, today)  ? 'bg-white' : 'bg-gray-50',
+                  ((day.date === selectedDay2) || isToday(day.date)) && 'font-semibold',
+                  (day.date === selectedDay2) && 'text-white',
+                  !(day.date === selectedDay2) && isToday(day.date) && 'text-indigo-600',
+                  !(day.date === selectedDay2)&& isSameMonth(day.date, today)  && !isToday(day.date) && 'text-gray-900',
+                  !(day.date === selectedDay2) && !isSameMonth(day.date, today)  && !isToday(day.date) && 'text-gray-500',
                   'flex h-14 flex-col px-3 py-2 hover:bg-gray-100 focus:z-10',
                 )}
               >
+                {console.log(!(day.date === selectedDay2))}
                 <time
                   dateTime={day.date}
                   className={classNames(
-                    day.isSelected && 'flex h-6 w-6 items-center justify-center rounded-full',
-                    day.isSelected && day.isToday && 'bg-indigo-600',
-                    day.isSelected && !day.isToday && 'bg-gray-900',
+                    (day.date === selectedDay2) && 'flex h-6 w-6 items-center justify-center rounded-full',
+                    (day.date === selectedDay2) && isToday(day.date) && 'bg-indigo-600',
+                    (day.date === selectedDay2) && !isToday(day.date) && 'bg-gray-900',
                     'ml-auto',
                   )}
                 >
                   {day.date.split('-').pop().replace(/^0/, '')}
                 </time>
-                <span className="sr-only">{day.events.length} events</span>
-                {day.events.length > 0 && (
+                {/* <span className="sr-only">{day.events.length} events</span> */}
+                {/* {day.events.length > 0 && (
                   <span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
                     {day.events.map((event) => (
                       <span key={event.id} className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
                     ))}
                   </span>
-                )}
+                )} */}
               </button>
             ))}
           </div>
         </div>
       </div>
-      {selectedDay?.events.length > 0 && (
-        // <div className="px-4 py-10 sm:px-6">
-        <div className="px-4 py-10 sm:px-6">
-          <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black ring-opacity-5">
-            {selectedDay.events.map((event) => (
-              <li key={event.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
+
+      <div className="px-4 py-10 sm:px-6">
+        <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black ring-opacity-5">
+          {subscribes
+            .filter((subscribe) => subscribe.billingDay === format(selectedDay2, 'dd'))
+            .map((subscribe) => (
+              <li key={subscribe.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
                 <div className="flex-auto">
-                  <p className="font-semibold text-gray-900">{event.name}</p>
-                  <time dateTime={event.datetime} className="mt-2 flex items-center text-gray-700">
+                  <p className="font-semibold text-gray-900">{subscribe.name}</p>
+                  <time dateTime={subscribe.datetime} className="mt-2 flex items-center text-gray-700">
                     <ClockIcon className="mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                    {event.time}
+                    {subscribe.startDatetime}
                   </time>
                 </div>
                 <a
-                  href={event.href}
+                  href={subscribe.href}
                   className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 opacity-0 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 focus:opacity-100 group-hover:opacity-100"
                 >
-                  Edit<span className="sr-only">, {event.name}</span>
+                  Edit<span className="sr-only">, {subscribe.name}</span>
                 </a>
               </li>
             ))}
-          </ol>
-        </div>
-      )}
+        </ol>
+      </div>
     </div>
   )
 }
