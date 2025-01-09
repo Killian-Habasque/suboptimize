@@ -6,17 +6,26 @@ import {
   ClockIcon,
   EllipsisHorizontalIcon,
 } from '@heroicons/react/20/solid'
-import { add, addDays, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameMonth, isToday, parse, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
+import { add, addDays, eachDayOfInterval, endOfMonth, endOfWeek, format, isEqual, isSameMonth, isToday, parse, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
+import { fr } from 'date-fns/locale';
 import { useState } from 'react'
 
-
+const locale = fr;
 const subscribes = [
   { id: 4, name: 'Logoden biniou', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '22', term: 'monthly', href: '#' },
   { id: 5, name: 'Degemer mat', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '09', term: 'monthly', href: '#' },
   { id: 6, name: 'Penn ar bed', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
   { id: 7, name: 'Plouz holl', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
   { id: 8, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+  { id: 9, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+  { id: 10, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+  { id: 11, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+
 ]
+function capitalizeFirstLetter(string) {
+  if (!string) return '';
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -32,6 +41,8 @@ export default function Calendar() {
     start: startOfWeek(startOfMonth(firstDayCurrentMonth)),
     end: endOfWeek(endOfMonth(firstDayCurrentMonth))
   })
+  let newDays = days.map((day) => format(day, 'yyyy-MM-dd'));
+  console.log(newDays)
 
   function nextMonth() {
     let firstDayNextMonth = add(firstDayCurrentMonth, { months: 1 })
@@ -46,7 +57,7 @@ export default function Calendar() {
     <div className="lg:flex lg:h-full lg:flex-col">
       <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4 lg:flex-none">
         <h1 className="text-base font-semibold leading-6 text-gray-900">
-          <time dateTime="2022-01">{format(firstDayCurrentMonth, 'MMMM yyyy')}</time>
+          <time dateTime="2022-01"> {capitalizeFirstLetter(format(firstDayCurrentMonth, 'MMMM yyyy', { locale }))}</time>
         </h1>
         <div className="flex items-center">
           <div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
@@ -62,7 +73,7 @@ export default function Calendar() {
               type="button"
               className="hidden border-y border-gray-300 px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block"
             >
-              Today
+              Aujourd'hui
             </button>
             <span className="relative -mx-px h-5 w-px bg-gray-300 md:hidden" />
             <button
@@ -226,22 +237,28 @@ export default function Calendar() {
         </div>
         <div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
           <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
-            {days.map((day) => (
+            {newDays.map((day) => (
               <div
                 onClick={() => setSelectedDay(day)}
                 key={day.toString()}
+
                 className={classNames(
-                  isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50 text-gray-500',
-                  'relative px-3 py-2',
+                  isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
+                  (isEqual(day, selectedDay) || isToday(day)) && 'font-semibold',
+                  !isEqual(day, selectedDay) && isToday(day) && 'text-indigo-600',
+                  !isEqual(day, selectedDay) && isSameMonth(day, today) && !isToday(day) && 'text-gray-900',
+                  !isEqual(day, selectedDay) && !isSameMonth(day, today) && !isToday(day) && 'text-gray-500',
+                  'flex flex-col px-3 py-2 hover:bg-gray-100 focus:z-10',
                 )}
               >
                 <time
                   dateTime={format(day, 'yyyy-MM-dd')}
-                  className={
-                    isToday(day)
-                      ? 'flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white'
-                      : undefined
-                  }
+                  className={classNames(
+                    'flex h-6 w-6 items-center justify-center rounded-full',
+                    isEqual(day, selectedDay) && isToday(day) && 'bg-indigo-600 text-white',
+                    isEqual(day, selectedDay) && !isToday(day) && 'bg-gray-900 text-white',
+                    'ml-auto',
+                  )}
                 >
                   {format(day, 'd')}
                 </time>
@@ -251,12 +268,12 @@ export default function Calendar() {
                   .map((subscribe) => (
                     <li key={subscribe.id}>
                       <a href={subscribe.href} className="group flex">
-                        <p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">
+                        <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.name}
                         </p>
                         <time
                           dateTime={subscribe.startDatetime}
-                          className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
+                          className="ml-3 hidden flex-none font-medium text-gray-500 group-hover:text-indigo-600 xl:block"
                         >
                           {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
                         </time>
@@ -264,7 +281,7 @@ export default function Calendar() {
                     </li>
                   ))}
                 {subscribes.filter((subscribe) => subscribe.billingDay === format(day, 'dd')).length > 2 && (
-                  <li className="text-gray-500">
+                  <li className="text-gray-500 font-normal">
                     + {subscribes.filter((subscribe) => subscribe.billingDay === format(day, 'dd')).length - 2} more
                   </li>
                 )}
@@ -273,27 +290,27 @@ export default function Calendar() {
           </div>
 
           <div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
-            {days.map((day) => (
+            {newDays.map((day) => (
               <button
                 onClick={() => setSelectedDay(day)}
                 key={day}
                 type="button"
                 className={classNames(
                   isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
-                  ((day === selectedDay) || isToday(day)) && 'font-semibold',
-                  (day === selectedDay) && 'text-white',
-                  !(day === selectedDay) && isToday(day) && 'text-indigo-600',
-                  !(day === selectedDay) && isSameMonth(day, today) && !isToday(day) && 'text-gray-900',
-                  !(day === selectedDay) && !isSameMonth(day, today) && !isToday(day) && 'text-gray-500',
+                  (isEqual(day, selectedDay) || isToday(day)) && 'font-semibold',
+                  !isEqual(day, selectedDay) && isToday(day) && 'text-indigo-600',
+                  !isEqual(day, selectedDay) && isSameMonth(day, today) && !isToday(day) && 'text-gray-900',
+                  !isEqual(day, selectedDay) && !isSameMonth(day, today) && !isToday(day) && 'text-gray-500',
                   'flex h-14 flex-col px-3 py-2 hover:bg-gray-100 focus:z-10',
                 )}
               >
+                {console.log(day)}
                 <time
                   dateTime={day}
                   className={classNames(
                     'flex h-6 w-6 items-center justify-center rounded-full',
-                    (day === selectedDay) && isToday(day) && 'bg-indigo-600',
-                    (day === selectedDay) && !isToday(day) && 'bg-gray-900',
+                    isEqual(day, selectedDay) && isToday(day) && 'bg-indigo-600 text-white',
+                    isEqual(day, selectedDay) && !isToday(day) && 'bg-gray-900 text-white',
                     'ml-auto',
                   )}
                 >
@@ -303,8 +320,8 @@ export default function Calendar() {
                 <span className="sr-only">
                   {subscribes.filter((subscribe) => subscribe.billingDay === format(day, 'dd')).length} abonnements
                 </span>
-                {subscribes.filter((subscribe) => subscribe.billingDay === format(day, 'dd')).length > 0 && (
-                  <span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
+                {(subscribes.filter((subscribe) => subscribe.billingDay === format(day, 'dd')).length > 0) && (
+                  <div className="-mx-0.5 mt-auto flex flex-wrap-reverse">
                     {subscribes
                       .filter((subscribe) => subscribe.billingDay === format(day, 'dd'))
                       .slice(0, 2)
@@ -315,7 +332,12 @@ export default function Calendar() {
                           title={subscribe.name}
                         />
                       ))}
-                  </span>
+                    {subscribes.filter((subscribe) => subscribe.billingDay === format(day, 'dd')).length > 2 && (
+                      <span className="mx-0.5 text-gray-500 text-xs font-normal">
+                        +{subscribes.filter((subscribe) => subscribe.billingDay === format(day, 'dd')).length - 2}
+                      </span>
+                    )}
+                  </div>
                 )}
               </button>
             ))}
