@@ -42,15 +42,17 @@ export default function Calendar() {
     end: endOfWeek(endOfMonth(firstDayCurrentMonth))
   })
   let newDays = days.map((day) => format(day, 'yyyy-MM-dd'));
-  console.log(newDays)
 
   function nextMonth() {
     let firstDayNextMonth = add(firstDayCurrentMonth, { months: 1 })
     setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'))
   }
   function previousMonth() {
-    let firstDayNextMonth = add(firstDayCurrentMonth, { months: -1 })
-    setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'))
+    let firstDayPreviousMonth = add(firstDayCurrentMonth, { months: -1 })
+    setCurrentMonth(format(firstDayPreviousMonth, 'MMM-yyyy'))
+  }
+  function resetMonth() {
+    setCurrentMonth(format(today, 'MMM-yyyy'))
   }
 
   return (
@@ -70,6 +72,7 @@ export default function Calendar() {
               <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
             </button>
             <button
+              onClick={resetMonth}
               type="button"
               className="hidden border-y border-gray-300 px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block"
             >
@@ -304,7 +307,6 @@ export default function Calendar() {
                   'flex h-14 flex-col px-3 py-2 hover:bg-gray-100 focus:z-10',
                 )}
               >
-                {console.log(day)}
                 <time
                   dateTime={day}
                   className={classNames(
