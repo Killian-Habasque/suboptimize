@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Navigate, Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../../contexts/authContext/index.js'
-import { doCreateUserWithEmailAndPassword } from '../../../firebase/auth.js'
+import { useAuth } from '../../../contexts/authContext.js'
+import { doCreateUserWithEmailAndPassword } from '../../../services/authService.js'
 
 const Register = () => {
 

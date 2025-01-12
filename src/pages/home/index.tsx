@@ -1,4 +1,4 @@
-import { useAuth } from '../../contexts/authContext/index'
+import { useAuth } from '../../contexts/authContext'
 
 const Home = () => {
     const { currentUser } = useAuth()

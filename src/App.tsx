@@ -6,6 +6,7 @@ import Home from "./pages/home";
 
 import { AuthProvider } from "./contexts/authContext";
 import { useRoutes } from "react-router-dom";
+import CalendarPage from "./pages/calendar";
 
 function App() {
   const routesArray = [
@@ -24,6 +25,10 @@ function App() {
     {
       path: "/",
       element: <Home />,
+    },
+    {
+      path: "/calendrier",
+      element: <CalendarPage />,
     },
   ];
   const routesElement = useRoutes(routesArray);
