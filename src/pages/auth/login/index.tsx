@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Navigate, Link } from 'react-router-dom'
-import { doSignInWithEmailAndPassword, doSignInWithGoogle } from '../../../services/authService.js'
-import { useAuth } from '../../../contexts/authContext.js'
+import { doSignInWithEmailAndPassword, doSignInWithGoogle } from '../../../services/authService'
+import { useAuth } from '../../../contexts/authContext'
 
 const Login = () => {
     const { userLoggedIn } = useAuth()

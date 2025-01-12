@@ -1,41 +1,14 @@
-import Login from "./pages/auth/login";
-import Register from "./pages/auth/register";
-
-import Header from "./components/header";
-import Home from "./pages/home";
-
+import Header from "./components/header.js";
 import { AuthProvider } from "./contexts/authContext";
-import { useRoutes } from "react-router-dom";
-import CalendarPage from "./pages/calendar";
+import RouterService from "./services/routerService.js";
 
 function App() {
-  const routesArray = [
-    {
-      path: "*",
-      element: <Login />,
-    },
-    {
-      path: "/login",
-      element: <Login />,
-    },
-    {
-      path: "/register",
-      element: <Register />,
-    },
-    {
-      path: "/",
-      element: <Home />,
-    },
-    {
-      path: "/calendrier",
-      element: <CalendarPage />,
-    },
-  ];
-  const routesElement = useRoutes(routesArray);
   return (
     <AuthProvider>
       <Header />
-      <div className="w-full h-screen flex flex-col">{routesElement}</div>
+      <div className="w-full h-screen flex flex-col">
+        <RouterService />
+      </div>
     </AuthProvider>
   );
 }
