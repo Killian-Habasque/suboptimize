@@ -7,10 +7,24 @@ import {
   updatePassword,
   signInWithPopup,
   GoogleAuthProvider,
+  updateProfile,
 } from "firebase/auth";
 
-export const doCreateUserWithEmailAndPassword = async (email: string, password: string) => {
-  return createUserWithEmailAndPassword(auth, email, password);
+export const doCreateUserWithEmailAndDisplayName = async (
+  email: string,
+  password: string,
+  displayName: string
+) => {
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  const user = userCredential.user;
+
+  await updateProfile(user, {
+    displayName,
+  });
+
+  await user.reload();
+
+  return user;
 };
 
 export const doSignInWithEmailAndPassword = (email: string, password: string) => {

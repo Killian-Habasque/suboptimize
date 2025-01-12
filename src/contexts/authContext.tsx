@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, ReactNode } from "react";
 import { auth } from "../config/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
 // Définir un type pour l'utilisateur
 interface User {
@@ -41,21 +41,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return unsubscribe;
   }, []);
 
-  async function initializeUser(user: any) {
+  function initializeUser(user: FirebaseUser | null) {
     if (user) {
-      setCurrentUser({ ...user });
+      const { uid, email, displayName, providerData } = user;
 
-      // Vérifier si le fournisseur est l'email et le mot de passe
-      const isEmail = user.providerData.some(
-        (provider: any) => provider.providerId === "password"
-      );
-      setIsEmailUser(isEmail);
+      setCurrentUser({
+        uid,
+        email,
+        displayName,
+        providerData,
+      });
 
-      // Vérifier si le fournisseur d'authentification est Google
-      const isGoogle = user.providerData.some(
-        (provider: any) => provider.providerId === "google.com"
-      );
-      setIsGoogleUser(isGoogle);
+      setIsEmailUser(providerData.some((provider) => provider.providerId === "password"));
+      setIsGoogleUser(providerData.some((provider) => provider.providerId === "google.com"));
 
       setUserLoggedIn(true);
     } else {
