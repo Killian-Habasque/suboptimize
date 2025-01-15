@@ -9,7 +9,7 @@ import {
   where,
 } from "firebase/firestore";
 import { Subscription } from "../types/types";
-
+import { parse } from 'date-fns';
 
 export const getSubscriptions = async (userId: string): Promise<Subscription[]> => {
   if (!userId) throw new Error("L'UID de l'utilisateur est requis.");
@@ -55,4 +55,44 @@ export const addSubscription = async (
   });
 
   console.log("Abonnement ajouté avec succès !");
+};
+
+// export const filterSubscriptionsByMonth = (
+//     subscriptions: Subscription[],
+//     targetMonth: number
+// ) => {
+//     const currentYear = new Date().getFullYear();
+//     return subscriptions.filter((sub) => {
+//         const startDate = new Date(sub.startDatetime);
+//         const endDate = new Date(sub.endDatetime);
+//         const billingDate = new Date(currentYear, targetMonth - 1, sub.billingDay);
+
+//         return (
+//             billingDate >= startDate &&
+//             billingDate <= endDate &&
+//             billingDate.getMonth() === targetMonth - 1
+//         );
+//     });
+// };
+
+export const filterSubscriptionsByMonth = (
+    subscriptions: Subscription[],
+    targetMonthYear: string 
+) => {
+    const targetDate = parse(targetMonthYear, 'MMM-yyyy', new Date());
+
+    const targetMonth = targetDate.getMonth();
+    const targetYear = targetDate.getFullYear();
+
+    return subscriptions.filter((sub) => {
+        const startDate = new Date(sub.startDatetime);
+        const endDate = new Date(sub.endDatetime);
+        const billingDate = new Date(targetYear, targetMonth, sub.billingDay);
+        return (
+            billingDate >= startDate &&
+            billingDate <= endDate &&
+            billingDate.getMonth() === targetMonth &&
+            billingDate.getFullYear() === targetYear
+        );
+    });
 };

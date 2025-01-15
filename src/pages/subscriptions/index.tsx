@@ -1,33 +1,13 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/authContext";
-import { addSubscription, getSubscriptions } from "../../services/subscriptionService";
+import { addSubscription, filterSubscriptionsByMonth, getSubscriptions } from "../../services/subscriptionService";
 import { Subscription } from "../../types/types";
 import Calendar from '../../components/calendar_sub.jsx'
-
-const filterSubscriptionsByMonthAndBillingDay = (
-    subscriptions: Subscription[],
-    targetMonth: number
-) => {
-    const currentYear = new Date().getFullYear();
-    return subscriptions.filter((sub) => {
-        const startDate = new Date(sub.startDatetime);
-        const endDate = new Date(sub.endDatetime);
-        const billingDate = new Date(currentYear, targetMonth - 1, sub.billingDay);
-
-        return (
-            billingDate >= startDate &&
-            billingDate <= endDate &&
-            billingDate.getMonth() === targetMonth - 1
-        );
-    });
-};
 
 const Subscriptions = () => {
     const { currentUser } = useAuth();
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filteredSubscriptions, setFilteredSubscriptions] = useState<Subscription[]>([]);
-    const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1); // Mois actuel
 
     useEffect(() => {
         const fetchSubscriptions = async () => {
@@ -70,13 +50,6 @@ const Subscriptions = () => {
         }
     };
 
-    useEffect(() => {
-        // Filtrer les abonnements chaque fois que `subscriptions` ou `selectedMonth` change
-        const sortedSubscriptions = filterSubscriptionsByMonthAndBillingDay(subscriptions, selectedMonth);
-        setFilteredSubscriptions(sortedSubscriptions);
-    }, [subscriptions, selectedMonth]);
-    
-    // console.log(filteredSubscriptions)
     return (
         <div className="text-2xl font-bold pt-14">
             <button
@@ -85,17 +58,16 @@ const Subscriptions = () => {
             >
                 Ajouter un abonnement
             </button>
-            <div className="w-full h-full flex flex-col">
-            {filteredSubscriptions.length > 0 ? <Calendar subcriptions={filteredSubscriptions} /> : ''}
-            </div>
+            {subscriptions.length > 0 ? <Calendar subscriptions={subscriptions} /> : ''}
+ 
             
-            {currentUser ? (
+            {/* {currentUser ? (
                 <>
                     <p>
                         Hello {currentUser.displayName || currentUser.providerData[0]?.displayName}, you are now logged in.
                     </p>
                     <h2 className="mt-6 text-xl font-semibold">Vos abonnements :</h2>
-                    {/* {loading ? (
+                    {loading ? (
                         <p>Chargement des abonnements...</p>
                     ) : subscriptions.length > 0 ? (
                         <ul className="mt-4 space-y-4">
@@ -110,11 +82,11 @@ const Subscriptions = () => {
                         </ul>
                     ) : (
                         <p>Vous n'avez aucun abonnement pour l'instant.</p>
-                    )} */}
+                    )}
                 </>
             ) : (
                 <>You are not logged in.</>
-            )}
+            )} */}
         </div>
     );
 };

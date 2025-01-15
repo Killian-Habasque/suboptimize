@@ -8,20 +8,22 @@ import {
 } from '@heroicons/react/20/solid'
 import { add, addDays, eachDayOfInterval, endOfMonth, endOfWeek, format, isEqual, isSameMonth, isToday, parse, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
 import { fr } from 'date-fns/locale';
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+import { addSubscription, filterSubscriptionsByMonth, getSubscriptions } from "../services/subscriptionService";
 
 const locale = fr;
-const subscribes = [
-  { id: 4, name: 'Logoden biniou', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '22', term: 'monthly', href: '#' },
-  { id: 5, name: 'Degemer mat', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '09', term: 'monthly', href: '#' },
-  { id: 6, name: 'Penn ar bed', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-  { id: 7, name: 'Plouz holl', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-  { id: 8, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-  { id: 9, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-  { id: 10, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-  { id: 11, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+// const subscribes = [
+//   { id: 4, name: 'Logoden biniou', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '22', term: 'monthly', href: '#' },
+//   { id: 5, name: 'Degemer mat', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '09', term: 'monthly', href: '#' },
+//   { id: 6, name: 'Penn ar bed', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+//   { id: 7, name: 'Plouz holl', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+//   { id: 8, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+//   { id: 9, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+//   { id: 10, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+//   { id: 11, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
+// ]
 
-]
 function capitalizeFirstLetter(string) {
   if (!string) return '';
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -31,11 +33,13 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Calendar({subcriptions}) {
+
+export default function Calendar({ subscriptions }) {
   let today = startOfToday()
   let [selectedDay, setSelectedDay] = useState(format(today, 'yyyy-MM-dd'))
   let [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy'))
   let firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', new Date())
+  const [filteredSubscriptions, setFilteredSubscriptions] = useState([]);
 
   let days = eachDayOfInterval({
     start: startOfWeek(startOfMonth(firstDayCurrentMonth)),
@@ -54,6 +58,11 @@ export default function Calendar({subcriptions}) {
   function resetMonth() {
     setCurrentMonth(format(today, 'MMM-yyyy'))
   }
+
+  useEffect(() => {
+    const sortedSubscriptions = filterSubscriptionsByMonth(subscriptions, currentMonth);
+    setFilteredSubscriptions(sortedSubscriptions);
+  }, [subscriptions, currentMonth]);
 
   return (
     <div className="lg:flex lg:h-full lg:flex-col">
@@ -247,7 +256,7 @@ export default function Calendar({subcriptions}) {
 
                 className={classNames(
                   isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
-                  (isEqual(day, selectedDay) || isToday(day)) && 'font-semibold',
+                  // (isEqual(day, selectedDay) || isToday(day)) && 'font-semibold',
                   !isEqual(day, selectedDay) && isToday(day) && 'text-indigo-600',
                   !isEqual(day, selectedDay) && isSameMonth(day, today) && !isToday(day) && 'text-gray-900',
                   !isEqual(day, selectedDay) && !isSameMonth(day, today) && !isToday(day) && 'text-gray-500',
@@ -265,7 +274,7 @@ export default function Calendar({subcriptions}) {
                 >
                   {format(day, 'd')}
                 </time>
-                {subcriptions
+                {filteredSubscriptions.length > 0 && filteredSubscriptions
                   .filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd'))
                   .slice(0, 2)
                   .map((subscribe) => (
@@ -283,9 +292,9 @@ export default function Calendar({subcriptions}) {
                       </a>
                     </li>
                   ))}
-                {subcriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length > 2 && (
+                {filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length > 2 && (
                   <li className="text-gray-500 font-normal">
-                    + {subcriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length - 2} more
+                    + {filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length - 2} more
                   </li>
                 )}
               </div>
@@ -300,7 +309,7 @@ export default function Calendar({subcriptions}) {
                 type="button"
                 className={classNames(
                   isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
-                  (isEqual(day, selectedDay) || isToday(day)) && 'font-semibold',
+                  // (isEqual(day, selectedDay) || isToday(day)) && 'font-semibold',
                   !isEqual(day, selectedDay) && isToday(day) && 'text-indigo-600',
                   !isEqual(day, selectedDay) && isSameMonth(day, today) && !isToday(day) && 'text-gray-900',
                   !isEqual(day, selectedDay) && !isSameMonth(day, today) && !isToday(day) && 'text-gray-500',
@@ -318,13 +327,12 @@ export default function Calendar({subcriptions}) {
                 >
                   {format(day, 'd')}
                 </time>
-{/* {  console.log(subcriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')))} */}
                 <span className="sr-only">
-                  {subcriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length} abonnements
+                  {filteredSubscriptions.length > 0 && filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length} abonnements
                 </span>
-                {(subcriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length > 0) && (
+                {(filteredSubscriptions.length > 0 && filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length > 0) && (
                   <div className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-                    {subcriptions
+                    {filteredSubscriptions.length > 0 && filteredSubscriptions
                       .filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd'))
                       .slice(0, 2)
                       .map((subscribe) => (
@@ -334,9 +342,9 @@ export default function Calendar({subcriptions}) {
                           title={subscribe.title}
                         />
                       ))}
-                    {subscribes.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length > 2 && (
+                    {filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length > 2 && (
                       <span className="mx-0.5 text-gray-500 text-xs font-normal">
-                        +{subscribes.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length - 2}
+                        +{filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length - 2}
                       </span>
                     )}
                   </div>
@@ -349,7 +357,7 @@ export default function Calendar({subcriptions}) {
 
       <div className="px-4 py-10 sm:px-6">
         <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black ring-opacity-5">
-          {subcriptions
+          {filteredSubscriptions.length > 0 && filteredSubscriptions
             .filter((subscribe) => String(subscribe.billingDay) === format(selectedDay, 'dd'))
             .map((subscribe) => (
               <li key={subscribe.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
@@ -357,7 +365,7 @@ export default function Calendar({subcriptions}) {
                   <p className="font-semibold text-gray-900">{subscribe.title}</p>
                   <time dateTime={subscribe.datetime} className="mt-2 flex items-center text-gray-700">
                     <ClockIcon className="mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                    {subscribe.startDatetime}
+                    {capitalizeFirstLetter(format(firstDayCurrentMonth, 'MMMM yyyy', { locale }))}
                   </time>
                 </div>
                 <a
