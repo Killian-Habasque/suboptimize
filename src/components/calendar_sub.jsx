@@ -13,16 +13,6 @@ import { useEffect, useState } from 'react'
 import { addSubscription, filterSubscriptionsByMonth, getSubscriptions } from "../services/subscriptionService";
 
 const locale = fr;
-// const subscribes = [
-//   { id: 4, name: 'Logoden biniou', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '22', term: 'monthly', href: '#' },
-//   { id: 5, name: 'Degemer mat', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '09', term: 'monthly', href: '#' },
-//   { id: 6, name: 'Penn ar bed', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-//   { id: 7, name: 'Plouz holl', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-//   { id: 8, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-//   { id: 9, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-//   { id: 10, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-//   { id: 11, name: 'Ruz sistr', startDatetime: '2021-12-22', endDatetime: '2026-12-22', billingDay: '12', term: 'monthly', href: '#' },
-// ]
 
 function capitalizeFirstLetter(string) {
   if (!string) return '';
@@ -38,31 +28,78 @@ export default function Calendar({ subscriptions }) {
   let today = startOfToday()
   let [selectedDay, setSelectedDay] = useState(format(today, 'yyyy-MM-dd'))
   let [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy'))
+  // let [currentWeek, setCurrentWeek] = useState(format(today, 'MMM-yyyy'))
   let firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', new Date())
+  let [viewMode, setViewMode] = useState('month');
   const [filteredSubscriptions, setFilteredSubscriptions] = useState([]);
+  const [newDays, setNewDays] = useState([]);
 
-  let days = eachDayOfInterval({
-    start: startOfWeek(startOfMonth(firstDayCurrentMonth)),
-    end: endOfWeek(endOfMonth(firstDayCurrentMonth))
-  })
-  let newDays = days.map((day) => format(day, 'yyyy-MM-dd'));
+  function generateDays() {
+    if (viewMode === 'day') {
+      return [format(selectedDay, 'yyyy-MM-dd')];
+    } else if (viewMode === 'week') {
+      return eachDayOfInterval({
+        start: startOfWeek(selectedDay),
+        end: endOfWeek(selectedDay),
+      }).map((day) => format(day, 'yyyy-MM-dd'));
+    } else if (viewMode === 'month') {
+      return eachDayOfInterval({
+        start: startOfWeek(startOfMonth(firstDayCurrentMonth)),
+        end: endOfWeek(endOfMonth(firstDayCurrentMonth)),
+      }).map((day) => format(day, 'yyyy-MM-dd'));
+    }
+    return [];
+  }
 
-  function nextMonth() {
-    let firstDayNextMonth = add(firstDayCurrentMonth, { months: 1 })
-    setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'))
-  }
-  function previousMonth() {
-    let firstDayPreviousMonth = add(firstDayCurrentMonth, { months: -1 })
-    setCurrentMonth(format(firstDayPreviousMonth, 'MMM-yyyy'))
-  }
-  function resetMonth() {
-    setCurrentMonth(format(today, 'MMM-yyyy'))
-  }
 
+  function nextPeriod() {
+    if (viewMode === 'month') {
+      let firstDayNextMonth = add(firstDayCurrentMonth, { months: 1 });
+      setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'));
+    } else if (viewMode === 'week') {
+      let startOfNextWeek = add(parse(selectedDay, 'yyyy-MM-dd', new Date()), { weeks: 1 });
+      setSelectedDay(format(startOfNextWeek, 'yyyy-MM-dd'));
+    } else if (viewMode === 'day') {
+      let nextDay = add(parse(selectedDay, 'yyyy-MM-dd', new Date()), { days: 1 });
+      setSelectedDay(format(nextDay, 'yyyy-MM-dd'));
+    }
+  }
+  
+  function previousPeriod() {
+    if (viewMode === 'month') {
+      let firstDayPreviousMonth = add(firstDayCurrentMonth, { months: -1 });
+      setCurrentMonth(format(firstDayPreviousMonth, 'MMM-yyyy'));
+    } else if (viewMode === 'week') {
+      let startOfPreviousWeek = add(parse(selectedDay, 'yyyy-MM-dd', new Date()), { weeks: -1 });
+      setSelectedDay(format(startOfPreviousWeek, 'yyyy-MM-dd'));
+    } else if (viewMode === 'day') {
+      let previousDay = add(parse(selectedDay, 'yyyy-MM-dd', new Date()), { days: -1 });
+      setSelectedDay(format(previousDay, 'yyyy-MM-dd'));
+    }
+  }
+  function resetPeriod() {
+    if (viewMode === 'month') {
+      setCurrentMonth(format(today, 'MMM-yyyy'));
+    } else if (viewMode === 'week') {
+      setSelectedDay(format(today, 'yyyy-MM-dd'));
+    } else {
+      setSelectedDay(format(today, 'yyyy-MM-dd'));
+    }
+  }
   useEffect(() => {
     const sortedSubscriptions = filterSubscriptionsByMonth(subscriptions, currentMonth);
     setFilteredSubscriptions(sortedSubscriptions);
   }, [subscriptions, currentMonth]);
+  
+  useEffect(() => {
+    const days = generateDays();
+    setNewDays(days);
+  }, [viewMode, currentMonth, selectedDay]);
+
+  const weekDaysHeader = newDays.slice(0, 7).map((day) => ({
+    label: format(parse(day, "yyyy-MM-dd", new Date()), "EEEE", { locale }),
+    date: day,
+  }));
 
   return (
     <div className="lg:flex lg:h-full lg:flex-col">
@@ -73,15 +110,15 @@ export default function Calendar({ subscriptions }) {
         <div className="flex items-center">
           <div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
             <button
-              onClick={previousMonth}
+              onClick={previousPeriod}
               type="button"
               className="flex h-9 w-12 items-center justify-center rounded-l-md border-y border-l border-gray-300 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50"
             >
-              <span className="sr-only">Previous month</span>
+              <span className="sr-only">Previous {viewMode}</span>
               <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
             </button>
             <button
-              onClick={resetMonth}
+              onClick={resetPeriod}
               type="button"
               className="hidden border-y border-gray-300 px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block"
             >
@@ -89,62 +126,36 @@ export default function Calendar({ subscriptions }) {
             </button>
             <span className="relative -mx-px h-5 w-px bg-gray-300 md:hidden" />
             <button
-              onClick={nextMonth}
+              onClick={nextPeriod}
               type="button"
               className="flex h-9 w-12 items-center justify-center rounded-r-md border-y border-r border-gray-300 pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50"
             >
-              <span className="sr-only">Next month</span>
+              <span className="sr-only">Next {viewMode}</span>
               <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
           <div className="hidden md:ml-4 md:flex md:items-center">
             <Menu as="div" className="relative">
-              <MenuButton
-                type="button"
-                className="flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-              >
-                Month view
+              <MenuButton className="flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                {capitalizeFirstLetter(viewMode)} view
                 <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
               </MenuButton>
-
-              <MenuItems
-                transition
-                className="absolute right-0 z-10 mt-3 w-36 origin-top-right overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-              >
-                <div className="py-1">
-                  <MenuItem>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
-                    >
-                      Day view
-                    </a>
+              <MenuItems className="absolute right-0 mt-2 w-32 origin-top-right bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                {['day', 'week', 'month'].map((mode) => (
+                  <MenuItem key={mode}>
+                    {({ active }) => (
+                      <button
+                        onClick={() => setViewMode(mode)}
+                        className={classNames(
+                          active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                          'w-full block px-4 py-2 text-sm'
+                        )}
+                      >
+                        {capitalizeFirstLetter(mode)} view
+                      </button>
+                    )}
                   </MenuItem>
-                  <MenuItem>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
-                    >
-                      Week view
-                    </a>
-                  </MenuItem>
-                  <MenuItem>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
-                    >
-                      Month view
-                    </a>
-                  </MenuItem>
-                  <MenuItem>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900"
-                    >
-                      Year view
-                    </a>
-                  </MenuItem>
-                </div>
+                ))}
               </MenuItems>
             </Menu>
             <div className="ml-6 h-6 w-px bg-gray-300" />
@@ -225,27 +236,16 @@ export default function Calendar({ subscriptions }) {
       </header>
       <div className="shadow ring-1 ring-black ring-opacity-5 lg:flex lg:flex-auto lg:flex-col">
         <div className="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-200 text-center text-xs font-semibold leading-6 text-gray-700 lg:flex-none">
-          <div className="bg-white py-2">
-            L<span className="sr-only sm:not-sr-only">undi</span>
-          </div>
-          <div className="bg-white py-2">
-            M<span className="sr-only sm:not-sr-only">ardi</span>
-          </div>
-          <div className="bg-white py-2">
-            M<span className="sr-only sm:not-sr-only">ercredi</span>
-          </div>
-          <div className="bg-white py-2">
-            J<span className="sr-only sm:not-sr-only">eudi</span>
-          </div>
-          <div className="bg-white py-2">
-            V<span className="sr-only sm:not-sr-only">endredi</span>
-          </div>
-          <div className="bg-white py-2">
-            S<span className="sr-only sm:not-sr-only">amedi</span>
-          </div>
-          <div className="bg-white py-2">
-            D<span className="sr-only sm:not-sr-only">imanche</span>
-          </div>
+          {weekDaysHeader.map(({ label }) => (
+            <div key={label} className="bg-white py-2">
+              <span>
+                {label.charAt(0)}
+                <span className="sr-only sm:not-sr-only">
+                  {label.slice(1)}
+                </span>
+              </span>
+            </div>
+          ))}
         </div>
         <div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
           <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
