@@ -10,4 +10,6 @@
     --color-secondary-light: #D1E7F3;
     --color-secondary: #A5C4D4;
     --color-secondary-dark: #8499B1;
+
+    --max-width-custom: 1400px;
   }

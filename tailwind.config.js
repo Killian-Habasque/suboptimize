@@ -18,8 +18,15 @@ export default {
           dark: 'var(--color-secondary-dark)',
         },
       },
+      maxWidth: {
+        custom: 'var(--max-width-custom)',
+      },
     },
   },
+  safelist: [
+    { pattern: /grid-cols-\d/, variants: ['lg'] },
+    { pattern: /col-span-\d/, variants: ['lg'] },
+  ],
   plugins: [
     require('@tailwindcss/forms'),
   ],

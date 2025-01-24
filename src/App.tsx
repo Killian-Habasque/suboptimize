@@ -4,7 +4,7 @@ import RouterService from "./services/routerService.js";
 function App() {
   return (
     <AuthProvider>
-      <div className="w-full h-screen flex flex-col">
+      <div className="w-full h-screen flex flex-col min-h-full">
         <RouterService />
       </div>
     </AuthProvider>
