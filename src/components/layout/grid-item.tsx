@@ -10,11 +10,7 @@ function GridItem({ children, colSpan = 1 }: GridItemProps) {
 
     return (
         <div className={itemClass}>
-            <div className="overflow-hidden rounded-lg bg-white shadow">
-                <div className="p-6">
-                    {children}
-                </div>
-            </div>
+            {children}
         </div>
     );
 }

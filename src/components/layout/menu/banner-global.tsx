@@ -11,8 +11,8 @@ import {
 } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
-import { classNames } from '../../services/utils'
-import { useAuth } from '../../contexts/authContext'
+import { classNames } from '../../../services/utils'
+import { useAuth } from '../../../contexts/authContext'
 
 
 const user = {
