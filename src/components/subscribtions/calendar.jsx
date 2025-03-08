@@ -274,12 +274,12 @@ export default function Calendar() {
                         <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.name}
                         </p>
-                        <time
+                        {/* <time
                           dateTime={subscribe.startDatetime}
                           className="ml-3 hidden flex-none font-medium text-gray-500 group-hover:text-indigo-600 xl:block"
                         >
                           {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
-                        </time>
+                        </time> */}
                       </a>
                     </li>
                   ))}
