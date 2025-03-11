@@ -5,6 +5,7 @@ import Home from "../pages/home";
 import CalendarPage from "../pages/calendar";
 import Template from "../pages/template";
 import AddSubscription from "../pages/subscription/add";
+import Subscriptions from "../pages/subscriptions";
 
 /**
  * RouterService - Centralized route definition for the application.
@@ -39,7 +40,11 @@ const RouterService = () => {
     {
       path: "/subscribtion/add",
       element: <AddSubscription />,
-    }
+    },
+    {
+      path: "/abonnements",
+      element: <Subscriptions />,
+    },
   ];
 
   return useRoutes(routesArray);
