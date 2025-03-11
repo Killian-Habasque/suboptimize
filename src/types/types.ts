@@ -6,3 +6,15 @@ export interface Subscription {
     endDatetime: string;
     billingDay: number;
 }
+
+export interface Brand {
+    id: string;
+    name: string;
+    slug: string;
+}
+
+export interface Category {
+    id: string;
+    title: string;
+    slug: string;
+}

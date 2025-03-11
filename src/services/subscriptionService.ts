@@ -8,7 +8,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { Subscription } from "../types/types";
+import { Brand, Category, Subscription } from "../types/types";
 import { parse } from 'date-fns';
 
 export const getSubscriptions = async (userId: string): Promise<Subscription[]> => {
@@ -33,9 +33,12 @@ export const getSubscriptions = async (userId: string): Promise<Subscription[]> 
 
 export const addSubscription = async (
   title: string,
-  startDatetime: Date,
-  endDatetime: Date,
-  billingDay: number
+  dueDate: Date,
+  endDate: Date,
+  price: number,
+  category: Category[],
+  brand: Brand[],
+  isPublic: boolean
 ) => {
   if (!auth.currentUser) {
     throw new Error("Aucun utilisateur connecté.");
@@ -48,11 +51,15 @@ export const addSubscription = async (
   await addDoc(subscriptionsRef, {
     userId: uid,
     title,
-    startDatetime: startDatetime.toISOString(),
-    endDatetime: endDatetime.toISOString(),
-    billingDay,
+    endDate: endDate.toISOString(),
+    dueDate,
+    price,
     createdAt: serverTimestamp(),
+    category: category[0],
+    brand: brand[0],
+    isPublic
   });
+
 
   console.log("Abonnement ajouté avec succès !");
 };

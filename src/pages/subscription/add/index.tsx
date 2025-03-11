@@ -1,38 +1,52 @@
 import { useState } from 'react'
-import { Navigate, Link } from 'react-router-dom'
-import { doSignInWithEmailAndPassword, doSignInWithGoogle } from '../../../services/authService'
-import { useAuth } from '../../../contexts/authContext'
+import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/react'
+import { addSubscription } from "../../../services/subscriptionService";
+import { Category, Brand } from "../../../types/types";
 
 const AddSubscription = () => {
-    const { userLoggedIn } = useAuth()
-
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [isSigningIn, setIsSigningIn] = useState(false)
+    const [title, setTitle] = useState('')
+    const [dueType, setDueType] = useState('annuel')
+    const [endDate, setEndDate] = useState(new Date())
+    const [dueDate, setDueDate] = useState(new Date())
+    const [price, setPrice] = useState(0)
+    const [category, setCategory] = useState<Category | null>(null)
+    const [brand, setBrand] = useState<Brand | null>(null)
+    const [isPublic, setIsPublic] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
+    const [isSigningIn, setIsSigningIn] = useState(false)
 
-    const onSubmit = async (e) => {
+    const categories: Category[] = [
+        { id: '1', title: 'Téléphone', slug: 'telephone' },
+        { id: '2', title: 'Internet', slug: 'internet' }
+    ];
+    
+    const brands: Brand[] = [
+        { id: '1', name: 'Orange', slug: 'orange' },
+        { id: '2', name: 'Bouygues', slug: 'bouygues' }
+    ];
+
+    const onSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault()
-        if(!isSigningIn) {
-            setIsSigningIn(true)
-            await doSignInWithEmailAndPassword(email, password)
-            // doSendEmailVerification()
+        setIsSigningIn(true)
+        try {
+            await addSubscription(
+                title,
+                dueDate,
+                endDate,
+                price,
+                category ? [category] : [],
+                brand ? [brand] : [],
+                isPublic
+            );
+        } catch (error) {
+            setErrorMessage('Une erreur est survenue lors de l\'ajout de l\'abonnement.')
+        } finally {
+            setIsSigningIn(false)
         }
     }
 
-    // const onGoogleSignIn = (e) => {
-    //     e.preventDefault()
-    //     if (!isSigningIn) {
-    //         setIsSigningIn(true)
-    //         doSignInWithGoogle().catch(err => {
-    //             setIsSigningIn(false)
-    //         })
-    //     }
-    // }
-
     return (
         <div>
-
             <main className="w-full h-screen flex self-center place-content-center place-items-center">
                 <div className="w-96 text-gray-600 space-y-5 p-4 shadow-xl border rounded-xl">
                     <div className="text-center">
@@ -46,29 +60,121 @@ const AddSubscription = () => {
                     >
                         <div>
                             <label className="text-sm text-gray-600 font-bold">
-                                Email
+                                Titre
                             </label>
                             <input
-                                type="email"
-                                autoComplete='email'
+                                type="text"
                                 required
-                                value={email} onChange={(e) => { setEmail(e.target.value) }}
+                                value={title} onChange={(e) => { setTitle(e.target.value) }}
                                 className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
                             />
                         </div>
 
+                        <div>
+                            <label className="text-sm text-gray-600 font-bold">
+                                Type d'échéance
+                            </label>
+                            <select
+                                required
+                                value={dueType} onChange={(e) => { setDueType(e.target.value) }}
+                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                            >
+                                <option value="annuel">Annuel</option>
+                                <option value="mensuel">Mensuel</option>
+                            </select>
+                        </div>
 
                         <div>
                             <label className="text-sm text-gray-600 font-bold">
-                                Password
+                                Date de fin d'abonnement
                             </label>
                             <input
-                                type="password"
-                                autoComplete='current-password'
+                                type="date"
                                 required
-                                value={password} onChange={(e) => { setPassword(e.target.value) }}
+                                value={endDate.toISOString().split('T')[0]} onChange={(e) => { setEndDate(new Date(e.target.value)) }}
                                 className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
                             />
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-gray-600 font-bold">
+                                Date d'échéance
+                            </label>
+                            <input
+                                type="date"
+                                required
+                                value={dueDate.toISOString().split('T')[0]} onChange={(e) => { setDueDate(new Date(e.target.value)) }}
+                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-gray-600 font-bold">
+                                Prix
+                            </label>
+                            <input
+                                type="number"
+                                required
+                                value={price} onChange={(e) => { setPrice(parseFloat(e.target.value)) }}
+                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-gray-600 font-bold">
+                                Catégories
+                            </label>
+                            <Combobox value={category} onChange={setCategory}>
+                                <div className="relative mt-2">
+                                    <ComboboxInput
+                                        className="w-full px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                                        displayValue={(cat: Category | null) => cat ? cat.title : ''}
+                                        onChange={(event) => setCategory(categories.find(c => c.title.toLowerCase().includes(event.target.value.toLowerCase())) || null)}
+                                        placeholder="Rechercher une catégorie..."
+                                    />
+                                    <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-40 overflow-y-auto">
+                                        {categories.filter(cat => cat.title.toLowerCase().includes((category?.title || '').toLowerCase())).map((cat, index) => (
+                                            <ComboboxOption key={index} value={cat} className={({ active }) => `cursor-default select-none relative px-4 py-2 ${active ? 'bg-indigo-600 text-white' : 'text-gray-900'}`}>
+                                                {cat.title}
+                                            </ComboboxOption>
+                                        ))}
+                                    </ComboboxOptions>
+                                </div>
+                            </Combobox>
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-gray-600 font-bold">
+                                Marque
+                            </label>
+                            <Combobox value={brand} onChange={setBrand}>
+                                <div className="relative mt-2">
+                                    <ComboboxInput
+                                        className="w-full px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                                        displayValue={(br: Brand | null) => br ? br.name : ''}
+                                        onChange={(event) => setBrand(brands.find(b => b.name.toLowerCase().includes(event.target.value.toLowerCase())) || null)}
+                                        placeholder="Rechercher une marque..."
+                                    />
+                                    <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-40 overflow-y-auto">
+                                        {brands.filter(br => br.name.toLowerCase().includes((brand?.name || '').toLowerCase())).map((br, index) => (
+                                            <ComboboxOption key={index} value={br} className={({ active }) => `cursor-default select-none relative px-4 py-2 ${active ? 'bg-indigo-600 text-white' : 'text-gray-900'}`}>
+                                                {br.name}
+                                            </ComboboxOption>
+                                        ))}
+                                    </ComboboxOptions>
+                                </div>
+                            </Combobox>
+                        </div>
+
+                        <div>
+                            <label className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={isPublic} onChange={(e) => { setIsPublic(e.target.checked) }}
+                                    className="mr-2"
+                                />
+                                Partager en public
+                            </label>
                         </div>
 
                         {errorMessage && (
@@ -83,7 +189,6 @@ const AddSubscription = () => {
                             {isSigningIn ? 'Signing In...' : 'Sign In'}
                         </button>
                     </form>
-
                 </div>
             </main>
         </div>
