@@ -1,5 +1,5 @@
 import { useAuth } from '../../contexts/authContext'
-import Calendar from '../../components/calendar.jsx'
+import Calendar from '../../components/subscribtions/calendar.jsx'
 
 const CalendarPage = () => {
     const { currentUser } = useAuth()

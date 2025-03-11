@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    --color-primary-light: #7B6D8D;
+    --color-primary: #4E3F62;
+    --color-primary-dark: #3B3346;
+  
+    --color-secondary-light: #D1E7F3;
+    --color-secondary: #A5C4D4;
+    --color-secondary-dark: #8499B1;
+
+    --max-width-custom: 1400px;
+  }

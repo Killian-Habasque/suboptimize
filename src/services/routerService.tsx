@@ -3,6 +3,8 @@ import Login from "../pages/auth/login";
 import Register from "../pages/auth/register";
 import Home from "../pages/home";
 import CalendarPage from "../pages/calendar";
+import Template from "../pages/template";
+import AddSubscription from "../pages/subscription/add";
 import Subscriptions from "../pages/subscriptions";
 
 /**
@@ -30,6 +32,14 @@ const RouterService = () => {
     {
       path: "/calendrier",
       element: <CalendarPage />,
+    },
+    {
+      path: "/template",
+      element: <Template />,
+    },
+    {
+      path: "/subscribtion/add",
+      element: <AddSubscription />,
     },
     {
       path: "/abonnements",

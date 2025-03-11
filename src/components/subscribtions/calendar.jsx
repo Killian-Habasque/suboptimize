@@ -141,7 +141,7 @@ export default function Calendar() {
             <div className="ml-6 h-6 w-px bg-gray-300" />
             <button
               type="button"
-              className="ml-6 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="ml-6 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               Add event
             </button>
@@ -258,7 +258,7 @@ export default function Calendar() {
                   dateTime={format(day, 'yyyy-MM-dd')}
                   className={classNames(
                     'flex h-6 w-6 items-center justify-center rounded-full',
-                    isEqual(day, selectedDay) && isToday(day) && 'bg-indigo-600 text-white',
+                    isEqual(day, selectedDay) && isToday(day) && 'bg-primary text-white',
                     isEqual(day, selectedDay) && !isToday(day) && 'bg-gray-900 text-white',
                     'ml-auto',
                   )}
@@ -274,12 +274,12 @@ export default function Calendar() {
                         <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.name}
                         </p>
-                        <time
+                        {/* <time
                           dateTime={subscribe.startDatetime}
                           className="ml-3 hidden flex-none font-medium text-gray-500 group-hover:text-indigo-600 xl:block"
                         >
                           {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
-                        </time>
+                        </time> */}
                       </a>
                     </li>
                   ))}
@@ -311,7 +311,7 @@ export default function Calendar() {
                   dateTime={day}
                   className={classNames(
                     'flex h-6 w-6 items-center justify-center rounded-full',
-                    isEqual(day, selectedDay) && isToday(day) && 'bg-indigo-600 text-white',
+                    isEqual(day, selectedDay) && isToday(day) && 'bg-primary text-white',
                     isEqual(day, selectedDay) && !isToday(day) && 'bg-gray-900 text-white',
                     'ml-auto',
                   )}
