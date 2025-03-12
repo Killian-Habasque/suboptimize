@@ -18,3 +18,17 @@ export interface Category {
     title: string;
     slug: string;
 }
+export interface Offer {
+    name: string;
+    slug: string;
+    description: string;
+    imageLink: string;
+    promoCode: string;
+    price: string;
+    normalPrice: string;
+    expirationDate: string;
+    rankingScore: string;
+    category: Category[];
+    brand: Brand[];
+    userid: string;
+}

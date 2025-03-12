@@ -10,7 +10,7 @@ import { add, addDays, eachDayOfInterval, endOfMonth, endOfWeek, format, isEqual
 import { fr } from 'date-fns/locale';
 import { useEffect, useState } from 'react'
 
-import { addSubscription, filterSubscriptionsByMonth, getSubscriptions } from "../services/subscriptionService";
+import { filterSubscriptionsByMonth } from "../services/subscriptionService";
 
 const locale = fr;
 
