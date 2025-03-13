@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/react'
-import { addSubscription } from "../../../services/subscriptionService";
-import { Category, Brand } from "../../../types/types";
+import { add_Subscription } from "../../../services/subscriptionService";
+import { Category, Company, Offer } from "../../../types/types";
+import { get_all_Offers } from "../../../services/offerService";
 
 const AddSubscription = () => {
     const [title, setTitle] = useState('')
@@ -10,32 +11,47 @@ const AddSubscription = () => {
     const [dueDate, setDueDate] = useState(new Date())
     const [price, setPrice] = useState(0)
     const [category, setCategory] = useState<Category | null>(null)
-    const [brand, setBrand] = useState<Brand | null>(null)
+    const [company, setCompany] = useState<Company | null>(null)
     const [isPublic, setIsPublic] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
     const [isSigningIn, setIsSigningIn] = useState(false)
+    const [offers, setOffers] = useState<Offer[]>([])
+    const [offer, setOffer] = useState<Offer | null>(null)
 
     const categories: Category[] = [
         { id: '1', title: 'Téléphone', slug: 'telephone' },
         { id: '2', title: 'Internet', slug: 'internet' }
     ];
-    
-    const brands: Brand[] = [
+
+    const companies: Company[] = [
         { id: '1', name: 'Orange', slug: 'orange' },
         { id: '2', name: 'Bouygues', slug: 'bouygues' }
     ];
+
+    useEffect(() => {
+        const fetchOffers = async () => {
+            try {
+                const data = await get_all_Offers();
+                setOffers(data);
+            } catch (error) {
+                console.error('Error fetching offers:', error);
+            }
+        };
+
+        fetchOffers();
+    }, []);
 
     const onSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault()
         setIsSigningIn(true)
         try {
-            await addSubscription(
+            await add_Subscription(
                 title,
                 dueDate,
                 endDate,
                 price,
                 category ? [category] : [],
-                brand ? [brand] : [],
+                company ? [company] : [],
                 isPublic
             );
         } catch (error) {
@@ -58,6 +74,29 @@ const AddSubscription = () => {
                         onSubmit={onSubmit}
                         className="space-y-5"
                     >
+                        <div>
+                            <label className="text-sm text-gray-600 font-bold">
+                                Offres
+                            </label>
+                            <Combobox value={offer} onChange={setOffer}>
+                                <div className="relative mt-2">
+                                    <ComboboxInput
+                                        className="w-full px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                                        displayValue={(offer: Offer | null) => offer ? offer.name : ''}
+                                        onChange={(event) => setOffer(offers.find(o => o.name.toLowerCase().includes(event.target.value.toLowerCase())) || null)}
+                                        placeholder="Rechercher une offre..."
+                                    />
+                                    <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-40 overflow-y-auto">
+                                        {offers.filter(o => o && o.name && o.name.toLowerCase().includes((offer?.name || '').toLowerCase())).map((o, index) => (
+                                            <ComboboxOption key={index} value={o} className={({ active }) => `cursor-default select-none relative px-4 py-2 ${active ? 'bg-indigo-600 text-white' : 'text-gray-900'}`}>
+                                                {o.name}
+                                            </ComboboxOption>
+                                        ))}
+                                    </ComboboxOptions>
+                                </div>
+                            </Combobox>
+                        </div>
+
                         <div>
                             <label className="text-sm text-gray-600 font-bold">
                                 Titre
@@ -147,16 +186,16 @@ const AddSubscription = () => {
                             <label className="text-sm text-gray-600 font-bold">
                                 Marque
                             </label>
-                            <Combobox value={brand} onChange={setBrand}>
+                            <Combobox value={company} onChange={setCompany}>
                                 <div className="relative mt-2">
                                     <ComboboxInput
                                         className="w-full px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
-                                        displayValue={(br: Brand | null) => br ? br.name : ''}
-                                        onChange={(event) => setBrand(brands.find(b => b.name.toLowerCase().includes(event.target.value.toLowerCase())) || null)}
+                                        displayValue={(br: Company | null) => br ? br.name : ''}
+                                        onChange={(event) => setCompany(companies.find(b => b.name.toLowerCase().includes(event.target.value.toLowerCase())) || null)}
                                         placeholder="Rechercher une marque..."
                                     />
                                     <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-40 overflow-y-auto">
-                                        {brands.filter(br => br.name.toLowerCase().includes((brand?.name || '').toLowerCase())).map((br, index) => (
+                                        {companies.filter(br => br.name.toLowerCase().includes((company?.name || '').toLowerCase())).map((br, index) => (
                                             <ComboboxOption key={index} value={br} className={({ active }) => `cursor-default select-none relative px-4 py-2 ${active ? 'bg-indigo-600 text-white' : 'text-gray-900'}`}>
                                                 {br.name}
                                             </ComboboxOption>

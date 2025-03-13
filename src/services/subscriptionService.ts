@@ -8,10 +8,10 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { Brand, Category, Subscription } from "../types/types";
+import { Company, Category, Subscription } from "../types/types";
 import { parse } from 'date-fns';
 
-export const getSubscriptions = async (userId: string): Promise<Subscription[]> => {
+export const get_all_user_Subscriptions = async (userId: string): Promise<Subscription[]> => {
   if (!userId) throw new Error("L'UID de l'utilisateur est requis.");
 
   const subscriptionsRef = collection(db, "subscriptions");
@@ -31,13 +31,13 @@ export const getSubscriptions = async (userId: string): Promise<Subscription[]> 
   });
 };
 
-export const addSubscription = async (
+export const add_Subscription = async (
   title: string,
   dueDate: Date,
   endDate: Date,
   price: number,
   category: Category[],
-  brand: Brand[],
+  company: Company[],
   isPublic: boolean
 ) => {
   if (!auth.currentUser) {
@@ -56,7 +56,7 @@ export const addSubscription = async (
     price,
     createdAt: serverTimestamp(),
     category: category[0],
-    brand: brand[0],
+    company: company[0],
     isPublic
   });
 
@@ -64,25 +64,7 @@ export const addSubscription = async (
   console.log("Abonnement ajouté avec succès !");
 };
 
-// export const filterSubscriptionsByMonth = (
-//     subscriptions: Subscription[],
-//     targetMonth: number
-// ) => {
-//     const currentYear = new Date().getFullYear();
-//     return subscriptions.filter((sub) => {
-//         const startDate = new Date(sub.startDatetime);
-//         const endDate = new Date(sub.endDatetime);
-//         const billingDate = new Date(currentYear, targetMonth - 1, sub.billingDay);
-
-//         return (
-//             billingDate >= startDate &&
-//             billingDate <= endDate &&
-//             billingDate.getMonth() === targetMonth - 1
-//         );
-//     });
-// };
-
-export const filterSubscriptionsByMonth = (
+export const filter_Subscriptions_by_month = (
     subscriptions: Subscription[],
     targetMonthYear: string 
 ) => {

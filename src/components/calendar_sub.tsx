@@ -9,7 +9,7 @@ import { eachDayOfInterval, endOfMonth, endOfWeek, format, isEqual, isSameMonth,
 import { fr } from 'date-fns/locale';
 import { useEffect, useMemo, useState } from 'react'
 
-import { filterSubscriptionsByMonth } from "../services/subscriptionService";
+import { filter_Subscriptions_by_month } from "../services/subscriptionService";
 import { Subscription } from '../types/types';
 import { capitalizeFirstLetter, classNames } from '../services/utils';
 
@@ -26,7 +26,6 @@ export default function Calendar({ subscriptions }: CalendarProps) {
   let firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', new Date());
   let [viewMode, setViewMode] = useState<string>('month');
   const [filteredSubscriptions, setFilteredSubscriptions] = useState<Subscription[]>([]);
-  const [newDays, setNewDays] = useState<string[]>([]);
 
   const generateDays = useMemo(() => {
     if (viewMode === 'day') {
@@ -45,14 +44,12 @@ export default function Calendar({ subscriptions }: CalendarProps) {
     return [];
   }, [viewMode, selectedDay, firstDayCurrentMonth]);
 
+  const newDays = useMemo(() => generateDays, [generateDays]);
+  
   useEffect(() => {
-    const sortedSubscriptions = filterSubscriptionsByMonth(subscriptions, currentMonth);
+    const sortedSubscriptions = filter_Subscriptions_by_month(subscriptions, currentMonth);
     setFilteredSubscriptions(sortedSubscriptions);
   }, [subscriptions, currentMonth]);
-
-  useEffect(() => {
-    setNewDays(generateDays);
-  }, [generateDays]);
 
   const weekDaysHeader = newDays.slice(0, 7).map((day) => ({
     label: format(parse(day, "yyyy-MM-dd", new Date()), "EEEE", { locale }),

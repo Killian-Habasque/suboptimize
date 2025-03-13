@@ -7,7 +7,7 @@ export interface Subscription {
     billingDay: number;
 }
 
-export interface Brand {
+export interface Company {
     id: string;
     name: string;
     slug: string;
@@ -18,17 +18,46 @@ export interface Category {
     title: string;
     slug: string;
 }
+
+
+export interface Subscription2 {
+    subId: string;
+    title: string;
+    slug: string;
+    dueType: string;
+    dueDay: number;
+    startDatetime: string;
+    endDatetime: string;
+    userId: string;
+    category?: Category[];
+    company?: Company[];
+    offerId?: string;
+}
+
+
+
 export interface Offer {
     name: string;
     slug: string;
-    description: string;
-    imageLink: string;
-    promoCode: string;
-    price: string;
-    normalPrice: string;
-    expirationDate: string;
-    rankingScore: string;
-    category: Category[];
-    brand: Brand[];
-    userid: string;
+    userId: string;
+    price: number;
+    description?: string;
+    imageLink?: string;
+    promoCode?: string;
+    normalPrice?: string;
+    expirationDate?: string;
+    rankingScore?: string;
+    externalLink?: string;
+    category?: Category[];
+    company?: Company[];
+}
+
+export interface User {
+    pseudo: string;
+    imageLink?: string;
+}
+
+export interface User {
+    pseudo: string;
+    imageLink?: string;
 }

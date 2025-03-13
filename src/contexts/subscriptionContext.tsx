@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { getSubscriptions } from "../services/subscriptionService";
+import { get_all_user_Subscriptions } from "../services/subscriptionService";
 import { Subscription } from "../types/types";
 import { useAuth } from "./authContext";
 
@@ -28,7 +28,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       if (currentUser) {
         try {
           const userId = currentUser.uid;
-          const subs = await getSubscriptions(userId);
+          const subs = await get_all_user_Subscriptions(userId);
           setSubscriptions(subs);
         } catch (error) {
           console.error("Erreur lors de la récupération des abonnements:", error);

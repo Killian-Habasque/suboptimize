@@ -10,7 +10,7 @@ const Header = () => {
         <div className='flex fixed top-0 w-full h-12 border-b place-content-between items-center bg-gray-200 px-10'>
             <nav className='flex flex-row gap-x-2'>
                 <Link className='text-sm text-blue-600 underline' to={'/'}>Accueil</Link>
-                <Link className='text-sm text-blue-600 underline' to={'/calendrier'}>Calendrier</Link>
+                <Link className='text-sm text-blue-600 underline' to={'/subscriptions'}>Calendrier</Link>
             </nav>
             <nav className='flex flex-row gap-x-2'>
                 {
