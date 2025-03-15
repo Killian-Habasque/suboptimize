@@ -14,11 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="h-full bg-gray-100">
+      <body className="h-full">
         <AuthProvider>
           <SubscriptionProvider>
-            {children}
+            <div className="w-full h-screen flex flex-col min-h-full">
+              {children}
+            </div>
           </SubscriptionProvider>
         </AuthProvider>
       </body>
