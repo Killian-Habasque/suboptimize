@@ -1,5 +1,5 @@
-import { auth } from "../config/firebase";
-import { db } from "../config/firebase";
+import { auth } from "@/config/firebase";
+import { db } from "@/config/firebase";
 import {
   collection,
   addDoc,
@@ -8,7 +8,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { Company, Category, Subscription } from "../types/types";
+import { Company, Category, Subscription } from "@/types/types";
 import { parse } from 'date-fns';
 
 export const get_all_user_Subscriptions = async (userId: string): Promise<Subscription[]> => {

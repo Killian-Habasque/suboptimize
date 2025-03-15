@@ -1,11 +1,11 @@
-import { db } from "../config/firebase";
+import { db } from "@/config/firebase";
 import {
     collection,
     getDocs,
     query,
     orderBy,
 } from "firebase/firestore";
-import { Offer } from "../types/types";
+import { Offer } from "@/types/types";
 
 
 export const get_all_Offers = async (): Promise<Offer[]> => {
