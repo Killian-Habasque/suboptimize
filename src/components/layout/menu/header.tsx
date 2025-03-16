@@ -13,6 +13,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { classNames } from '@/services/utils'
 import { useAuth } from '@/contexts/authContext'
 import { doSignOut } from '@/services/authService'
+import Link from 'next/link'
 
 
 const user = {
@@ -237,33 +238,35 @@ const Header = () => {
                             </div>
                         </div>
                         <div className="pb-2 pt-4">
-                            <div className="flex items-center px-5">
-                                <div className="shrink-0">
-                                    <img alt="" src={currentUser ? currentUser.providerData[0].photoURL : user.imageUrl} className="h-10 w-10 rounded-full" />
+                            {currentUser ? (
+                                <div className="flex items-center px-5">
+                                    <div className="shrink-0">
+                                        <img alt="" src={currentUser ? currentUser.providerData[0].photoURL : user.imageUrl} className="h-10 w-10 rounded-full" />
+                                    </div>
+                                    <div className="ml-3 min-w-0 flex-1">
+                                        <div className="truncate text-base font-medium text-gray-800">{currentUser ? currentUser.displayName : ''}</div>
+                                        <div className="truncate text-sm font-medium text-gray-500">  {currentUser ? currentUser.email : ''}</div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="relative ml-auto shrink-0 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    >
+                                        <span className="absolute -inset-1.5" />
+                                        <span className="sr-only">View notifications</span>
+                                        <BellIcon aria-hidden="true" className="h-6 w-6" />
+                                    </button>
                                 </div>
-                                <div className="ml-3 min-w-0 flex-1">
-                                    <div className="truncate text-base font-medium text-gray-800">{user.name}</div>
-                                    <div className="truncate text-sm font-medium text-gray-500">{user.email}</div>
-                                </div>
-                                <button
-                                    type="button"
-                                    className="relative ml-auto shrink-0 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                                >
-                                    <span className="absolute -inset-1.5" />
-                                    <span className="sr-only">View notifications</span>
-                                    <BellIcon aria-hidden="true" className="h-6 w-6" />
-                                </button>
-                            </div>
+                            ) : ''}
                             <div className="mt-3 space-y-1 px-2">
                                 {userNavigation.map((item) => (
-                                    <a
+                                    <Link
                                         key={item.name}
                                         href={item.href}
                                         className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
                                         onClick={item.name === 'Sign out' ? async () => { await doSignOut(); } : undefined}
                                     >
                                         {item.name}
-                                    </a>
+                                    </Link>
                                 ))}
                             </div>
                         </div>

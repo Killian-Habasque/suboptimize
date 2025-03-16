@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { doCreateUserWithEmailAndDisplayName } from "@/services/authService";
@@ -16,6 +16,12 @@ const Register = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const { userLoggedIn } = useAuth();
+
+  useEffect(() => {
+    if (userLoggedIn) {
+      router.push("/");
+    }
+  }, [userLoggedIn, router]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,7 +51,6 @@ const Register = () => {
 
   return (
     <>
-      {userLoggedIn && router.push("/")}
       <main className="w-full h-screen flex items-center justify-center">
         <div className="w-96 text-gray-600 space-y-5 p-4 shadow-xl border border-black/10 rounded-xl">
           <div className="text-center mb-6">

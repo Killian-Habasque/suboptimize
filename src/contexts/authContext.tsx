@@ -4,11 +4,21 @@ import React, { useContext, useState, useEffect, ReactNode } from "react";
 import { auth } from "@/config/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
+interface ProviderData {
+  providerId: string;
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  phoneNumber: string | null;
+  photoURL: string | null;
+}
+
 interface User {
   uid: string;
   email: string | null;
   displayName: string | null;
-  providerData: Array<any>;
+  photoURL: string | null;
+  providerData: Array<ProviderData>;
 }
 
 interface AuthContextType {
