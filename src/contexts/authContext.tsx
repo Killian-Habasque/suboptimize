@@ -4,7 +4,6 @@ import React, { useContext, useState, useEffect, ReactNode } from "react";
 import { auth } from "@/config/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
-// Définir un type pour l'utilisateur
 interface User {
   uid: string;
   email: string | null;
@@ -12,7 +11,6 @@ interface User {
   providerData: Array<any>;
 }
 
-// Définir un type pour le contexte d'authentification
 interface AuthContextType {
   currentUser: User | null;
   userLoggedIn: boolean;
@@ -45,12 +43,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   function initializeUser(user: FirebaseUser | null) {
     if (user) {
-      const { uid, email, displayName, providerData } = user;
+      const { uid, email, displayName, providerData, photoURL } = user;
 
       setCurrentUser({
         uid,
         email,
         displayName,
+        photoURL,
         providerData,
       });
 

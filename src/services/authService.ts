@@ -1,4 +1,5 @@
-import { auth } from "../config/firebase";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { auth, db } from "@/config/firebase";
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -18,11 +19,15 @@ export const doCreateUserWithEmailAndDisplayName = async (
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    await updateProfile(user, {
-        displayName,
-    });
+    await updateProfile(user, { displayName });
 
-    await user.reload();
+    await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email: user.email,
+        displayName,
+        photoURL: null, 
+        createdAt: new Date(),
+    });
 
     return user;
 };
@@ -64,4 +69,13 @@ export const doSendEmailVerification = () => {
     } else {
         throw new Error("No user is currently signed in");
     }
+};
+
+export const updateUserProfileImage = async (photoURL: string) => {
+    if (!auth.currentUser) throw new Error("Aucun utilisateur connecté");
+
+    await updateProfile(auth.currentUser, { photoURL });
+
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    await updateDoc(userRef, { photoURL });
 };
