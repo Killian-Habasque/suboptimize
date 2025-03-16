@@ -40,8 +40,8 @@ export const doSignInWithGoogle = async () => {
     // add user to firestore
 };
 
-export const doSignOut = () => {
-    return auth.signOut();
+export const doSignOut = async () => {
+    await auth.signOut();
 };
 
 export const doPasswordReset = (email: string) => {

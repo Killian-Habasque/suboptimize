@@ -1,4 +1,3 @@
-
 import {
     Menu,
     MenuButton,
@@ -13,6 +12,7 @@ import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { classNames } from '@/services/utils'
 import { useAuth } from '@/contexts/authContext'
+import { doSignOut } from '@/services/authService'
 
 
 const user = {
@@ -87,7 +87,11 @@ const Header = () => {
                             >
                                 {userNavigation.map((item) => (
                                     <MenuItem key={item.name}>
-                                        <a href={item.href} className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100">
+                                        <a
+                                            href={item.href}
+                                            className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+                                            onClick={item.name === 'Sign out' ? async () => { await doSignOut(); } : undefined}
+                                        >
                                             {item.name}
                                         </a>
                                     </MenuItem>
@@ -256,6 +260,7 @@ const Header = () => {
                                         key={item.name}
                                         href={item.href}
                                         className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
+                                        onClick={item.name === 'Sign out' ? async () => { await doSignOut(); } : undefined}
                                     >
                                         {item.name}
                                     </a>
