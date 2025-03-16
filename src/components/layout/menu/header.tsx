@@ -45,7 +45,7 @@ const Header = () => {
             <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:max-w-custom lg:px-8">
                 <div className="relative flex items-center justify-center py-5 lg:justify-between">
                     {/* Logo */}
-                    <div className="absolute left-0 flex-shrink-0 lg:static">
+                    <div className="absolute left-0 shrink-0 lg:static">
                         <a href="#">
                             <span className="sr-only">Your Company</span>
                             <img
@@ -65,7 +65,7 @@ const Header = () => {
                     <div className="hidden lg:ml-4 lg:flex lg:items-center lg:pr-0.5">
                         <button
                             type="button"
-                            className="relative flex-shrink-0 rounded-full p-1 text-indigo-200 hover:bg-white hover:bg-opacity-10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
+                            className="relative shrink-0 rounded-full p-1 text-indigo-200 hover:bg-white/[0] hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
                         >
                             <span className="absolute -inset-1.5" />
                             <span className="sr-only">View notifications</span>
@@ -73,9 +73,9 @@ const Header = () => {
                         </button>
 
                         {/* Profile dropdown */}
-                        <Menu as="div" className="relative ml-4 flex-shrink-0">
+                        <Menu as="div" className="relative ml-4 shrink-0">
                             <div>
-                                <MenuButton className="relative flex rounded-full bg-white text-sm ring-2 ring-white ring-opacity-20 focus:outline-none focus:ring-opacity-100">
+                                <MenuButton className="relative flex rounded-full bg-white text-sm ring-2 ring-white/25 focus:outline-none focus:ring-white/100">
                                     <span className="absolute -inset-1.5" />
                                     <span className="sr-only">Open user menu</span>
                                     <img alt="" src={currentUser ? currentUser.providerData[0].photoURL : user.imageUrl} className="h-8 w-8 rounded-full" />
@@ -83,7 +83,7 @@ const Header = () => {
                             </div>
                             <MenuItems
                                 transition
-                                className="absolute -right-2 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none data-[closed]:data-[leave]:scale-95 data-[closed]:data-[leave]:transform data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-75 data-[leave]:ease-in"
+                                className="absolute -right-2 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/[5%] focus:outline-none data-[closed]:data-[leave]:scale-95 data-[closed]:data-[leave]:transform data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-75 data-[leave]:ease-in"
                             >
                                 {userNavigation.map((item) => (
                                     <MenuItem key={item.name}>
@@ -118,9 +118,9 @@ const Header = () => {
                     </div>
 
                     {/* Menu button */}
-                    <div className="absolute right-0 flex-shrink-0 lg:hidden">
+                    <div className="absolute right-0 shrink-0 lg:hidden">
                         {/* Mobile menu button */}
-                        <PopoverButton className="group relative inline-flex items-center justify-center rounded-md bg-transparent p-2 text-indigo-200 hover:bg-white hover:bg-opacity-10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white">
+                        <PopoverButton className="group relative inline-flex items-center justify-center rounded-md bg-transparent p-2 text-indigo-200 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white">
                             <span className="absolute -inset-0.5" />
                             <span className="sr-only">Open main menu</span>
                             <Bars3Icon aria-hidden="true" className="block h-6 w-6 group-data-[open]:hidden" />
@@ -128,7 +128,7 @@ const Header = () => {
                         </PopoverButton>
                     </div>
                 </div>
-                <div className="hidden border-t border-white border-opacity-20 py-5 lg:block">
+                <div className="hidden border-t border-white/25 py-5 lg:block">
                     <div className="grid grid-cols-3 items-center gap-8">
                         <div className="col-span-2">
                             <nav className="flex space-x-4">
@@ -139,7 +139,7 @@ const Header = () => {
                                         aria-current={item.current ? 'page' : undefined}
                                         className={classNames(
                                             item.current ? 'text-white' : 'text-indigo-100',
-                                            'rounded-md bg-white bg-opacity-0 px-3 py-2 text-sm font-medium hover:bg-opacity-10',
+                                            'rounded-md bg-white/0 px-3 py-2 text-sm font-medium hover:bg-white/25',
                                         )}
                                     >
                                         {item.name}
@@ -173,7 +173,7 @@ const Header = () => {
             <div className="lg:hidden">
                 <PopoverBackdrop
                     transition
-                    className="fixed inset-0 z-20 bg-black bg-opacity-25 duration-150 data-[closed]:opacity-0 data-[enter]:ease-out data-[leave]:ease-in"
+                    className="fixed inset-0 z-20 bg-black/25 duration-150 data-[closed]:opacity-0 data-[enter]:ease-out data-[leave]:ease-in"
                 />
 
                 <PopoverPanel
@@ -181,7 +181,7 @@ const Header = () => {
                     transition
                     className="absolute inset-x-0 top-0 z-30 mx-auto w-full max-w-3xl origin-top transform p-2 transition duration-150 data-[closed]:scale-95 data-[closed]:opacity-0 data-[enter]:ease-out data-[leave]:ease-in"
                 >
-                    <div className="divide-y divide-gray-200 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                    <div className="divide-y divide-gray-200 rounded-lg bg-white shadow-lg ring-1 ring-black/[5%]">
                         <div className="pb-2 pt-3">
                             <div className="flex items-center justify-between px-4">
                                 <div>
@@ -234,7 +234,7 @@ const Header = () => {
                         </div>
                         <div className="pb-2 pt-4">
                             <div className="flex items-center px-5">
-                                <div className="flex-shrink-0">
+                                <div className="shrink-0">
                                     <img alt="" src={currentUser ? currentUser.providerData[0].photoURL : user.imageUrl} className="h-10 w-10 rounded-full" />
                                 </div>
                                 <div className="ml-3 min-w-0 flex-1">
@@ -243,7 +243,7 @@ const Header = () => {
                                 </div>
                                 <button
                                     type="button"
-                                    className="relative ml-auto flex-shrink-0 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    className="relative ml-auto shrink-0 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
                                     <span className="absolute -inset-1.5" />
                                     <span className="sr-only">View notifications</span>

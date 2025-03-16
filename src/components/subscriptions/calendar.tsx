@@ -97,7 +97,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                 {capitalizeFirstLetter(viewMode)} view
                                 <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
                             </MenuButton>
-                            <MenuItems className="absolute right-0 mt-2 w-32 origin-top-right bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                            <MenuItems className="absolute right-0 mt-2 w-32 origin-top-right bg-white shadow-lg ring-1 ring-black/[5%]">
                                 {['day', 'week', 'month'].map((mode) => (
                                     <MenuItem key={mode}>
                                         {({ active }) => (
@@ -125,7 +125,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                     </div>
                 </div>
             </header>
-            <div className="shadow ring-1 ring-black ring-opacity-5 lg:flex lg:flex-auto lg:flex-col">
+            <div className="shadow ring-1 ring-black/[5%] lg:flex lg:flex-auto lg:flex-col">
                 <div className="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-200 text-center text-xs font-semibold leading-6 text-gray-700 lg:flex-none">
                     {weekDaysHeader.map(({ label }) => (
                         <div key={label} className="bg-white py-2">
@@ -244,7 +244,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
             </div>
 
             <div className="px-4 py-10 sm:px-6">
-                <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black ring-opacity-5">
+                <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
                     {filteredSubscriptions.length > 0 && filteredSubscriptions
                         .filter((subscribe) => String(subscribe.billingDay) === format(selectedDay, 'dd'))
                         .map((subscribe) => (

@@ -6,6 +6,7 @@ import Container from "@/components/layout/container";
 import Grid from "@/components/layout/grid";
 import GridItem from "@/components/layout/grid-item";
 import Footer from "@/components/layout/menu/footer";
+import Calendar from "@/components/subscriptions/calendar-natif";
 // import Calendar from "@/components/subscriptions/calendar";
 
 export default function Template() {
@@ -16,7 +17,7 @@ export default function Template() {
         <Grid columns={3}>
           <GridItem colSpan={2}>
             <Card>
-              {/* <Calendar /> */}
+              <Calendar />
               test
             </Card>
           </GridItem>

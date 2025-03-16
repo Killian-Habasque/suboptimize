@@ -13,5 +13,6 @@ export default function Home() {
         <Link href="/abonnements/ajouter">Abonnements/ajouter</Link>
       </main>
     </div>
+
   );
 }
