@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { get_all_Offers } from "@/services/offerService";
+import { get_all_Offers } from "@/features/offers/offerService";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);

@@ -1,9 +1,9 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { get_all_user_Subscriptions } from "@/services/subscriptionService";
-import { Subscription } from "@/types/types";
-import { useAuth } from "@/contexts/authContext";
+import { get_all_user_Subscriptions } from "@/features/subscriptions/subscriptionService";
+import { Subscription } from "@/features/types";
+import { useAuth } from "@/features/users/authContext";
 
 interface SubscriptionContextType {
   subscriptions: Subscription[];

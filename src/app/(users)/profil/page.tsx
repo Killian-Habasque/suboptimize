@@ -1,9 +1,9 @@
 "use client";
 
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/features/users/authContext";
 import { useState } from "react";
-import { updateUserProfileImage } from "@/services/authService";
-import withAuth from "@/services/hoc/withAuth";
+import { updateUserProfileImage } from "@/features/users/authService";
+import withAuth from "@/features/users/hoc/withAuth";
 
 const Profil = () => {
     const { currentUser, setCurrentUser } = useAuth();

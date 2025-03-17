@@ -11,8 +11,8 @@ import {
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { classNames } from '@/services/utils'
-import { useAuth } from '@/contexts/authContext'
-import { doSignOut } from '@/services/authService'
+import { useAuth } from '@/features/users/authContext'
+import { doSignOut } from '@/features/users/authService'
 import Link from 'next/link'
 
 

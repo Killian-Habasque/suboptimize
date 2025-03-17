@@ -1,12 +1,12 @@
 "use client"
 
-import Header from "@/components/layout/menu/header";
+import Header from "@/components/navigation/header";
 import Card from "@/components/layout/card";
 import Container from "@/components/layout/container";
 import Grid from "@/components/layout/grid";
 import GridItem from "@/components/layout/grid-item";
-import Footer from "@/components/layout/menu/footer";
-import Calendar from "@/components/subscriptions/calendar-natif";
+import Footer from "@/components/navigation/footer";
+import Calendar from "@/features/subscriptions/components/calendar-natif";
 // import Calendar from "@/components/subscriptions/calendar";
 
 export default function Template() {

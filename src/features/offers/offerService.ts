@@ -9,7 +9,7 @@ import {
     getDoc,
     doc,
 } from "firebase/firestore";
-import { Offer } from "@/types/types";
+import { Offer } from "@/features/types";
 
 export const get_all_Offers = async (page: number, limit: number, lastVisible?: string): Promise<{ offers: Offer[], lastDocId?: string }> => {
     try {

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Offer } from "@/types/types";
+import { Offer } from "@/features/types";
 
 const Offers = () => {
     const [offers, setOffers] = useState<Offer[]>([]);

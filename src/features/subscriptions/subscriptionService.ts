@@ -8,7 +8,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { Company, Category, Subscription } from "@/types/types";
+import { Company, Category, Subscription } from "@/features/types";
 import { parse } from 'date-fns';
 
 export const get_all_user_Subscriptions = async (userId: string): Promise<Subscription[]> => {

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { doCreateUserWithEmailAndDisplayName } from "@/services/authService";
-import withGuest from "@/services/hoc/withGuest";
+import { doCreateUserWithEmailAndDisplayName } from "@/features/users/authService";
+import withGuest from "@/features/users/hoc/withGuest";
 
 const Register = () => {
   const router = useRouter();

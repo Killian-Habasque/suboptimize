@@ -2,7 +2,7 @@
 
 import { useEffect, ComponentType } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/features/users/authContext";
 
 const withGuest = <P extends object>(WrappedComponent: ComponentType<P>) => {
     const GuestComponent = (props: P) => {

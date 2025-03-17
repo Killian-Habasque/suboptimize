@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/react'
-import { add_Subscription } from "@/services/subscriptionService";
-import { Category, Company, Offer } from "@/types/types";
-import { get_all_Offers } from "@/services/offerService";
+import { add_Subscription } from "@/features/subscriptions/subscriptionService";
+import { Category, Company, Offer } from "@/features/types";
+import { get_all_Offers } from "@/features/offers/offerService";
 
 const AddSubscription = () => {
     const [title, setTitle] = useState('')

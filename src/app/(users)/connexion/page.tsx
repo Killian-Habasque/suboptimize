@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { doSignInWithEmailAndPassword, doSignInWithGoogle } from '@/services/authService'
+import { doSignInWithEmailAndPassword, doSignInWithGoogle } from '@/features/users/authService'
 import Link from 'next/link'
-import withGuest from '@/services/hoc/withGuest';
+import withGuest from '@/features/users/hoc/withGuest';
 
 const Login = () => {
     const router = useRouter()

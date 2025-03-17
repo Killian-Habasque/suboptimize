@@ -11,8 +11,8 @@ import { eachDayOfInterval, endOfMonth, endOfWeek, format, isEqual, isSameMonth,
 import { fr } from 'date-fns/locale';
 import { useEffect, useMemo, useState } from 'react'
 
-import { filter_Subscriptions_by_month } from "@/services/subscriptionService";
-import { Subscription } from '@/types/types';
+import { filter_Subscriptions_by_month } from "@/features/subscriptions/subscriptionService";
+import { Subscription } from '@/features/types';
 import { capitalizeFirstLetter, classNames } from '@/services/utils';
 
 const locale = fr;
