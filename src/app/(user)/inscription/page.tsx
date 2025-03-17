@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { doCreateUserWithEmailAndDisplayName } from "@/services/authService";
-import { useAuth } from "@/contexts/authContext";
+import withGuest from "@/services/hoc/withGuest";
 
 const Register = () => {
   const router = useRouter();
@@ -14,14 +14,6 @@ const Register = () => {
   const [pseudo, setPseudo] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  const { userLoggedIn } = useAuth();
-
-  useEffect(() => {
-    if (userLoggedIn) {
-      router.push("/");
-    }
-  }, [userLoggedIn, router]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -133,4 +125,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default withGuest(Register);

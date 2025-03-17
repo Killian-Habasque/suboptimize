@@ -1,7 +1,9 @@
 "use client";
+
 import { useAuth } from "@/contexts/authContext";
 import { useState } from "react";
 import { updateUserProfileImage } from "@/services/authService";
+import withAuth from "@/services/hoc/withAuth";
 
 const Profil = () => {
     const { currentUser, setCurrentUser } = useAuth();
@@ -43,39 +45,33 @@ const Profil = () => {
 
         setUploading(false);
     };
-    console.log(currentUser)
+
     return (
         <div className="text-2xl font-bold pt-14">
-            {currentUser ? (
-                <div>
-                    <h1>Profil de {currentUser.displayName}</h1>
-                    <p>Email: {currentUser.email}</p>
+            <h1>Profil de {currentUser?.displayName}</h1>
+            <p>Email: {currentUser?.email}</p>
 
-                    <img
-                        src={
-                            currentUser.providerData[0].photoURL ||
-                            `https://ui-avatars.com/api/?name=${currentUser.displayName}`
-                        }
-                        alt="Photo de profil"
-                        className="h-32 w-32 rounded-full"
-                    />
+            <img
+                src={
+                    currentUser?.providerData[0].photoURL ||
+                    `https://ui-avatars.com/api/?name=${currentUser?.displayName}`
+                }
+                alt="Photo de profil"
+                className="h-32 w-32 rounded-full"
+            />
 
-                    <div className="mt-4">
-                        <input type="file" accept="image/*" onChange={handleFileChange} />
-                        <button
-                            onClick={handleUpload}
-                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-                            disabled={uploading}
-                        >
-                            {uploading ? "Upload en cours..." : "Mettre à jour la photo"}
-                        </button>
-                    </div>
-                </div>
-            ) : (
-                <p>Aucun utilisateur connecté.</p>
-            )}
+            <div className="mt-4">
+                <input type="file" accept="image/*" onChange={handleFileChange} />
+                <button
+                    onClick={handleUpload}
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                    disabled={uploading}
+                >
+                    {uploading ? "Upload en cours..." : "Mettre à jour la photo"}
+                </button>
+            </div>
         </div>
     );
 };
 
-export default Profil;
+export default withAuth(Profil);

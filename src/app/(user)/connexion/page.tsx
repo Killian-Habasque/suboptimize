@@ -1,25 +1,17 @@
 "use client";
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { doSignInWithEmailAndPassword, doSignInWithGoogle } from '@/services/authService'
-import { useAuth } from '@/contexts/authContext'
 import Link from 'next/link'
+import withGuest from '@/services/hoc/withGuest';
 
 const Login = () => {
-    const { userLoggedIn } = useAuth()
     const router = useRouter()
-
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isSigningIn, setIsSigningIn] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
-
-    useEffect(() => {
-        if (userLoggedIn) {
-            router.push('/')
-        }
-    }, [userLoggedIn, router])
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -129,4 +121,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default withGuest(Login)
