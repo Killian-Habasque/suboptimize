@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react'
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/react'
 import { add_Subscription } from "@/features/subscriptions/subscriptionService";
 import { Category, Company, Offer } from "@/features/types";
-import { get_all_Offers } from "@/features/offers/offerService";
+// import { get_all_Offers } from "@/features/offers/offerService";
+import { debounce } from 'lodash';
+import { addOffer } from '@/features/offers/offerService';
 
 const AddSubscription = () => {
     const [title, setTitle] = useState('')
@@ -19,6 +21,7 @@ const AddSubscription = () => {
     const [isSigningIn, setIsSigningIn] = useState(false)
     const [offers, setOffers] = useState<Offer[]>([])
     const [offer, setOffer] = useState<Offer | null>(null)
+    const [searchTerm, setSearchTerm] = useState('');
 
     const categories: Category[] = [
         { id: '1', title: 'Téléphone', slug: 'telephone' },
@@ -30,18 +33,25 @@ const AddSubscription = () => {
         { id: '2', name: 'Bouygues', slug: 'bouygues' }
     ];
 
-    useEffect(() => {
-        const fetchOffers = async () => {
-            try {
-                const data = await get_all_Offers();
-                setOffers(data);
-            } catch (error) {
-                console.error('Error fetching offers:', error);
-            }
-        };
+    const fetchOffers = async (term: string) => {
+        if (term.length < 3) {
+            setOffers([]);
+            return;
+        }
+        try {
+            const response = await fetch(`/api/offers/search?search=${term}`);
+            const data = await response.json();
+            setOffers(data.offers);
+        } catch (error) {
+            console.error('Error fetching offers:', error);
+        }
+    };
 
-        fetchOffers();
-    }, []);
+    const debouncedFetchOffers = debounce(fetchOffers, 500);
+
+    useEffect(() => {
+        debouncedFetchOffers(searchTerm);
+    }, [searchTerm]);
 
     const onSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault()
@@ -63,6 +73,23 @@ const AddSubscription = () => {
         }
     }
 
+    const offerData = {
+        createdAt: Date.now(),
+        description: "test",
+        name: "Forfait mobile 5G",
+        price: 20,
+        slug: "forfait-mobile-5g",
+        userId: "zuG0b5CE1FX4drRddeatpfE4m2L2"
+    };
+    const onSubmit2 = async (e) => {
+        e.preventDefault();
+        try {
+            await addOffer(offerData);
+            // Traitez le succès (afficher un message, réinitialiser le formulaire, etc.)
+        } catch (error) {
+            console.error("Erreur lors de l'ajout de l'offre :", error);
+        }
+    };
     return (
         <div>
             <main className="w-full h-screen flex self-center place-content-center place-items-center">
@@ -71,6 +98,7 @@ const AddSubscription = () => {
                         <div className="mt-2">
                             <h3 className="text-gray-800 text-xl font-semibold sm:text-2xl">Add subscription</h3>
                         </div>
+                        <button onClick={onSubmit2}>OOOOOOOFFFFEEERS</button>
                     </div>
                     <form
                         onSubmit={onSubmit}
@@ -85,7 +113,10 @@ const AddSubscription = () => {
                                     <ComboboxInput
                                         className="w-full px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
                                         displayValue={(offer: Offer | null) => offer ? offer.name : ''}
-                                        onChange={(event) => setOffer(offers.find(o => o.name.toLowerCase().includes(event.target.value.toLowerCase())) || null)}
+                                        onChange={(event) => {
+                                            setSearchTerm(event.target.value);
+                                            setOffer(null);
+                                        }}
                                         placeholder="Rechercher une offre..."
                                     />
                                     <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-40 overflow-y-auto">
