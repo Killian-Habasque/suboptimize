@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { doSignInWithEmailAndPassword, doSignInWithGoogle } from '@/features/users/authService'
 import Link from 'next/link'
 import withGuest from '@/features/users/hoc/withGuest';
+import { signIn } from "next-auth/react";
 
 const Login = () => {
     const router = useRouter()
@@ -18,11 +19,20 @@ const Login = () => {
         if (!isSigningIn) {
             setIsSigningIn(true)
             try {
-                await doSignInWithEmailAndPassword(email, password)
-                router.push('/')
+                const result = await signIn("credentials", {
+                    redirect: false,
+                    email,
+                    password,
+                });
+                if (result?.error) {
+                    setErrorMessage('Erreur de connexion. Veuillez réessayer.' + result.error);
+                } else {
+                    router.push('/');
+                }
             } catch (error) {
-                setErrorMessage('Erreur de connexion. Veuillez réessayer.' + error)
-                setIsSigningIn(false)
+                setErrorMessage('Erreur de connexion. Veuillez réessayer.' + error);
+            } finally {
+                setIsSigningIn(false);
             }
         }
     }

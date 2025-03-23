@@ -10,30 +10,34 @@ import {
     GoogleAuthProvider,
     updateProfile,
 } from "firebase/auth";
+import { prisma } from "@/prisma/prisma"; // Assurez-vous que le chemin est correct
+import bcrypt from "bcryptjs";
 
 export const doCreateUserWithEmailAndDisplayName = async (
     email: string,
     password: string,
     displayName: string
 ) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    await updateProfile(user, { displayName });
-
-    await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        email: user.email,
-        displayName,
-        photoURL: null, 
-        createdAt: new Date(),
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await prisma.user.create({
+        data: {
+            email,
+            password: hashedPassword,
+            displayName,
+        },
     });
-
     return user;
 };
 
-export const doSignInWithEmailAndPassword = (email: string, password: string) => {
-    return signInWithEmailAndPassword(auth, email, password);
+export const doSignInWithEmailAndPassword = async (email: string, password: string) => {
+    const user = await prisma.user.findUnique({
+        where: { email },
+    });
+
+    if (user && await bcrypt.compare(password, user.password)) {
+        return user;
+    }
+    throw new Error("Invalid credentials");
 };
 
 export const doSignInWithGoogle = async () => {
