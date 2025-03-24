@@ -1,85 +1,72 @@
-import { auth } from "@/config/firebase";
-import { db } from "@/config/firebase";
-import {
-  collection,
-  addDoc,
-  serverTimestamp,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
-import { Company, Category, Subscription } from "@/features/types";
+import prisma from "@/../prisma/prisma";
+import { Subscription, Category, Company } from "@prisma/client";
 import { parse } from 'date-fns';
 
-export const get_all_user_Subscriptions = async (userId: string): Promise<Subscription[]> => {
-  if (!userId) throw new Error("L'UID de l'utilisateur est requis.");
+export const get_all_user_Subscriptions = async (): Promise<Subscription[]> => {
+  try {
+      const response = await fetch('/api/subscriptions', {
+          credentials: 'include'
+      });
 
-  const subscriptionsRef = collection(db, "subscriptions");
-  const q = query(subscriptionsRef, where("userId", "==", userId));
-  const querySnapshot = await getDocs(q);
+      if (!response.ok) {
+          throw new Error('Erreur lors de la récupération des abonnements');
+      }
 
-  return querySnapshot.docs.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      uid: data.userId,
-      title: data.title,
-      startDatetime: data.startDatetime,
-      endDatetime: data.endDatetime,
-      billingDay: data.billingDay,
-    } as Subscription;
-  });
+      return response.json();
+  } catch (error) {
+      console.error("Erreur lors de la récupération des abonnements:", error);
+      throw error;
+  }
 };
 
 export const add_Subscription = async (
+  // userId: string,
   title: string,
   dueDate: Date,
-  endDate: Date,
+  endDate: Date | null,
   price: number,
-  category: Category[],
-  company: Company[],
-  isPublic: boolean
+  categoryIds: string[],
+  companyIds: string[],
 ) => {
-  if (!auth.currentUser) {
-    throw new Error("Aucun utilisateur connecté.");
+  const response = await fetch('/api/subscriptions', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+          title,
+          dueDate,
+          endDate,
+          price,
+          categoryIds,
+          companyIds,
+      }),
+  })
+
+  if (!response.ok) {
+      throw new Error('Erreur lors de l\'ajout de l\'abonnement')
   }
 
-  const uid = auth.currentUser.uid;
-
-  const subscriptionsRef = collection(db, "subscriptions");
-
-  await addDoc(subscriptionsRef, {
-    userId: uid,
-    title,
-    endDate: endDate.toISOString(),
-    dueDate,
-    price,
-    createdAt: serverTimestamp(),
-    category: category[0],
-    company: company[0],
-    isPublic
-  });
-
-
-  console.log("Abonnement ajouté avec succès !");
-};
+  return response.json()
+}
 
 export const filter_Subscriptions_by_month = (
     subscriptions: Subscription[],
     targetMonthYear: string 
 ) => {
     const targetDate = parse(targetMonthYear, 'MMM-yyyy', new Date());
-
     const targetMonth = targetDate.getMonth();
     const targetYear = targetDate.getFullYear();
 
     return subscriptions.filter((sub) => {
         const startDate = new Date(sub.startDatetime);
-        const endDate = new Date(sub.endDatetime);
-        const billingDate = new Date(targetYear, targetMonth, sub.billingDay);
+        const endDate = sub.endDatetime ? new Date(sub.endDatetime) : null;
+        const billingDate = new Date(targetYear, targetMonth, sub.dueDay);
+        
         return (
             billingDate >= startDate &&
-            billingDate <= endDate &&
+            (!endDate || billingDate <= endDate) &&
             billingDate.getMonth() === targetMonth &&
             billingDate.getFullYear() === targetYear
         );

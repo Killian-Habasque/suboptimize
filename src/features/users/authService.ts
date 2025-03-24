@@ -10,7 +10,7 @@ import {
     GoogleAuthProvider,
     updateProfile,
 } from "firebase/auth";
-import { prisma } from "@/prisma/prisma"; // Assurez-vous que le chemin est correct
+// import { prisma } from "@/prisma/prisma"; // Assurez-vous que le chemin est correct
 import bcrypt from "bcryptjs";
 
 export const doCreateUserWithEmailAndDisplayName = async (

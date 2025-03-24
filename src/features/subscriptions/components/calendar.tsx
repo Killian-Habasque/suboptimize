@@ -22,6 +22,7 @@ interface CalendarProps {
 }
 
 export default function Calendar({ subscriptions }: CalendarProps) {
+   
     const today = startOfToday();
     const [selectedDay, setSelectedDay] = useState<string>(format(today, 'yyyy-MM-dd'));
     const [currentMonth,] = useState<string>(format(today, 'MMM-yyyy'));

@@ -11,12 +11,13 @@ import {
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { classNames } from '@/services/utils'
-import { useAuth } from '@/features/users/authContext'
-import { doSignOut } from '@/features/users/authService'
+// import { useAuth } from '@/features/users/authContext'
+// import { doSignOut } from '@/features/users/authService'
 import Link from 'next/link'
+import { useSession, signOut } from 'next-auth/react'
 
 
-const user = {
+const defaultUser = {
     name: 'Tom Cook',
     email: 'tom@example.com',
     imageUrl:
@@ -38,9 +39,12 @@ const userNavigation = [
 
 
 const Header = () => {
-    const { currentUser } = useAuth()
+    const { data: session } = useSession()
 
-    console.log(currentUser)
+    const handleSignOut = async () => {
+        await signOut({ redirect: true, callbackUrl: '/' })
+    }
+
     return (
         <Popover as="header" className="bg-primary pb-24">
             <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:max-w-custom lg:px-8">
@@ -79,7 +83,7 @@ const Header = () => {
                                 <MenuButton className="relative flex rounded-full bg-white text-sm ring-2 ring-white/25 focus:outline-none focus:ring-white/100">
                                     <span className="absolute -inset-1.5" />
                                     <span className="sr-only">Open user menu</span>
-                                    <img alt="" src={currentUser ? currentUser.providerData[0].photoURL : user.imageUrl} className="h-8 w-8 rounded-full" />
+                                    <img alt="" src={session?.user?.image || defaultUser.imageUrl} className="h-8 w-8 rounded-full" />
                                 </MenuButton>
                             </div>
                             <MenuItems
@@ -91,7 +95,7 @@ const Header = () => {
                                         <a
                                             href={item.href}
                                             className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-                                            onClick={item.name === 'Sign out' ? async () => { await doSignOut(); } : undefined}
+                                            onClick={item.name === 'Sign out' ? handleSignOut : undefined}
                                         >
                                             {item.name}
                                         </a>
@@ -238,14 +242,14 @@ const Header = () => {
                             </div>
                         </div>
                         <div className="pb-2 pt-4">
-                            {currentUser ? (
+                            {session?.user ? (
                                 <div className="flex items-center px-5">
                                     <div className="shrink-0">
-                                        <img alt="" src={currentUser ? currentUser.providerData[0].photoURL : user.imageUrl} className="h-10 w-10 rounded-full" />
+                                        <img alt="" src={session.user.image || defaultUser.imageUrl} className="h-10 w-10 rounded-full" />
                                     </div>
                                     <div className="ml-3 min-w-0 flex-1">
-                                        <div className="truncate text-base font-medium text-gray-800">{currentUser ? currentUser.displayName : ''}</div>
-                                        <div className="truncate text-sm font-medium text-gray-500">  {currentUser ? currentUser.email : ''}</div>
+                                        <div className="truncate text-base font-medium text-gray-800"> {session.user.name}</div>
+                                        <div className="truncate text-sm font-medium text-gray-500">     {session.user.email}</div>
                                     </div>
                                     <button
                                         type="button"
@@ -263,7 +267,7 @@ const Header = () => {
                                         key={item.name}
                                         href={item.href}
                                         className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
-                                        onClick={item.name === 'Sign out' ? async () => { await doSignOut(); } : undefined}
+                                        onClick={item.name === 'Sign out' ? handleSignOut : undefined}
                                     >
                                         {item.name}
                                     </Link>

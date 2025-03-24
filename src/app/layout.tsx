@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SessionProvider } from "next-auth/react"
 import { AuthProvider } from "@/features/users/authContext";
 import { SubscriptionProvider } from "@/features/subscriptions/subscriptionContext";
 
@@ -16,13 +17,15 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full bg-gray-100">
       <body className="h-full">
-        <AuthProvider>
-          <SubscriptionProvider>
-            <div className="w-full h-screen flex flex-col min-h-full">
-              {children}
-            </div>
-          </SubscriptionProvider>
-        </AuthProvider>
+        <SessionProvider>
+          <AuthProvider>
+            <SubscriptionProvider>
+              <div className="w-full h-screen flex flex-col min-h-full">
+                {children}
+              </div>
+            </SubscriptionProvider>
+          </AuthProvider>
+        </SessionProvider>
       </body>
     </html>
   );

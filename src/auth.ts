@@ -12,24 +12,38 @@ export const {
     signOut,
 } = NextAuth({
     session: {
-      strategy: 'jwt',
+        strategy: 'jwt',
+    },
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (session.user) {
+                session.user.id = token.id as string;
+            }
+            return session;
+        }
     },
     providers: [
         CredentialsProvider({
             credentials: {
-                email: {},
-                password: {},
+                email: { type: "email" },
+                password: { type: "password" },
             },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;
-                
+
                 try {
                     const user = await prisma.user.findUnique({
                         where: { email: credentials.email }
                     });
 
                     if (!user || !user.password) {
-                        throw new Error("Email ou mot de passe incorrect");
+                        return null;
                     }
 
                     const isPasswordValid = await comparePassword(
@@ -38,7 +52,7 @@ export const {
                     );
 
                     if (!isPasswordValid) {
-                        throw new Error("Email ou mot de passe incorrect");
+                        return null;
                     }
 
                     return {
@@ -48,13 +62,14 @@ export const {
                         image: user.image,
                     };
                 } catch (error) {
-                    throw error;
+                    console.error("Erreur d'authentification:", error);
+                    return null;
                 }
             },
         }),
         GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             authorization: {
                 params: {
                     prompt: "consent",
@@ -64,8 +79,8 @@ export const {
             },
         }),
         GitHubProvider({
-            clientId: process.env.GITHUB_CLIENT_ID,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+            clientId: process.env.GITHUB_CLIENT_ID!,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET!,
             authorization: {
                 params: {
                     prompt: "consent",
