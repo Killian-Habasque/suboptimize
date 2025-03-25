@@ -7,7 +7,7 @@ import {
     ChevronRightIcon,
     ClockIcon
 } from '@heroicons/react/20/solid'
-import { eachDayOfInterval, endOfMonth, endOfWeek, format, isEqual, isSameMonth, isToday, parse, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
+import { add, addDays, eachDayOfInterval, endOfMonth, endOfWeek, format, isEqual, isSameMonth, isToday, parse, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
 import { fr } from 'date-fns/locale';
 import { useEffect, useMemo, useState } from 'react'
 
@@ -22,32 +22,65 @@ interface CalendarProps {
 }
 
 export default function Calendar({ subscriptions }: CalendarProps) {
-   
+
     const today = startOfToday();
     const [selectedDay, setSelectedDay] = useState<string>(format(today, 'yyyy-MM-dd'));
-    const [currentMonth,] = useState<string>(format(today, 'MMM-yyyy'));
+    const [currentMonth, setCurrentMonth] = useState<string>(format(today, 'MMM-yyyy'));
+    const [currentDate, setCurrentDate] = useState<Date>(today);
     const firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', new Date());
     const [viewMode, setViewMode] = useState<string>('month');
     const [filteredSubscriptions, setFilteredSubscriptions] = useState<Subscription[]>([]);
 
-    const generateDays = useMemo(() => {
+    const generateDays = () => {
         if (viewMode === 'day') {
-            return [format(selectedDay, 'yyyy-MM-dd')];
+            return [format(currentDate, 'yyyy-MM-dd')];
         } else if (viewMode === 'week') {
             return eachDayOfInterval({
-                start: startOfWeek(selectedDay),
-                end: endOfWeek(selectedDay),
+                start: startOfWeek(currentDate),
+                end: endOfWeek(currentDate),
             }).map((day) => format(day, 'yyyy-MM-dd'));
-        } else if (viewMode === 'month') {
+        } else {
             return eachDayOfInterval({
                 start: startOfWeek(startOfMonth(firstDayCurrentMonth)),
                 end: endOfWeek(endOfMonth(firstDayCurrentMonth)),
             }).map((day) => format(day, 'yyyy-MM-dd'));
         }
-        return [];
-    }, [viewMode, selectedDay, firstDayCurrentMonth]);
+    };
 
-    const newDays = useMemo(() => generateDays, [generateDays]);
+    const newDays = generateDays();
+
+    const goToPrevious = () => {
+        if (viewMode === 'month') {
+            setCurrentDate(add(currentDate, { months: -1 }));
+            setCurrentMonth(format(add(currentDate, { months: -1 }), 'MMM-yyyy'));
+        } else if (viewMode === 'week') {
+            setCurrentDate(add(currentDate, { weeks: -1 }));
+            setSelectedDay(format(add(currentDate, { weeks: -1 }), 'yyyy-MM-dd'));
+        } else if (viewMode === 'day') {
+            setCurrentDate(addDays(currentDate, -1));
+            setSelectedDay(format(addDays(currentDate, -1), 'yyyy-MM-dd'));
+        }
+    };
+
+    const goToNext = () => {
+        if (viewMode === 'month') {
+            setCurrentDate(add(currentDate, { months: 1 }));
+            setCurrentMonth(format(add(currentDate, { months: 1 }), 'MMM-yyyy'));
+        } else if (viewMode === 'week') {
+            setCurrentDate(add(currentDate, { weeks: 1 }));
+            setSelectedDay(format(add(currentDate, { weeks: 1 }), 'yyyy-MM-dd'));
+        } else if (viewMode === 'day') {
+            setCurrentDate(addDays(currentDate, 1));
+            setSelectedDay(format(addDays(currentDate, 1), 'yyyy-MM-dd'));
+        }
+    };
+
+
+    const goToToday = () => {
+        setCurrentDate(today);
+        setCurrentMonth(format(today, 'MMM-yyyy'));
+        setSelectedDay(format(today, 'yyyy-MM-dd'));
+    };
 
     useEffect(() => {
         const sortedSubscriptions = filter_Subscriptions_by_month(subscriptions, currentMonth);
@@ -68,25 +101,25 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                 <div className="flex items-center">
                     <div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
                         <button
-                            onClick={() => setViewMode('month')}
+                            onClick={goToPrevious}
                             type="button"
-                            className="flex h-9 w-12 items-center justify-center rounded-l-md border-y border-l border-gray-300 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50"
+                            className="flex h-9 w-12 items-center justify-center rounded-l-md border-y border-l border-gray-300 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50 cursor-pointer"
                         >
                             <span className="sr-only">Previous {viewMode}</span>
                             <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
                         </button>
                         <button
-                            onClick={() => setViewMode('day')}
+                            onClick={goToToday}
                             type="button"
-                            className="hidden border-y border-gray-300 px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block"
+                            className="hidden border-y border-gray-300 px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block cursor-pointer"
                         >
                             Aujourd&apos;hui
                         </button>
                         <span className="relative -mx-px h-5 w-px bg-gray-300 md:hidden" />
                         <button
-                            onClick={() => setViewMode('week')}
+                            onClick={goToNext}
                             type="button"
-                            className="flex h-9 w-12 items-center justify-center rounded-r-md border-y border-r border-gray-300 pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50"
+                            className="flex h-9 w-12 items-center justify-center rounded-r-md border-y border-r border-gray-300 pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50 cursor-pointer"
                         >
                             <span className="sr-only">Next {viewMode}</span>
                             <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
@@ -94,7 +127,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                     </div>
                     <div className="hidden md:ml-4 md:flex md:items-center">
                         <Menu as="div" className="relative">
-                            <MenuButton className="flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                            <MenuButton className="flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 cursor-pointer">
                                 {capitalizeFirstLetter(viewMode)} view
                                 <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
                             </MenuButton>
@@ -106,7 +139,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                                 onClick={() => setViewMode(mode)}
                                                 className={classNames(
                                                     active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                                                    'w-full block px-4 py-2 text-sm'
+                                                    'w-full block px-4 py-2 text-sm cursor-pointer'
                                                 )}
                                             >
                                                 {capitalizeFirstLetter(mode)} view
@@ -165,7 +198,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                     {format(day, 'd')}
                                 </time>
                                 {filteredSubscriptions.length > 0 && filteredSubscriptions
-                                    .filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd'))
+                                    .filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd'))
                                     .slice(0, 2)
                                     .map((subscribe) => (
                                         <li key={subscribe.id}>
@@ -182,9 +215,9 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                             </a>
                                         </li>
                                     ))}
-                                {filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length > 2 && (
+                                {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length > 2 && (
                                     <li className="text-gray-500 font-normal">
-                                        + {filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length - 2} more
+                                        + {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length - 2} more
                                     </li>
                                 )}
                             </div>
@@ -217,12 +250,12 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                     {format(day, 'd')}
                                 </time>
                                 <span className="sr-only">
-                                    {filteredSubscriptions.length > 0 && filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length} abonnements
+                                    {filteredSubscriptions.length > 0 && filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length} abonnements
                                 </span>
-                                {(filteredSubscriptions.length > 0 && filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length > 0) && (
+                                {(filteredSubscriptions.length > 0 && filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length > 0) && (
                                     <div className="-mx-0.5 mt-auto flex flex-wrap-reverse">
                                         {filteredSubscriptions.length > 0 && filteredSubscriptions
-                                            .filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd'))
+                                            .filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd'))
                                             .slice(0, 2)
                                             .map((subscribe) => (
                                                 <span
@@ -231,9 +264,9 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                                     title={subscribe.title}
                                                 />
                                             ))}
-                                        {filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length > 2 && (
+                                        {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length > 2 && (
                                             <span className="mx-0.5 text-gray-500 text-xs font-normal">
-                                                +{filteredSubscriptions.filter((subscribe) => String(subscribe.billingDay) === format(day, 'dd')).length - 2}
+                                                +{filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length - 2}
                                             </span>
                                         )}
                                     </div>
@@ -247,7 +280,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
             <div className="px-4 py-10 sm:px-6">
                 <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
                     {filteredSubscriptions.length > 0 && filteredSubscriptions
-                        .filter((subscribe) => String(subscribe.billingDay) === format(selectedDay, 'dd'))
+                        .filter((subscribe) => String(subscribe.dueDay) === format(selectedDay, 'dd'))
                         .map((subscribe) => (
                             <li key={subscribe.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
                                 <div className="flex-auto">
