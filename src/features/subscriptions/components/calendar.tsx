@@ -9,7 +9,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { add, addDays, eachDayOfInterval, endOfMonth, endOfWeek, format, isEqual, isSameMonth, isToday, parse, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
 import { fr } from 'date-fns/locale';
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { filter_Subscriptions_by_month } from "@/features/subscriptions/subscriptionService";
 import { Subscription } from '@/features/types';
@@ -22,7 +22,6 @@ interface CalendarProps {
 }
 
 export default function Calendar({ subscriptions }: CalendarProps) {
-
     const today = startOfToday();
     const [selectedDay, setSelectedDay] = useState<string>(format(today, 'yyyy-MM-dd'));
     const [currentMonth, setCurrentMonth] = useState<string>(format(today, 'MMM-yyyy'));
@@ -75,7 +74,6 @@ export default function Calendar({ subscriptions }: CalendarProps) {
         }
     };
 
-
     const goToToday = () => {
         setCurrentDate(today);
         setCurrentMonth(format(today, 'MMM-yyyy'));
@@ -92,11 +90,29 @@ export default function Calendar({ subscriptions }: CalendarProps) {
         date: day,
     }));
 
+    const renderEventList = (subscribe: Subscription) => (
+        <li key={subscribe.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
+            <div className="flex-auto">
+                <p className="font-semibold text-gray-900">{subscribe.title}</p>
+                <time dateTime={subscribe.startDatetime} className="mt-2 flex items-center text-gray-700">
+                    <ClockIcon className="mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+                    {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
+                </time>
+            </div>
+            <a
+                href={''}
+                className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 opacity-0 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 focus:opacity-100 group-hover:opacity-100"
+            >
+                Edit<span className="sr-only">, {subscribe.title}</span>
+            </a>
+        </li>
+    );
+
     return (
         <div className="lg:flex lg:h-full lg:flex-col">
             <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4 lg:flex-none">
                 <h1 className="text-base font-semibold leading-6 text-gray-900">
-                    <time dateTime="2022-01"> {capitalizeFirstLetter(format(firstDayCurrentMonth, 'MMMM yyyy', { locale }))}</time>
+                    <time dateTime="2022-01">{capitalizeFirstLetter(format(firstDayCurrentMonth, 'MMMM yyyy', { locale }))}</time>
                 </h1>
                 <div className="flex items-center">
                     <div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
@@ -159,147 +175,208 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                     </div>
                 </div>
             </header>
+
             <div className="shadow ring-1 ring-black/[5%] lg:flex lg:flex-auto lg:flex-col">
-                <div className="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-200 text-center text-xs font-semibold leading-6 text-gray-700 lg:flex-none">
-                    {weekDaysHeader.map(({ label }) => (
-                        <div key={label} className="bg-white py-2">
-                            <span>
-                                {label.charAt(0)}
-                                <span className="sr-only sm:not-sr-only">
-                                    {label.slice(1)}
+                {viewMode !== 'day' && (
+                    <div className="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-200 text-center text-xs font-semibold leading-6 text-gray-700 lg:flex-none">
+                        {weekDaysHeader.map(({ label }) => (
+                            <div key={label} className="bg-white py-2">
+                                <span>
+                                    {label.charAt(0)}
+                                    <span className="sr-only sm:not-sr-only">
+                                        {label.slice(1)}
+                                    </span>
                                 </span>
-                            </span>
-                        </div>
-                    ))}
-                </div>
-                <div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
-                    <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
-                        {newDays.map((day) => (
-                            <div
-                                onClick={() => setSelectedDay(day)}
-                                key={day.toString()}
-                                className={classNames(
-                                    isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
-                                    (!isEqual(day, selectedDay) && isToday(day) ? 'text-indigo-600' : ''),
-                                    (!isEqual(day, selectedDay) && isSameMonth(day, today) && !isToday(day) ? 'text-gray-900' : ''),
-                                    (!isEqual(day, selectedDay) && !isSameMonth(day, today) && !isToday(day) ? 'text-gray-500' : ''),
-                                    'flex flex-col px-3 py-2 hover:bg-gray-100 focus:z-10',
-                                )}
-                            >
-                                <time
-                                    dateTime={format(day, 'yyyy-MM-dd')}
-                                    className={classNames(
-                                        'flex h-6 w-6 items-center justify-center rounded-full',
-                                        (isEqual(day, selectedDay) && isToday(day) ? 'bg-indigo-600 text-white' : ''),
-                                        (isEqual(day, selectedDay) && !isToday(day) ? 'bg-gray-900 text-white' : ''),
-                                        'ml-auto',
-                                    )}
-                                >
-                                    {format(day, 'd')}
-                                </time>
-                                {filteredSubscriptions.length > 0 && filteredSubscriptions
-                                    .filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd'))
-                                    .slice(0, 2)
-                                    .map((subscribe) => (
-                                        <li key={subscribe.id}>
-                                            <a href={''} className="group flex">
-                                                <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
-                                                    {subscribe.title}
-                                                </p>
-                                                <time
-                                                    dateTime={subscribe.startDatetime}
-                                                    className="ml-3 hidden flex-none font-medium text-gray-500 group-hover:text-indigo-600 xl:block"
-                                                >
-                                                    {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
-                                                </time>
-                                            </a>
-                                        </li>
-                                    ))}
-                                {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length > 2 && (
-                                    <li className="text-gray-500 font-normal">
-                                        + {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length - 2} more
-                                    </li>
-                                )}
                             </div>
                         ))}
                     </div>
+                )}
 
-                    <div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
-                        {newDays.map((day) => (
-                            <button
-                                onClick={() => setSelectedDay(day)}
-                                key={day}
-                                type="button"
-                                className={classNames(
-                                    isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
-                                    (!isEqual(day, selectedDay) && isToday(day) ? 'text-indigo-600' : ''),
-                                    (!isEqual(day, selectedDay) && isSameMonth(day, today) && !isToday(day) ? 'text-gray-900' : ''),
-                                    (!isEqual(day, selectedDay) && !isSameMonth(day, today) && !isToday(day) ? 'text-gray-500' : ''),
-                                    'flex h-14 flex-col px-3 py-2 hover:bg-gray-100 focus:z-10',
-                                )}
-                            >
-                                <time
-                                    dateTime={day}
-                                    className={classNames(
-                                        'flex h-6 w-6 items-center justify-center rounded-full',
-                                        (isEqual(day, selectedDay) && isToday(day) ? 'bg-indigo-600 text-white' : ''),
-                                        (isEqual(day, selectedDay) && !isToday(day) ? 'bg-gray-900 text-white' : ''),
-                                        'ml-auto',
-                                    )}
-                                >
-                                    {format(day, 'd')}
-                                </time>
-                                <span className="sr-only">
-                                    {filteredSubscriptions.length > 0 && filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length} abonnements
-                                </span>
-                                {(filteredSubscriptions.length > 0 && filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length > 0) && (
-                                    <div className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-                                        {filteredSubscriptions.length > 0 && filteredSubscriptions
+                <div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
+                    {viewMode === 'day' ? (
+                        <div className="w-full bg-white">
+                            <div className="px-4 py-10 sm:px-6">
+                                <div className="text-center mb-8">
+                                    <h2 className="text-lg font-semibold text-gray-900">
+                                        {capitalizeFirstLetter(format(currentDate, 'EEEE d MMMM yyyy', { locale }))}
+                                    </h2>
+                                </div>
+                                <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
+                                    {filteredSubscriptions
+                                        .filter((subscribe) => String(subscribe.dueDay) === format(currentDate, 'dd'))
+                                        .map(renderEventList)}
+                                </ol>
+                            </div>
+                        </div>
+                    ) : viewMode === 'week' ? (
+                        <div className="w-full bg-white">
+                            <div className="grid grid-cols-7 divide-x divide-gray-100 h-full">
+                                {newDays.map((day) => (
+                                    <div 
+                                        key={day} 
+                                        className={classNames(
+                                            'min-h-[600px] p-4',
+                                            isToday(parse(day, 'yyyy-MM-dd', new Date())) ? 'bg-blue-50' : 'bg-white'
+                                        )}
+                                    >
+                                        <div className="text-center mb-4">
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {capitalizeFirstLetter(format(parse(day, 'yyyy-MM-dd', new Date()), 'EEEE', { locale }))}
+                                            </p>
+                                            <time
+                                                dateTime={day}
+                                                className={classNames(
+                                                    'inline-flex h-6 w-6 items-center justify-center rounded-full mt-1',
+                                                    isToday(parse(day, 'yyyy-MM-dd', new Date())) ? 'bg-indigo-600 text-white' : 'text-gray-900'
+                                                )}
+                                            >
+                                                {format(parse(day, 'yyyy-MM-dd', new Date()), 'd')}
+                                            </time>
+                                        </div>
+                                        <ol className="space-y-2">
+                                            {filteredSubscriptions
+                                                .filter((subscribe) => String(subscribe.dueDay) === format(parse(day, 'yyyy-MM-dd', new Date()), 'dd'))
+                                                .map((subscribe) => (
+                                                    <li 
+                                                        key={subscribe.id}
+                                                        className="group rounded-lg bg-white p-3 hover:bg-gray-50 shadow-sm ring-1 ring-gray-100"
+                                                    >
+                                                        <div className="flex-auto">
+                                                            <p className="text-sm font-semibold text-gray-900 truncate">
+                                                                {subscribe.title}
+                                                            </p>
+                                                            <time 
+                                                                dateTime={subscribe.startDatetime} 
+                                                                className="mt-1 flex items-center text-xs text-gray-500"
+                                                            >
+                                                                <ClockIcon className="mr-1.5 h-4 w-4 text-gray-400" aria-hidden="true" />
+                                                                {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
+                                                            </time>
+                                                        </div>
+                                                    </li>
+                                                ))}
+                                        </ol>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
+                                {newDays.map((day) => (
+                                    <div
+                                        onClick={() => setSelectedDay(day)}
+                                        key={day.toString()}
+                                        className={classNames(
+                                            isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
+                                            (!isEqual(day, selectedDay) && isToday(day) ? 'text-indigo-600' : ''),
+                                            (!isEqual(day, selectedDay) && isSameMonth(day, today) && !isToday(day) ? 'text-gray-900' : ''),
+                                            (!isEqual(day, selectedDay) && !isSameMonth(day, today) && !isToday(day) ? 'text-gray-500' : ''),
+                                            'flex flex-col px-3 py-2 hover:bg-gray-100 focus:z-10 cursor-pointer',
+                                        )}
+                                    >
+                                        <time
+                                            dateTime={format(day, 'yyyy-MM-dd')}
+                                            className={classNames(
+                                                'flex h-6 w-6 items-center justify-center rounded-full',
+                                                (isEqual(day, selectedDay) && isToday(day) ? 'bg-indigo-600 text-white' : ''),
+                                                (isEqual(day, selectedDay) && !isToday(day) ? 'bg-gray-900 text-white' : ''),
+                                                'ml-auto',
+                                            )}
+                                        >
+                                            {format(day, 'd')}
+                                        </time>
+                                        {filteredSubscriptions
                                             .filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd'))
                                             .slice(0, 2)
                                             .map((subscribe) => (
-                                                <span
-                                                    key={subscribe.id}
-                                                    className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-blue-400"
-                                                    title={subscribe.title}
-                                                />
+                                                <li key={subscribe.id}>
+                                                    <a href={''} className="group flex">
+                                                        <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
+                                                            {subscribe.title}
+                                                        </p>
+                                                        <time
+                                                            dateTime={subscribe.startDatetime}
+                                                            className="ml-3 hidden flex-none font-medium text-gray-500 group-hover:text-indigo-600 xl:block"
+                                                        >
+                                                            {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
+                                                        </time>
+                                                    </a>
+                                                </li>
                                             ))}
                                         {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length > 2 && (
-                                            <span className="mx-0.5 text-gray-500 text-xs font-normal">
-                                                +{filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length - 2}
-                                            </span>
+                                            <li className="text-gray-500 font-normal">
+                                                + {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length - 2} more
+                                            </li>
                                         )}
                                     </div>
-                                )}
-                            </button>
-                        ))}
-                    </div>
+                                ))}
+                            </div>
+
+                            <div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
+                                {newDays.map((day) => (
+                                    <button
+                                        onClick={() => setSelectedDay(day)}
+                                        key={day}
+                                        type="button"
+                                        className={classNames(
+                                            isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
+                                            (!isEqual(day, selectedDay) && isToday(day) ? 'text-indigo-600' : ''),
+                                            (!isEqual(day, selectedDay) && isSameMonth(day, today) && !isToday(day) ? 'text-gray-900' : ''),
+                                            (!isEqual(day, selectedDay) && !isSameMonth(day, today) && !isToday(day) ? 'text-gray-500' : ''),
+                                            'flex h-14 flex-col px-3 py-2 hover:bg-gray-100 focus:z-10',
+                                        )}
+                                    >
+                                        <time
+                                            dateTime={day}
+                                            className={classNames(
+                                                'flex h-6 w-6 items-center justify-center rounded-full',
+                                                (isEqual(day, selectedDay) && isToday(day) ? 'bg-indigo-600 text-white' : ''),
+                                                (isEqual(day, selectedDay) && !isToday(day) ? 'bg-gray-900 text-white' : ''),
+                                                'ml-auto',
+                                            )}
+                                        >
+                                            {format(day, 'd')}
+                                        </time>
+                                        <span className="sr-only">
+                                            {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length} abonnements
+                                        </span>
+                                        {(filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length > 0) && (
+                                            <div className="-mx-0.5 mt-auto flex flex-wrap-reverse">
+                                                {filteredSubscriptions
+                                                    .filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd'))
+                                                    .slice(0, 2)
+                                                    .map((subscribe) => (
+                                                        <span
+                                                            key={subscribe.id}
+                                                            className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-blue-400"
+                                                            title={subscribe.title}
+                                                        />
+                                                    ))}
+                                                {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length > 2 && (
+                                                    <span className="mx-0.5 text-gray-500 text-xs font-normal">
+                                                        +{filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length - 2}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 
-            <div className="px-4 py-10 sm:px-6">
-                <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
-                    {filteredSubscriptions.length > 0 && filteredSubscriptions
-                        .filter((subscribe) => String(subscribe.dueDay) === format(selectedDay, 'dd'))
-                        .map((subscribe) => (
-                            <li key={subscribe.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
-                                <div className="flex-auto">
-                                    <p className="font-semibold text-gray-900">{subscribe.title}</p>
-                                    <time dateTime={subscribe.startDatetime} className="mt-2 flex items-center text-gray-700">
-                                        <ClockIcon className="mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-                                        {capitalizeFirstLetter(format(firstDayCurrentMonth, 'MMMM yyyy', { locale }))}
-                                    </time>
-                                </div>
-                                <a
-                                    href={''}
-                                    className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 opacity-0 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 focus:opacity-100 group-hover:opacity-100"
-                                >
-                                    Edit<span className="sr-only">, {subscribe.title}</span>
-                                </a>
-                            </li>
-                        ))}
-                </ol>
-            </div>
+            {viewMode !== 'day' && viewMode !== 'week' && (
+                <div className="px-4 py-10 sm:px-6">
+                    <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
+                        {filteredSubscriptions
+                            .filter((subscribe) => String(subscribe.dueDay) === format(selectedDay, 'dd'))
+                            .map(renderEventList)}
+                    </ol>
+                </div>
+            )}
         </div>
-    )
-} 
+    );
+}
