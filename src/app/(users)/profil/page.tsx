@@ -1,77 +1,37 @@
-"use client";
+"use client"
+import { useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
+import Image from "next/image";
 
-import { useAuth } from "@/features/users/authContext";
-import { useState } from "react";
-import { updateUserProfileImage } from "@/features/users/authService";
-import withAuth from "@/features/users/hoc/withAuth";
-
-const Profil = () => {
-    const { currentUser, setCurrentUser } = useAuth();
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [uploading, setUploading] = useState(false);
-
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files[0]) {
-            setSelectedFile(event.target.files[0]);
-        }
-    };
-
-    const handleUpload = async () => {
-        if (!selectedFile || !currentUser) return;
-
-        setUploading(true);
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-
-        try {
-            const response = await fetch("/api/upload", {
-                method: "POST",
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error("Erreur lors de l'upload");
-            }
-
-            const data = await response.json();
-            const photoURL = data.url;
-
-            await updateUserProfileImage(photoURL);
-            setCurrentUser((prev) => prev ? { ...prev, photoURL } : null);
-
-        } catch (error) {
-            console.error("Erreur lors de l'upload de l'image :", error);
-        }
-
-        setUploading(false);
-    };
+export default function HomePage() {
+    const { data: session } = useSession();
 
     return (
-        <div className="text-2xl font-bold pt-14">
-            <h1>Profil de {currentUser?.displayName}</h1>
-            <p>Email: {currentUser?.email}</p>
+        <>
+            {session?.user ? (
+                <>
+                    {session?.user.image && (
+                        <Image
+                            src={session.user.image}
+                            alt="user avatar"
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                        />
+                    )}
+                    {session.user.name && (
+                        <span>{session.user.name}</span>
+                    )}
+                    <button onClick={() => signOut()}>
+                        Déconnexion
+                    </button>
+                </>
+            ) : (
+                <div className="flex flex-col items-center m-4">
 
-            <img
-                src={
-                    currentUser?.providerData[0].photoURL ||
-                    `https://ui-avatars.com/api/?name=${currentUser?.displayName}`
-                }
-                alt="Photo de profil"
-                className="h-32 w-32 rounded-full"
-            />
-
-            <div className="mt-4">
-                <input type="file" accept="image/*" onChange={handleFileChange} />
-                <button
-                    onClick={handleUpload}
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-                    disabled={uploading}
-                >
-                    {uploading ? "Upload en cours..." : "Mettre à jour la photo"}
-                </button>
-            </div>
-        </div>
+                </div>
+            )}
+        </>
     );
 };
 
-export default withAuth(Profil);

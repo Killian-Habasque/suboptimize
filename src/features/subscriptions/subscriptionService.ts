@@ -52,12 +52,12 @@ export const add_Subscription = async (
 
 export const filter_Subscriptions_by_month = (
     subscriptions: Subscription[],
-    targetMonthYear: string,
+    // targetMonthYear: string,
     visibleDays: string[]
   ) => {
-    const targetDate = parse(targetMonthYear, 'MMM-yyyy', new Date());
-    const targetMonth = targetDate.getMonth();
-    const targetYear = targetDate.getFullYear();
+    // const targetDate = parse(targetMonthYear, 'MMM-yyyy', new Date());
+    // const targetMonth = targetDate.getMonth();
+    // const targetYear = targetDate.getFullYear();
   
     return subscriptions.filter((sub) => {
       const startDate = new Date(sub.startDatetime);
@@ -65,7 +65,6 @@ export const filter_Subscriptions_by_month = (
       const endDate = sub.endDatetime ? new Date(sub.endDatetime) : null;
       if (endDate) endDate.setHours(0, 0, 0, 0);
   
-      // Filter subscriptions based on the visible days interval
       return visibleDays.some(dayString => {
         const day = parse(dayString, 'yyyy-MM-dd', new Date());
         const billingDate = new Date(day);

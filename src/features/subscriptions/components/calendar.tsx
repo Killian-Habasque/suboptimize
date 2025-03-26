@@ -48,7 +48,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
     };
 
 
-    const newDays = generateDays(viewMode, firstDayCurrentMonth);
+    const newDays = generateDays(viewMode, currentDate);
 
     const goToPrevious = () => {
         if (viewMode === 'month') {
@@ -86,11 +86,10 @@ export default function Calendar({ subscriptions }: CalendarProps) {
     useEffect(() => {
         const sortedSubscriptions = filter_Subscriptions_by_month(
             subscriptions,
-            currentMonth,
+            // currentMonth,
             newDays
         );
         setFilteredSubscriptions(sortedSubscriptions);
-        console.log(sortedSubscriptions)
     }, [subscriptions, currentMonth, JSON.stringify(newDays)]);
 
     const weekDaysHeader = newDays.slice(0, 7).map((day) => ({
