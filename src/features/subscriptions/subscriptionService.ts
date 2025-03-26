@@ -3,18 +3,18 @@ import { format, parse } from 'date-fns';
 
 export const get_all_user_Subscriptions = async (): Promise<Subscription[]> => {
   try {
-      const response = await fetch('/api/subscriptions', {
-          credentials: 'include'
-      });
+    const response = await fetch('/api/subscriptions', {
+      credentials: 'include'
+    });
 
-      if (!response.ok) {
-          throw new Error('Erreur lors de la récupération des abonnements');
-      }
+    if (!response.ok) {
+      throw new Error('Erreur lors de la récupération des abonnements');
+    }
 
-      return response.json();
+    return response.json();
   } catch (error) {
-      console.error("Erreur lors de la récupération des abonnements:", error);
-      throw error;
+    console.error("Erreur lors de la récupération des abonnements:", error);
+    throw error;
   }
 };
 
@@ -28,53 +28,49 @@ export const add_Subscription = async (
   companyIds: string[],
 ) => {
   const response = await fetch('/api/subscriptions', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-          title,
-          dueDate,
-          endDate,
-          price,
-          categoryIds,
-          companyIds,
-      }),
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      title,
+      dueDate,
+      endDate,
+      price,
+      categoryIds,
+      companyIds,
+    }),
   })
 
   if (!response.ok) {
-      throw new Error('Erreur lors de l\'ajout de l\'abonnement')
+    throw new Error('Erreur lors de l\'ajout de l\'abonnement')
   }
 
   return response.json()
 }
 
 export const filter_Subscriptions_by_month = (
-    subscriptions: Subscription[],
-    // targetMonthYear: string,
-    visibleDays: string[]
-  ) => {
-    // const targetDate = parse(targetMonthYear, 'MMM-yyyy', new Date());
-    // const targetMonth = targetDate.getMonth();
-    // const targetYear = targetDate.getFullYear();
-  
-    return subscriptions.filter((sub) => {
-      const startDate = new Date(sub.startDatetime);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = sub.endDatetime ? new Date(sub.endDatetime) : null;
-      if (endDate) endDate.setHours(0, 0, 0, 0);
-  
-      return visibleDays.some(dayString => {
-        const day = parse(dayString, 'yyyy-MM-dd', new Date());
-        const billingDate = new Date(day);
-        billingDate.setHours(0, 0, 0, 0);
-  
-        return (
-          billingDate >= startDate &&
-          (!endDate || billingDate <= endDate) &&
-          String(sub.dueDay) === format(billingDate, 'dd')
-        );
-      });
+  subscriptions: Subscription[],
+  visibleDays: string[]
+) => {
+
+  return subscriptions.filter((sub) => {
+    const startDate = new Date(sub.startDatetime);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = sub.endDatetime ? new Date(sub.endDatetime) : null;
+    if (endDate) endDate.setHours(23, 59, 59, 999);
+
+    return visibleDays.some(dayString => {
+      const day = parse(dayString, 'yyyy-MM-dd', new Date());
+      const billingDate = new Date(day);
+      billingDate.setHours(0, 0, 0, 0);
+
+      return (
+        billingDate >= startDate &&
+        (!endDate || billingDate <= endDate) &&
+        String(sub.dueDay) === format(billingDate, 'd')
+      );
     });
-  };
+  });
+};
