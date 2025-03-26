@@ -1,38 +1,39 @@
+"use client"
+import { useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import Image from "next/image";
-// import LoginForm from "@/features/users/components/LoginForm";
-import Logout from "@/features/users/components/Logout";
-import { auth } from "@/auth";
+import Link from "next/link";
 
-import { redirect } from "next/navigation";
 
-const HomePage = async () => {
-    const session = await auth();
-
-    if (!session?.user) redirect("/");
+export default function HomePage() {
+    const { data: session } = useSession();
 
     return (
-        <div className="flex flex-col items-center m-4">
-            {session?.user?.name && session?.user?.image ? (
+        <>
+            {session?.user ? (
                 <>
-                    <h1 className="text-3xl my-2">
-                        Welcome, {session?.user?.name}
-                    </h1>
-                    <Image
-                        src={session?.user?.image}
-                        alt={session?.user?.name}
-                        width={72}
-                        height={72}
-                        className="rounded-full"
-                    />
+                    {session?.user.image && (
+                        <Image
+                            src={session.user.image}
+                            alt="user avatar"
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                        />
+                    )}
+                    {session.user.name && (
+                        <span>{session.user.name}</span>
+                    )}
+                    <button onClick={() => signOut()}>
+                        Déconnexion
+                    </button>
                 </>
             ) : (
-                <h1 className="text-3xl my-2">
-                    Welcome, {session?.user?.email}
-                </h1>
+                <div className="flex flex-col items-center m-4">
+
+                </div>
             )}
-            <Logout />
-        </div>
+        </>
     );
 };
 
-export default HomePage;

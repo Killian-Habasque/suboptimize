@@ -19,3 +19,6 @@ Avec credentials :
 https://github.com/tapascript/learn-next-auth/tree/03-credential-auth
 Avec Google : 
 https://github.com/tapascript/learn-next-auth/tree/01-integrate-google-provider
+
+https://www.youtube.com/watch?v=5l7ZRXOecbA
+https://www.youtube.com/watch?v=URFGTyr4sfI

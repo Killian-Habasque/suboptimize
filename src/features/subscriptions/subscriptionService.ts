@@ -1,4 +1,4 @@
-import prisma from "@/../prisma/prisma";
+import prisma from "@/lib/prisma";
 import { Subscription, Category, Company } from "@prisma/client";
 import { parse } from 'date-fns';
 

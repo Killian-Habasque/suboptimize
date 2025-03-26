@@ -1,8 +1,8 @@
 
 'use server'
 
-import { signIn, signOut } from "@/auth";
-import prisma from "@/../prisma/prisma";
+import { signIn, signOut } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 import { saltAndHashPassword } from "@/utils/password";
 
 
