@@ -7,9 +7,9 @@ import {
     ChevronRightIcon,
     ClockIcon
 } from '@heroicons/react/20/solid'
-import { add, addDays, eachDayOfInterval, endOfMonth, endOfWeek, format, isEqual, isSameMonth, isToday, parse, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
+import { add, addDays, eachDayOfInterval, endOfMonth, endOfWeek, format, isEqual, isSameDay, isSameMonth, isToday, isWithinInterval, parse, startOfMonth, startOfToday, startOfWeek } from 'date-fns'
 import { fr } from 'date-fns/locale';
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { filter_Subscriptions_by_month } from "@/features/subscriptions/subscriptionService";
 import { Subscription } from '@/features/types';
@@ -30,23 +30,25 @@ export default function Calendar({ subscriptions }: CalendarProps) {
     const [viewMode, setViewMode] = useState<string>('month');
     const [filteredSubscriptions, setFilteredSubscriptions] = useState<Subscription[]>([]);
 
-    const generateDays = () => {
-        if (viewMode === 'day') {
-            return [format(currentDate, 'yyyy-MM-dd')];
-        } else if (viewMode === 'week') {
+    const generateDays = (mode: string, date: Date) => {
+        if (mode === 'day') {
+            return [format(date, 'yyyy-MM-dd')];
+        } else if (mode === 'week') {
             return eachDayOfInterval({
-                start: startOfWeek(currentDate),
-                end: endOfWeek(currentDate),
+                start: startOfWeek(date),
+                end: endOfWeek(date),
             }).map((day) => format(day, 'yyyy-MM-dd'));
         } else {
+            const monthStart = startOfMonth(date);
             return eachDayOfInterval({
-                start: startOfWeek(startOfMonth(firstDayCurrentMonth)),
-                end: endOfWeek(endOfMonth(firstDayCurrentMonth)),
+                start: startOfWeek(monthStart),
+                end: endOfWeek(endOfMonth(monthStart)),
             }).map((day) => format(day, 'yyyy-MM-dd'));
         }
     };
 
-    const newDays = generateDays();
+
+    const newDays = generateDays(viewMode, firstDayCurrentMonth);
 
     const goToPrevious = () => {
         if (viewMode === 'month') {
@@ -80,10 +82,16 @@ export default function Calendar({ subscriptions }: CalendarProps) {
         setSelectedDay(format(today, 'yyyy-MM-dd'));
     };
 
+
     useEffect(() => {
-        const sortedSubscriptions = filter_Subscriptions_by_month(subscriptions, currentMonth);
+        const sortedSubscriptions = filter_Subscriptions_by_month(
+            subscriptions,
+            currentMonth,
+            newDays
+        );
         setFilteredSubscriptions(sortedSubscriptions);
-    }, [subscriptions, currentMonth]);
+        console.log(sortedSubscriptions)
+    }, [subscriptions, currentMonth, JSON.stringify(newDays)]);
 
     const weekDaysHeader = newDays.slice(0, 7).map((day) => ({
         label: format(parse(day, "yyyy-MM-dd", new Date()), "EEEE", { locale }),
@@ -99,12 +107,12 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                     {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
                 </time>
             </div>
-            <a
-                href={''}
+            <div
+                // href={''}
                 className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 opacity-0 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 focus:opacity-100 group-hover:opacity-100"
             >
                 Edit<span className="sr-only">, {subscribe.title}</span>
-            </a>
+            </div>
         </li>
     );
 
@@ -203,7 +211,12 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                 </div>
                                 <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
                                     {filteredSubscriptions
-                                        .filter((subscribe) => String(subscribe.dueDay) === format(currentDate, 'dd'))
+                                        .filter((subscribe) => {
+                                            const selectedDate = currentDate;
+                                            const isDay = String(subscribe.dueDay) === format(selectedDate, 'dd');
+                                            const isWithinSubscription = isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) || isSameDay(selectedDate, subscribe.startDatetime) || isSameDay(selectedDate, subscribe.endDatetime);
+                                            return isDay && isWithinSubscription;
+                                        })
                                         .map(renderEventList)}
                                 </ol>
                             </div>
@@ -212,8 +225,8 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                         <div className="w-full bg-white">
                             <div className="grid grid-cols-7 divide-x divide-gray-100 h-full">
                                 {newDays.map((day) => (
-                                    <div 
-                                        key={day} 
+                                    <div
+                                        key={day}
                                         className={classNames(
                                             'min-h-[600px] p-4',
                                             isToday(parse(day, 'yyyy-MM-dd', new Date())) ? 'bg-blue-50' : 'bg-white'
@@ -235,9 +248,14 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                         </div>
                                         <ol className="space-y-2">
                                             {filteredSubscriptions
-                                                .filter((subscribe) => String(subscribe.dueDay) === format(parse(day, 'yyyy-MM-dd', new Date()), 'dd'))
+                                                .filter((subscribe) => {
+                                                    const selectedDate = parse(day, 'yyyy-MM-dd', new Date());
+                                                    const isDay = String(subscribe.dueDay) === format(selectedDate, 'dd');
+                                                    const isWithinSubscription = isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) || isSameDay(selectedDate, subscribe.startDatetime) || isSameDay(selectedDate, subscribe.endDatetime); 
+                                                    return isDay && isWithinSubscription;
+                                                })
                                                 .map((subscribe) => (
-                                                    <li 
+                                                    <li
                                                         key={subscribe.id}
                                                         className="group rounded-lg bg-white p-3 hover:bg-gray-50 shadow-sm ring-1 ring-gray-100"
                                                     >
@@ -245,8 +263,8 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                                             <p className="text-sm font-semibold text-gray-900 truncate">
                                                                 {subscribe.title}
                                                             </p>
-                                                            <time 
-                                                                dateTime={subscribe.startDatetime} 
+                                                            <time
+                                                                dateTime={subscribe.startDatetime}
                                                                 className="mt-1 flex items-center text-xs text-gray-500"
                                                             >
                                                                 <ClockIcon className="mr-1.5 h-4 w-4 text-gray-400" aria-hidden="true" />
@@ -287,11 +305,16 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                             {format(day, 'd')}
                                         </time>
                                         {filteredSubscriptions
-                                            .filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd'))
+                                            .filter((subscribe) => {
+                                                const selectedDate = parse(day, 'yyyy-MM-dd', new Date());
+                                                const isDay = String(subscribe.dueDay) === format(selectedDate, 'dd');
+                                                const isWithinSubscription = isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) || isSameDay(selectedDate, subscribe.startDatetime) || isSameDay(selectedDate, subscribe.endDatetime); 
+                                                return isDay && isWithinSubscription;
+                                            })
                                             .slice(0, 2)
                                             .map((subscribe) => (
                                                 <li key={subscribe.id}>
-                                                    <a href={''} className="group flex">
+                                                    <div className="group flex">
                                                         <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                                                             {subscribe.title}
                                                         </p>
@@ -301,14 +324,24 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                                         >
                                                             {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
                                                         </time>
-                                                    </a>
+                                                    </div>
                                                 </li>
                                             ))}
-                                        {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length > 2 && (
-                                            <li className="text-gray-500 font-normal">
-                                                + {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length - 2} more
-                                            </li>
-                                        )}
+                                        {filteredSubscriptions.filter((subscribe) => {
+                                            const selectedDate = parse(day, 'yyyy-MM-dd', new Date());
+                                            const isDay = String(subscribe.dueDay) === format(selectedDate, 'dd');
+                                            const isWithinSubscription = isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) || isSameDay(selectedDate, subscribe.startDatetime) || isSameDay(selectedDate, subscribe.endDatetime); 
+                                            return isDay && isWithinSubscription;
+                                        }).length > 2 && (
+                                                <li className="text-gray-500 font-normal">
+                                                    + {filteredSubscriptions.filter((subscribe) => {
+                                                        const selectedDate = parse(day, 'yyyy-MM-dd', new Date());
+                                                        const isDay = String(subscribe.dueDay) === format(selectedDate, 'dd');
+                                                        const isWithinSubscription = isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) || isSameDay(selectedDate, subscribe.startDatetime) || isSameDay(selectedDate, subscribe.endDatetime); 
+                                                        return isDay && isWithinSubscription;
+                                                    }).length - 2} more
+                                                </li>
+                                            )}
                                     </div>
                                 ))}
                             </div>
@@ -344,7 +377,12 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                         {(filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length > 0) && (
                                             <div className="-mx-0.5 mt-auto flex flex-wrap-reverse">
                                                 {filteredSubscriptions
-                                                    .filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd'))
+                                                    .filter((subscribe) => {
+                                                        const selectedDate = parse(day, 'yyyy-MM-dd', new Date());
+                                                        const isDay = String(subscribe.dueDay) === format(selectedDate, 'dd');
+                                                        const isWithinSubscription = isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) || isSameDay(selectedDate, subscribe.startDatetime) || isSameDay(selectedDate, subscribe.endDatetime); 
+                                                        return isDay && isWithinSubscription;
+                                                    })
                                                     .slice(0, 2)
                                                     .map((subscribe) => (
                                                         <span
@@ -353,11 +391,16 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                                                             title={subscribe.title}
                                                         />
                                                     ))}
-                                                {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length > 2 && (
-                                                    <span className="mx-0.5 text-gray-500 text-xs font-normal">
-                                                        +{filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length - 2}
-                                                    </span>
-                                                )}
+                                                {filteredSubscriptions.filter((subscribe) => {
+                                                    const selectedDate = parse(day, 'yyyy-MM-dd', new Date());
+                                                    const isDay = String(subscribe.dueDay) === format(selectedDate, 'dd');
+                                                    const isWithinSubscription = isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) || isSameDay(selectedDate, subscribe.startDatetime) || isSameDay(selectedDate, subscribe.endDatetime); 
+                                                    return isDay && isWithinSubscription;
+                                                }).length > 2 && (
+                                                        <span className="mx-0.5 text-gray-500 text-xs font-normal">
+                                                            +{filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'dd')).length - 2}
+                                                        </span>
+                                                    )}
                                             </div>
                                         )}
                                     </button>
@@ -372,7 +415,12 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                 <div className="px-4 py-10 sm:px-6">
                     <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
                         {filteredSubscriptions
-                            .filter((subscribe) => String(subscribe.dueDay) === format(selectedDay, 'dd'))
+                            .filter((subscribe) => {
+                                const selectedDate = parse(selectedDay, 'yyyy-MM-dd', new Date());
+                                const isDay = String(subscribe.dueDay) === format(selectedDate, 'dd');
+                                const isWithinSubscription = isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) || isSameDay(selectedDate, subscribe.startDatetime) || isSameDay(selectedDate, subscribe.endDatetime);
+                                return isDay && isWithinSubscription;
+                            })
                             .map(renderEventList)}
                     </ol>
                 </div>

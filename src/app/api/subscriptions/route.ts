@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
-import prisma from "@/lib/prisma"
-import { auth } from "@/lib/auth"
+import {prisma} from "@/lib/prisma"
+import { baseAuth } from "@/lib/auth"
 
 
 
 export async function GET(request: Request) {
     try {
-        const session = await auth()
+        const session = await baseAuth()
         if (!session?.user?.id) {
             return new NextResponse("Non autorisé", { status: 401 })
         }
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 // ... votre POST existant ...
 export async function POST(request: Request) {
     try {
-        const session = await auth()
+        const session = await baseAuth()
         
         if (!session?.user?.id) {
             console.error(!session?.user?.id)

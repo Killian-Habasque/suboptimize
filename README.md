@@ -22,3 +22,4 @@ https://github.com/tapascript/learn-next-auth/tree/01-integrate-google-provider
 
 https://www.youtube.com/watch?v=5l7ZRXOecbA
 https://www.youtube.com/watch?v=URFGTyr4sfI
+https://www.youtube.com/watch?v=5miC2RLs0pw

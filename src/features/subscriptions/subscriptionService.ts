@@ -1,6 +1,5 @@
-import prisma from "@/lib/prisma";
 import { Subscription, Category, Company } from "@prisma/client";
-import { parse } from 'date-fns';
+import { format, parse } from 'date-fns';
 
 export const get_all_user_Subscriptions = async (): Promise<Subscription[]> => {
   try {
@@ -53,22 +52,30 @@ export const add_Subscription = async (
 
 export const filter_Subscriptions_by_month = (
     subscriptions: Subscription[],
-    targetMonthYear: string 
-) => {
+    targetMonthYear: string,
+    visibleDays: string[]
+  ) => {
     const targetDate = parse(targetMonthYear, 'MMM-yyyy', new Date());
     const targetMonth = targetDate.getMonth();
     const targetYear = targetDate.getFullYear();
-
+  
     return subscriptions.filter((sub) => {
-        const startDate = new Date(sub.startDatetime);
-        const endDate = sub.endDatetime ? new Date(sub.endDatetime) : null;
-        const billingDate = new Date(targetYear, targetMonth, sub.dueDay);
-        
+      const startDate = new Date(sub.startDatetime);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = sub.endDatetime ? new Date(sub.endDatetime) : null;
+      if (endDate) endDate.setHours(0, 0, 0, 0);
+  
+      // Filter subscriptions based on the visible days interval
+      return visibleDays.some(dayString => {
+        const day = parse(dayString, 'yyyy-MM-dd', new Date());
+        const billingDate = new Date(day);
+        billingDate.setHours(0, 0, 0, 0);
+  
         return (
-            billingDate >= startDate &&
-            (!endDate || billingDate <= endDate) &&
-            billingDate.getMonth() === targetMonth &&
-            billingDate.getFullYear() === targetYear
+          billingDate >= startDate &&
+          (!endDate || billingDate <= endDate) &&
+          String(sub.dueDay) === format(billingDate, 'dd')
         );
+      });
     });
-};
+  };

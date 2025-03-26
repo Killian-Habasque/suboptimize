@@ -2,7 +2,7 @@
 'use server'
 
 import { signIn, signOut } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { saltAndHashPassword } from "@/utils/password";
 
 
