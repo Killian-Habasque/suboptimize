@@ -1,50 +1,37 @@
-import { db } from "@/config/firebase";
-import {
-    collection,
-    getDocs,
-    query,
-    orderBy,
-    startAfter,
-    limit as firestoreLimit,
-    getDoc,
-    doc,
-} from "firebase/firestore";
-import { Offer } from "@/features/types";
+import { prisma } from "@/lib/prisma";
+import { Offer } from "@prisma/client";
 
-export const get_all_Offers = async (page: number, limit: number, lastVisible?: string): Promise<{ offers: Offer[], lastDocId?: string }> => {
+export const get_all_Offers = async (page: number, limit: number, searchTerm: string): Promise<{ offers: Offer[], lastDocId?: string | undefined, totalOffers?: number | undefined }> => {
     try {
-        const offersRef = collection(db, "offers");
-        let q = query(offersRef, orderBy("createdAt", "desc"), firestoreLimit(limit));
+        const skip = (page - 1) * limit;
 
-        if (lastVisible) {
-            const lastVisibleDoc = await getDoc(doc(offersRef, lastVisible)); 
-            q = query(offersRef, orderBy("createdAt", "desc"), startAfter(lastVisibleDoc), firestoreLimit(limit));
-        }
-        const querySnapshot = await getDocs(q);
+        const [offers, totalOffers] = await Promise.all([
+            prisma.offer.findMany({
+                where: {
+                    name: {
+                        contains: searchTerm,
+                        mode: 'insensitive',
+                    },
+                },
+                skip,
+                take: limit,
+                orderBy: {
+                    createdAt: 'desc',
+                },
+            }),
+            prisma.offer.count({
+                where: {
+                    name: {
+                        contains: searchTerm,
+                        mode: 'insensitive',
+                    },
+                },
+            }),
+        ]);
 
-        const offers: Offer[] = querySnapshot.docs.map((doc) => {
-            const data = doc.data();
-            return {
-                id: doc.id, 
-                name: data.name, 
-                slug: data.slug,
-                userId: data.userId,
-                price: data.price,
-                description: data.description,
-                imageLink: data.imageLink,
-                promoCode: data.promoCode,
-                normalPrice: data.normalPrice,
-                expirationDate: data.expirationDate,
-                rankingScore: data.rankingScore,
-                externalLink: data.externalLink,
-                category: data.category,
-                company: data.company,
-            } as Offer;
-        });
+        const lastDocId = (skip + limit < totalOffers) ? offers[offers.length - 1]?.id : undefined;
 
-        const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
-
-        return { offers, lastDocId: lastDoc ? lastDoc.id : undefined };
+        return { offers, lastDocId, totalOffers };
     } catch (error) {
         console.error("Error fetching offers:", error);
         throw new Error("Failed to fetch offers");

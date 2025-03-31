@@ -13,6 +13,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { classNames } from '@/services/utils'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
+import Image from 'next/image'
 
 
 const defaultUser = {
@@ -42,7 +43,7 @@ const Header = () => {
     const handleSignOut = async () => {
         await signOut({ redirect: true, callbackUrl: '/' })
     }
-
+    console.log(session?.user?.image)
     return (
         <Popover as="header" className="bg-primary pb-24">
             <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:max-w-custom lg:px-8">
@@ -81,7 +82,19 @@ const Header = () => {
                                 <MenuButton className="relative flex rounded-full bg-white text-sm ring-2 ring-white/25 focus:outline-none focus:ring-white/100">
                                     <span className="absolute -inset-1.5" />
                                     <span className="sr-only">Open user menu</span>
-                                    <img alt="" src={session?.user?.image || defaultUser.imageUrl} className="h-8 w-8 rounded-full" />
+                                    {session?.user?.image ? (
+                                        <Image
+                                            src={session.user.image}
+                                            alt="user avatar"
+                                            width={20}
+                                            height={20}
+                                            className="h-8 w-8 rounded-full"
+                                        />
+                                    ) : (
+                                        <img alt="" src={defaultUser.imageUrl} className="h-8 w-8 rounded-full" />
+                                    )
+                                    }
+
                                 </MenuButton>
                             </div>
                             <MenuItems

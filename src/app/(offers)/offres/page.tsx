@@ -1,49 +1,62 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Offer } from "@/features/types";
+
+import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { debounce } from "lodash"; 
+
+const fetchOffers = async (page: number, limit: number, searchTerm: string) => {
+    const response = await fetch(`/api/offers?page=${page}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}`);
+    if (!response.ok) {
+        throw new Error("Network response was not ok");
+    }
+    return response.json();
+};
 
 const Offers = () => {
-    const [offers, setOffers] = useState<Offer[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
-    const [lastDoc, setLastDoc] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
     const limit = 10;
 
-    const fetchOffers = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await fetch(`/api/offers?page=${page}&limit=${limit}&lastDoc=${lastDoc || ''}`);
-            const data = await response.json();
-            
-            setOffers(data.offers);
-            setLastDoc(data.lastDoc || null);
-        } catch (err) {
-            setError("Impossible de charger les offres. " + (err instanceof Error ? err.message : String(err)));
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        fetchOffers();
-    }, [page]);
+        const handler = debounce((value) => {
+            setDebouncedSearchTerm(value);
+        }, 500); 
+        handler(searchTerm);
+        return () => handler.cancel();
+    }, [searchTerm]);
+
+    const { data, error, isFetching } = useQuery({
+        queryKey: ["offers", page, debouncedSearchTerm],
+        queryFn: () => fetchOffers(page, limit, debouncedSearchTerm),
+        placeholderData: (previousData) => previousData,
+        staleTime: 10000, 
+        gcTime: 60000, 
+    });
 
     return (
         <div className="text-2xl font-bold pt-14">
-            {loading && <p>Chargement des offres...</p>}
-            {error && <p className="text-red-500">{error}</p>}
+            <input
+                type="text"
+                placeholder="Rechercher une offre..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="mb-4 p-2 border rounded"
+            />
 
-            {!loading && offers.length > 0 ? (
-                offers.map((offer) => (
-                    <div key={offer.slug}>
+            {isFetching && !data && <p>Chargement des offres...</p>}
+            {error && <p className="text-red-500">{error.message}</p>}
+
+            {data && data.offers.length > 0 ? (
+                data.offers.map((offer) => (
+                    <div key={offer.id}>
                         <h2>{offer.name}</h2>
                         <p>{offer.price} €</p>
                     </div>
                 ))
             ) : (
-                !loading && <p>Aucune offre pour l&apos;instant</p>
+                !isFetching && <p>Aucune offre pour l'instant</p>
             )}
 
             <div className="flex gap-4 mt-4">
@@ -55,7 +68,7 @@ const Offers = () => {
                     Précédent
                 </button>
                 <button 
-                    disabled={!lastDoc || offers.length < limit}
+                    disabled={!data || data.offers.length < limit}
                     onClick={() => setPage((prev) => prev + 1)}
                     className="px-4 py-2 bg-gray-300 disabled:opacity-50"
                 >
