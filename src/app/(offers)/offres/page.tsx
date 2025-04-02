@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { debounce } from "lodash"; 
+import AddOfferDialog from "@/features/offers/components/AddOfferDialog";
 
 const fetchOffers = async (page: number, limit: number, searchTerm: string) => {
     const response = await fetch(`/api/offers?page=${page}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}`);
@@ -16,6 +17,7 @@ const Offers = () => {
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const limit = 10;
 
@@ -27,7 +29,7 @@ const Offers = () => {
         return () => handler.cancel();
     }, [searchTerm]);
 
-    const { data, error, isFetching } = useQuery({
+    const { data, error, isFetching, refetch } = useQuery({
         queryKey: ["offers", page, debouncedSearchTerm],
         queryFn: () => fetchOffers(page, limit, debouncedSearchTerm),
         placeholderData: (previousData) => previousData,
@@ -44,6 +46,12 @@ const Offers = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="mb-4 p-2 border rounded"
             />
+            <button 
+                onClick={() => setIsDialogOpen(true)} 
+                className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
+            >
+                Ajouter une offre
+            </button>
 
             {isFetching && !data && <p>Chargement des offres...</p>}
             {error && <p className="text-red-500">{error.message}</p>}
@@ -75,6 +83,14 @@ const Offers = () => {
                     Suivant
                 </button>
             </div>
+
+            <AddOfferDialog 
+                isOpen={isDialogOpen} 
+                onClose={() => {
+                    setIsDialogOpen(false);
+                    refetch();
+                }} 
+            />
         </div>
     );
 };

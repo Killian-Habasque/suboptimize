@@ -41,13 +41,14 @@ export const add_Subscription = async (
       categoryIds,
       companyIds,
     }),
-  })
+  });
 
   if (!response.ok) {
-    throw new Error('Erreur lors de l\'ajout de l\'abonnement')
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Erreur lors de l'ajout de l'offre");
   }
 
-  return response.json()
+  return response.json();
 }
 
 export const filter_Subscriptions_by_month = (

@@ -10,7 +10,7 @@ import Calendar from "@/features/subscriptions/components/calendar";
 import { useSubscription } from "@/features/subscriptions/subscriptionContext";
 
 const Template = () => {
-  const { subscriptions, loading } = useSubscription();
+  const { subscriptions } = useSubscription();
   return (
     <>
       <Header />

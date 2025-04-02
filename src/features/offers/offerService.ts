@@ -37,3 +37,26 @@ export const get_all_Offers = async (page: number, limit: number, searchTerm: st
         throw new Error("Failed to fetch offers");
     }
 };
+
+export const add_Offer = async (offerData: {
+    name: string;
+    description: string;
+    price: number;
+    normalPrice: number;
+    imageLink?: string;
+    slug: string;
+    userId: string;
+}) => {
+    const response = await fetch('/api/offers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(offerData),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erreur lors de l'ajout de l'offre");
+    }
+
+    return response.json();
+};
