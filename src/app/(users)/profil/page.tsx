@@ -1,37 +1,12 @@
-"use client"
-import { useSession } from "next-auth/react";
-import { signOut } from "next-auth/react";
-import Image from "next/image";
+import { requiredAuth } from "@/lib/auth-helper";
+import Profil from "@/features/users/components/profil";
 
-export default function HomePage() {
-    const { data: session } = useSession();
+export default async function HomePage() {
+    const user = await requiredAuth();
 
     return (
         <>
-            {session?.user ? (
-                <>
-                    {session?.user.image && (
-                        <Image
-                            src={session.user.image}
-                            alt="user avatar"
-                            width={32}
-                            height={32}
-                            className="rounded-full"
-                        />
-                    )}
-                    {session.user.name && (
-                        <span>{session.user.name}</span>
-                    )}
-                    <button onClick={() => signOut()}>
-                        Déconnexion
-                    </button>
-                </>
-            ) : (
-                <div className="flex flex-col items-center m-4">
-
-                </div>
-            )}
+            <Profil user={user}/>
         </>
     );
-};
-
+}

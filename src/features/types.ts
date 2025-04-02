@@ -51,13 +51,3 @@ export interface Offer {
     category?: Category[];
     company?: Company[];
 }
-
-export interface User {
-    pseudo: string;
-    imageLink?: string;
-}
-
-export interface User {
-    pseudo: string;
-    imageLink?: string;
-}
