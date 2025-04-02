@@ -18,6 +18,10 @@ export const get_all_Offers = async (page: number, limit: number, searchTerm: st
                 orderBy: {
                     createdAt: 'desc',
                 },
+                include: {
+                    companies: true,
+                    categories: true,
+                },
             }),
             prisma.offer.count({
                 where: {

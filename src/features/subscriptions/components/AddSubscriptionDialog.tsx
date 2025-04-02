@@ -9,6 +9,7 @@ import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from "@headl
 import { add_Subscription } from "@/features/subscriptions/subscriptionService";
 import { useSubscription } from "@/features/subscriptions/subscriptionContext";
 import { Category, Company } from "@prisma/client";
+import { useQuery } from "@tanstack/react-query";
 
 const schema = z.object({
     title: z.string().min(1, "Le titre est obligatoire"),
@@ -32,6 +33,8 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
     const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
     const [errorMessage, setErrorMessage] = useState<string>("");
+    const [searchOfferTerm, setSearchOfferTerm] = useState("");
+    const [selectedOffer, setSelectedOffer] = useState<any>(null);
 
     const {
         register,
@@ -50,6 +53,15 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
             category: null,
             company: null,
         },
+    });
+
+    const { data: offersData } = useQuery({
+        queryKey: ["offers", searchOfferTerm],
+        queryFn: async () => {
+            const response = await fetch(`/api/offers?searchTerm=${encodeURIComponent(searchOfferTerm)}`);
+            return response.json();
+        },
+        enabled: !!searchOfferTerm,
     });
 
     useEffect(() => {
@@ -100,10 +112,38 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
         }
     };
 
+    const handleOfferSelect = (offer: any) => {
+        setSelectedOffer(offer);
+        setValue("title", offer.name);
+        setValue("price", offer.price);
+        setValue("category", offer.categories.length > 0 ? { id: offer.categories[0].id, name: offer.categories[0].name } : null);
+        setValue("company", offer.companies.length > 0 ? { id: offer.companies[0].id, name: offer.companies[0].name } : null);
+    };
+
     return (
         <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 flex items-center justify-center z-50">
             <DialogPanel className="w-96 bg-white p-6 shadow-xl rounded-lg">
                 <DialogTitle className="text-xl font-semibold text-gray-800">Ajouter un abonnement</DialogTitle>
+                
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Rechercher une offre..."
+                        value={searchOfferTerm}
+                        onChange={(e) => setSearchOfferTerm(e.target.value)}
+                        className="mb-4 p-2 border rounded"
+                    />
+                    {offersData && offersData.offers.length > 0 && (
+                        <ul className="border rounded">
+                            {offersData.offers.map((offer) => (
+                                <li key={offer.id} onClick={() => handleOfferSelect(offer)} className="cursor-pointer p-2 hover:bg-gray-200">
+                                    {offer.name} - {offer.price} €
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+
                 <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-4 mt-4">
                     <div>
                         <label className="text-sm font-bold">Titre*</label>
@@ -145,7 +185,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                                     const query = event.target.value.toLowerCase();
                                     setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query)));
                                 }}
-                                placeholder="Rechercher une catégorie..."
+                                placeholder="Rechercher ou saisir une catégorie..."
                             />
                             <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
                                 {filteredCategories.map((cat) => (
@@ -156,17 +196,18 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             </ComboboxOptions>
                         </Combobox>
                     </div>
+
                     <div>
                         <label className="text-sm font-bold">Entreprise</label>
                         <Combobox value={watch("company")} onChange={(value) => setValue("company", value)}>
                             <ComboboxInput
                                 className="w-full px-3 py-2 border rounded-lg"
-                                displayValue={(cat) => cat?.name || ""}
+                                displayValue={(com) => com?.name || ""}
                                 onChange={(event) => {
                                     const query = event.target.value.toLowerCase();
                                     setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query)));
                                 }}
-                                placeholder="Rechercher une catégorie..."
+                                placeholder="Rechercher ou saisir une entreprise..."
                             />
                             <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
                                 {filteredCompanies.map((com) => (
@@ -177,6 +218,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             </ComboboxOptions>
                         </Combobox>
                     </div>
+
                     <button
                         type="submit"
                         disabled={isSubmitting}
