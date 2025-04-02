@@ -21,7 +21,7 @@ export interface Category {
 
 
 export interface Subscription2 {
-    subId: string;
+    id: string;
     title: string;
     slug: string;
     dueType: string;

@@ -1,5 +1,5 @@
-import { Subscription } from "@prisma/client";
 import { format, parse } from 'date-fns';
+import { Subscription } from "@/lib/types";
 
 export const get_all_user_Subscriptions = async (): Promise<Subscription[]> => {
   try {

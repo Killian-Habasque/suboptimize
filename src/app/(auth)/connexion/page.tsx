@@ -1,5 +1,5 @@
 
-import Login from "@/features/users/components/login";
+import Login from "@/features/auth/components/login";
 import { requiredGuest } from "@/lib/auth-helper";
 
 export default async function Home() {

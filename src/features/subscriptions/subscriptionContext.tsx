@@ -2,12 +2,13 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { get_all_user_Subscriptions } from "./subscriptionService";
-import { Subscription } from "@prisma/client";
+import { Subscription } from "@/lib/types";
 import { useSession } from "next-auth/react";
 
 interface SubscriptionContextType {
   subscriptions: Subscription[];
   loading: boolean;
+  setSubscriptions: React.Dispatch<React.SetStateAction<Subscription[]>>;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -43,7 +44,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
         fetchSubscriptions();
     }, [session?.user?.id]);
 
-  const value = { subscriptions, loading };
+  const value = { subscriptions, loading, setSubscriptions };
 
   return (
     <SubscriptionContext.Provider value={value}>
