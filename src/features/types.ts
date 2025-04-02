@@ -21,7 +21,7 @@ export interface Category {
 
 
 export interface Subscription2 {
-    subId: string;
+    id: string;
     title: string;
     slug: string;
     dueType: string;
@@ -50,14 +50,4 @@ export interface Offer {
     externalLink?: string;
     category?: Category[];
     company?: Company[];
-}
-
-export interface User {
-    pseudo: string;
-    imageLink?: string;
-}
-
-export interface User {
-    pseudo: string;
-    imageLink?: string;
 }

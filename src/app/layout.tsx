@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/features/users/authContext";
+import { SessionProvider } from "next-auth/react";
 import { SubscriptionProvider } from "@/features/subscriptions/subscriptionContext";
+import QueryProvider from "@/features/offers/offerProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,13 +17,15 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full bg-gray-100">
       <body className="h-full">
-        <AuthProvider>
-          <SubscriptionProvider>
-            <div className="w-full h-screen flex flex-col min-h-full">
-              {children}
-            </div>
-          </SubscriptionProvider>
-        </AuthProvider>
+        <QueryProvider>
+          <SessionProvider>
+            <SubscriptionProvider>
+              <div className="w-full h-screen flex flex-col min-h-full">
+                {children}
+              </div>
+            </SubscriptionProvider>
+          </SessionProvider>
+        </QueryProvider>
       </body>
     </html>
   );

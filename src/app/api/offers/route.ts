@@ -5,14 +5,14 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
-    const lastVisible = searchParams.get("lastDoc") || undefined;
+    const searchTerm = searchParams.get("searchTerm") || "";
 
     try {
-        const { offers, lastDocId } = await get_all_Offers(page, limit, lastVisible);
-
+        const { offers, lastDocId, totalOffers } = await get_all_Offers(page, limit, searchTerm);
         return NextResponse.json({
             offers,
             lastDoc: lastDocId,
+            total: totalOffers
         });
     } catch (error) {
         console.error("Error in API route:", error);

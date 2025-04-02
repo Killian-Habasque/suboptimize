@@ -1,13 +1,14 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { get_all_user_Subscriptions } from "@/features/subscriptions/subscriptionService";
-import { Subscription } from "@/features/types";
-import { useAuth } from "@/features/users/authContext";
+import { get_all_user_Subscriptions } from "./subscriptionService";
+import { Subscription } from "@/lib/types";
+import { useSession } from "next-auth/react";
 
 interface SubscriptionContextType {
   subscriptions: Subscription[];
   loading: boolean;
+  setSubscriptions: React.Dispatch<React.SetStateAction<Subscription[]>>;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -19,37 +20,35 @@ export function useSubscription() {
   }
   return context;
 }
-
 export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
-  const { currentUser } = useAuth();
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [loading, setLoading] = useState(true);
+    const { data: session } = useSession();
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchSubscriptions = async () => {
-      if (currentUser) {
-        try {
-          const userId = currentUser.uid;
-          const subs = await get_all_user_Subscriptions(userId);
-          setSubscriptions(subs);
-        } catch (error) {
-          console.error("Erreur lors de la récupération des abonnements:", error);
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setLoading(false);
-      }
-    };
+    useEffect(() => {
+        const fetchSubscriptions = async () => {
+            if (session?.user?.id) {
+                try {
+                    const subs = await get_all_user_Subscriptions();
+                    setSubscriptions(subs);
+                } catch (error) {
+                    console.error("Erreur lors de la récupération des abonnements:", error);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setLoading(false);
+            }
+        };
 
-    fetchSubscriptions();
-  }, [currentUser]);
+        fetchSubscriptions();
+    }, [session?.user?.id]);
 
-  const value = { subscriptions, loading };
+  const value = { subscriptions, loading, setSubscriptions };
 
   return (
     <SubscriptionContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </SubscriptionContext.Provider>
   );
-} 
+}

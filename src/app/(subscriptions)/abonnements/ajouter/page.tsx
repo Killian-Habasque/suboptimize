@@ -2,64 +2,79 @@
 
 import { useState, useEffect } from 'react'
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/react'
-import { add_Subscription } from "@/features/subscriptions/subscriptionService";
-import { Category, Company, Offer } from "@/features/types";
-import { get_all_Offers } from "@/features/offers/offerService";
+import { add_Subscription } from "@/features/subscriptions/subscriptionService"
+import { Category, Company, Offer } from "@prisma/client"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 const AddSubscription = () => {
+    // const { data: session } = useSession()
+    const router = useRouter()
     const [title, setTitle] = useState('')
-    const [dueType, setDueType] = useState('annuel')
-    const [endDate, setEndDate] = useState(new Date())
+    const [dueType, setDueType] = useState('monthly')
+    const [endDate, setEndDate] = useState<Date | null>(null)
     const [dueDate, setDueDate] = useState(new Date())
     const [price, setPrice] = useState(0)
     const [category, setCategory] = useState<Category | null>(null)
     const [company, setCompany] = useState<Company | null>(null)
-    const [isPublic, setIsPublic] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
-    const [isSigningIn, setIsSigningIn] = useState(false)
-    const [offers, setOffers] = useState<Offer[]>([])
-    const [offer, setOffer] = useState<Offer | null>(null)
-
-    const categories: Category[] = [
-        { id: '1', title: 'Téléphone', slug: 'telephone' },
-        { id: '2', title: 'Internet', slug: 'internet' }
-    ];
-
-    const companies: Company[] = [
-        { id: '1', name: 'Orange', slug: 'orange' },
-        { id: '2', name: 'Bouygues', slug: 'bouygues' }
-    ];
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [categories, setCategories] = useState<Category[]>([])
+    const [companies, setCompanies] = useState<Company[]>([])
 
     useEffect(() => {
-        const fetchOffers = async () => {
+        // Charger les catégories et entreprises depuis l'API
+        const fetchData = async () => {
             try {
-                const data = await get_all_Offers();
-                setOffers(data);
+                const [categoriesRes, companiesRes] = await Promise.all([
+                    fetch('/api/categories'),
+                    fetch('/api/companies')
+                ])
+                
+                if (categoriesRes.ok && companiesRes.ok) {
+                    const [categoriesData, companiesData] = await Promise.all([
+                        categoriesRes.json(),
+                        companiesRes.json()
+                    ])
+                    
+                    setCategories(categoriesData)
+                    setCompanies(companiesData)
+                }
             } catch (error) {
-                console.error('Error fetching offers:', error);
+                console.error('Error fetching data:', error)
+                setErrorMessage('Erreur lors du chargement des données')
             }
-        };
+        }
 
-        fetchOffers();
-    }, []);
+        fetchData()
+    }, [])
 
-    const onSubmit = async (e: { preventDefault: () => void; }) => {
+    const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        setIsSigningIn(true)
+        // if (!session?.user?.id) {
+        //     setErrorMessage('Vous devez être connecté pour ajouter un abonnement')
+        //     return
+        // }
+
+        setIsSubmitting(true)
         try {
             await add_Subscription(
+                // session.user.id,
+                // 'cm8nj13c10000g4nux4kt5r28',
                 title,
                 dueDate,
                 endDate,
                 price,
-                category ? [category] : [],
-                company ? [company] : [],
-                isPublic
-            );
+                category ? [category.id] : [],
+                company ? [company.id] : []
+            )
+            
+            router.push('/abonnements')
         } catch (error) {
-            setErrorMessage('Une erreur est survenue lors de l\'ajout de l\'abonnement.' + error)
+            console.error('Error:', error)
+            setErrorMessage('Une erreur est survenue lors de l\'ajout de l\'abonnement.')
         } finally {
-            setIsSigningIn(false)
+            setIsSubmitting(false)
         }
     }
 
@@ -69,7 +84,7 @@ const AddSubscription = () => {
                 <div className="w-96 text-gray-600 space-y-5 p-4 shadow-xl border rounded-xl">
                     <div className="text-center">
                         <div className="mt-2">
-                            <h3 className="text-gray-800 text-xl font-semibold sm:text-2xl">Add subscription</h3>
+                            <h3 className="text-gray-800 text-xl font-semibold sm:text-2xl">Ajouter un abonnement</h3>
                         </div>
                     </div>
                     <form
@@ -78,36 +93,14 @@ const AddSubscription = () => {
                     >
                         <div>
                             <label className="text-sm text-gray-600 font-bold">
-                                Offres
-                            </label>
-                            <Combobox value={offer} onChange={setOffer}>
-                                <div className="relative mt-2">
-                                    <ComboboxInput
-                                        className="w-full px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
-                                        displayValue={(offer: Offer | null) => offer ? offer.name : ''}
-                                        onChange={(event) => setOffer(offers.find(o => o.name.toLowerCase().includes(event.target.value.toLowerCase())) || null)}
-                                        placeholder="Rechercher une offre..."
-                                    />
-                                    <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-40 overflow-y-auto">
-                                        {offers.filter(o => o && o.name && o.name.toLowerCase().includes((offer?.name || '').toLowerCase())).map((o, index) => (
-                                            <ComboboxOption key={index} value={o} className={({ active }) => `cursor-default select-none relative px-4 py-2 ${active ? 'bg-indigo-600 text-white' : 'text-gray-900'}`}>
-                                                {o.name}
-                                            </ComboboxOption>
-                                        ))}
-                                    </ComboboxOptions>
-                                </div>
-                            </Combobox>
-                        </div>
-
-                        <div>
-                            <label className="text-sm text-gray-600 font-bold">
                                 Titre
                             </label>
                             <input
                                 type="text"
                                 required
-                                value={title} onChange={(e) => { setTitle(e.target.value) }}
-                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
                             />
                         </div>
 
@@ -117,24 +110,13 @@ const AddSubscription = () => {
                             </label>
                             <select
                                 required
-                                value={dueType} onChange={(e) => { setDueType(e.target.value) }}
-                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                                value={dueType}
+                                onChange={(e) => setDueType(e.target.value)}
+                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
                             >
-                                <option value="annuel">Annuel</option>
-                                <option value="mensuel">Mensuel</option>
+                                <option value="monthly">Mensuel</option>
+                                <option value="yearly">Annuel</option>
                             </select>
-                        </div>
-
-                        <div>
-                            <label className="text-sm text-gray-600 font-bold">
-                                Date de fin d&pos;abonnement
-                            </label>
-                            <input
-                                type="date"
-                                required
-                                value={endDate.toISOString().split('T')[0]} onChange={(e) => { setEndDate(new Date(e.target.value)) }}
-                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
-                            />
                         </div>
 
                         <div>
@@ -144,8 +126,21 @@ const AddSubscription = () => {
                             <input
                                 type="date"
                                 required
-                                value={dueDate.toISOString().split('T')[0]} onChange={(e) => { setDueDate(new Date(e.target.value)) }}
-                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                                value={dueDate.toISOString().split('T')[0]}
+                                onChange={(e) => setDueDate(new Date(e.target.value))}
+                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-gray-600 font-bold">
+                                Date de fin (optionnelle)
+                            </label>
+                            <input
+                                type="date"
+                                value={endDate?.toISOString().split('T')[0] || ''}
+                                onChange={(e) => setEndDate(e.target.value ? new Date(e.target.value) : null)}
+                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
                             />
                         </div>
 
@@ -156,27 +151,40 @@ const AddSubscription = () => {
                             <input
                                 type="number"
                                 required
-                                value={price} onChange={(e) => { setPrice(parseFloat(e.target.value)) }}
-                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                                step="0.01"
+                                value={price}
+                                onChange={(e) => setPrice(parseFloat(e.target.value))}
+                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
                             />
                         </div>
 
                         <div>
                             <label className="text-sm text-gray-600 font-bold">
-                                Catégories
+                                Catégorie
                             </label>
                             <Combobox value={category} onChange={setCategory}>
                                 <div className="relative mt-2">
                                     <ComboboxInput
-                                        className="w-full px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
-                                        displayValue={(cat: Category | null) => cat ? cat.title : ''}
-                                        onChange={(event) => setCategory(categories.find(c => c.title.toLowerCase().includes(event.target.value.toLowerCase())) || null)}
+                                        className="w-full px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
+                                        displayValue={(cat: Category | null) => cat?.name || ''}
+                                        onChange={(event) => {
+                                            const value = event.target.value.toLowerCase()
+                                            setCategory(categories.find(c => c.name.toLowerCase().includes(value)) || null)
+                                        }}
                                         placeholder="Rechercher une catégorie..."
                                     />
                                     <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-40 overflow-y-auto">
-                                        {categories.filter(cat => cat.title.toLowerCase().includes((category?.title || '').toLowerCase())).map((cat, index) => (
-                                            <ComboboxOption key={index} value={cat} className={({ active }) => `cursor-default select-none relative px-4 py-2 ${active ? 'bg-indigo-600 text-white' : 'text-gray-900'}`}>
-                                                {cat.title}
+                                        {categories.map((cat) => (
+                                            <ComboboxOption
+                                                key={cat.id}
+                                                value={cat}
+                                                className={({ active }) =>
+                                                    `cursor-default select-none relative px-4 py-2 ${
+                                                        active ? 'bg-indigo-600 text-white' : 'text-gray-900'
+                                                    }`
+                                                }
+                                            >
+                                                {cat.name}
                                             </ComboboxOption>
                                         ))}
                                     </ComboboxOptions>
@@ -186,20 +194,31 @@ const AddSubscription = () => {
 
                         <div>
                             <label className="text-sm text-gray-600 font-bold">
-                                Marque
+                                Entreprise
                             </label>
                             <Combobox value={company} onChange={setCompany}>
                                 <div className="relative mt-2">
                                     <ComboboxInput
-                                        className="w-full px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
-                                        displayValue={(br: Company | null) => br ? br.name : ''}
-                                        onChange={(event) => setCompany(companies.find(b => b.name.toLowerCase().includes(event.target.value.toLowerCase())) || null)}
-                                        placeholder="Rechercher une marque..."
+                                        className="w-full px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
+                                        displayValue={(comp: Company | null) => comp?.name || ''}
+                                        onChange={(event) => {
+                                            const value = event.target.value.toLowerCase()
+                                            setCompany(companies.find(c => c.name.toLowerCase().includes(value)) || null)
+                                        }}
+                                        placeholder="Rechercher une entreprise..."
                                     />
                                     <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg max-h-40 overflow-y-auto">
-                                        {companies.filter(br => br.name.toLowerCase().includes((company?.name || '').toLowerCase())).map((br, index) => (
-                                            <ComboboxOption key={index} value={br} className={({ active }) => `cursor-default select-none relative px-4 py-2 ${active ? 'bg-indigo-600 text-white' : 'text-gray-900'}`}>
-                                                {br.name}
+                                        {companies.map((comp) => (
+                                            <ComboboxOption
+                                                key={comp.id}
+                                                value={comp}
+                                                className={({ active }) =>
+                                                    `cursor-default select-none relative px-4 py-2 ${
+                                                        active ? 'bg-indigo-600 text-white' : 'text-gray-900'
+                                                    }`
+                                                }
+                                            >
+                                                {comp.name}
                                             </ComboboxOption>
                                         ))}
                                     </ComboboxOptions>
@@ -207,27 +226,20 @@ const AddSubscription = () => {
                             </Combobox>
                         </div>
 
-                        <div>
-                            <label className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={isPublic} onChange={(e) => { setIsPublic(e.target.checked) }}
-                                    className="mr-2"
-                                />
-                                Partager en public
-                            </label>
-                        </div>
-
                         {errorMessage && (
-                            <span className='text-red-600 font-bold'>{errorMessage}</span>
+                            <div className="text-red-600 font-bold text-sm">{errorMessage}</div>
                         )}
 
                         <button
                             type="submit"
-                            disabled={isSigningIn}
-                            className={`w-full px-4 py-2 text-white font-medium rounded-lg ${isSigningIn ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl transition duration-300'}`}
+                            disabled={isSubmitting}
+                            className={`w-full px-4 py-2 text-white font-medium rounded-lg ${
+                                isSubmitting
+                                    ? 'bg-gray-300 cursor-not-allowed'
+                                    : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl transition duration-300'
+                            }`}
                         >
-                            {isSigningIn ? 'Signing In...' : 'Sign In'}
+                            {isSubmitting ? 'Ajout en cours...' : 'Ajouter l\'abonnement'}
                         </button>
                     </form>
                 </div>
