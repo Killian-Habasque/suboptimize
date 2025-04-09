@@ -26,6 +26,7 @@ export const add_Subscription = async (
   price: number,
   categoryIds: string[],
   companyIds: string[],
+  customCompany: string | null
 ) => {
   const response = await fetch('/api/subscriptions', {
     method: 'POST',
@@ -40,6 +41,7 @@ export const add_Subscription = async (
       price,
       categoryIds,
       companyIds,
+      customCompany
     }),
   });
 
@@ -65,10 +67,6 @@ export const filter_Subscriptions_by_month = (
       const day = parse(dayString, 'yyyy-MM-dd', new Date());
       const billingDate = new Date(day);
       billingDate.setHours(0, 0, 0, 0);
-console.log(sub)
-console.log(        billingDate >= startDate &&
-  (endDate ? billingDate <= endDate : true) &&
-  String(sub.dueDay) === format(billingDate, 'd'))
       return (
         billingDate >= startDate &&
         (endDate ? billingDate <= endDate : true) &&

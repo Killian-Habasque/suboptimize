@@ -54,6 +54,7 @@ export async function POST(request: Request) {
             price,
             categoryIds,
             companyIds,
+            customCompany
         } = await request.json()
 
         const subscription = await prisma.subscription.create({
@@ -73,7 +74,8 @@ export async function POST(request: Request) {
                 },
                 companies: {
                     connect: companyIds?.map((id: string) => ({ id })) || []
-                }
+                },
+                customCompany : customCompany ?? null
             },
         })
 

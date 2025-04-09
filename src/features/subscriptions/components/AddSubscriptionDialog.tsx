@@ -19,6 +19,7 @@ const schema = z.object({
     price: z.coerce.number().min(0, "Le prix doit être positif"),
     category: z.any().nullable(),
     company: z.any().nullable(),
+    customCompany: z.string().optional(),
 });
 
 interface AddSubscriptionDialogProps {
@@ -53,6 +54,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
             price: 0,
             category: null,
             company: null,
+            customCompany: "",
         },
     });
 
@@ -102,6 +104,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
             setValue("price", 0);
             setValue("category", null);
             setValue("company", null);
+            setValue("customCompany", "");
             setSearchOfferTerm("");
             setSelectedOffer(null);
             setStep("search");
@@ -118,7 +121,8 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                 data.endDate ? new Date(data.endDate) : null,
                 data.price,
                 data.category ? [data.category.id] : [],
-                data.company ? [data.company.id] : []
+                data.company ? [data.company.id] : [],
+                data.customCompany || null
             );
 
             setSubscriptions((prev) => [...prev, newSubscription]);
@@ -173,6 +177,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             setValue("price", 0);
                             setValue("category", null);
                             setValue("company", null);
+                            setValue("customCompany", "");
                         }} className="mt-4 text-blue-600">Ajouter une offre personnalisée</button>
                     </div>
                 ) : (
@@ -253,11 +258,16 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             </Combobox>
                         </div>
 
-                        {/* <div>
-                            <label className="text-sm font-bold">Image personnalisé</label>
-                            <input {...register("title")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer} />
-                            {errors.title && <p className="text-red-600">{errors.title.message}</p>}
-                        </div> */}
+                        <div>
+                            <label className="text-sm font-bold">Entreprise personnalisée</label>
+                            <input
+                                type="text"
+                                {...register("customCompany")}
+                                className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`}
+                                placeholder="Saisissez une nouvelle entreprise..."
+                                disabled={!!selectedOffer}
+                            />
+                        </div>
 
                         <button
                             type="button"
