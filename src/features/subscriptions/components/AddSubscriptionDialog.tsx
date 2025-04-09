@@ -124,7 +124,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
         <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 flex items-center justify-center z-50">
             <DialogPanel className="w-96 bg-white p-6 shadow-xl rounded-lg">
                 <DialogTitle className="text-xl font-semibold text-gray-800">Ajouter un abonnement</DialogTitle>
-                
+
                 <div>
                     <input
                         type="text"
@@ -133,15 +133,17 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                         onChange={(e) => setSearchOfferTerm(e.target.value)}
                         className="mb-4 p-2 border rounded"
                     />
-                    {offersData && offersData.offers.length > 0 && (
-                        <ul className="border rounded">
-                            {offersData.offers.map((offer) => (
+                    <ul className="border rounded h-40 overflow-scroll">
+                        {offersData && offersData.offers.length > 0 ? (
+                            offersData.offers.map((offer) => (
                                 <li key={offer.id} onClick={() => handleOfferSelect(offer)} className="cursor-pointer p-2 hover:bg-gray-200">
                                     {offer.name} - {offer.price} €
                                 </li>
-                            ))}
-                        </ul>
-                    )}
+                            ))
+                        ) : <span className="w-full flex justify-center p-2 opacity-25">
+                            {searchOfferTerm ? "Aucun abonnement trouvé" : "Rechercher un abonnement"}
+                        </span>}
+                    </ul>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-4 mt-4">
@@ -217,6 +219,12 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                                 ))}
                             </ComboboxOptions>
                         </Combobox>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-bold">Image personnalisé</label>
+                        <input {...register("title")} className="w-full px-3 py-2 border rounded-lg" />
+                        {errors.title && <p className="text-red-600">{errors.title.message}</p>}
                     </div>
 
                     <button
