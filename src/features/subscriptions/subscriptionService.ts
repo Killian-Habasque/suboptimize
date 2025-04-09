@@ -55,7 +55,6 @@ export const filter_Subscriptions_by_month = (
   subscriptions: Subscription[],
   visibleDays: string[]
 ) => {
-
   return subscriptions.filter((sub) => {
     const startDate = new Date(sub.startDatetime);
     startDate.setHours(0, 0, 0, 0);
@@ -66,10 +65,13 @@ export const filter_Subscriptions_by_month = (
       const day = parse(dayString, 'yyyy-MM-dd', new Date());
       const billingDate = new Date(day);
       billingDate.setHours(0, 0, 0, 0);
-
+console.log(sub)
+console.log(        billingDate >= startDate &&
+  (endDate ? billingDate <= endDate : true) &&
+  String(sub.dueDay) === format(billingDate, 'd'))
       return (
         billingDate >= startDate &&
-        (!endDate || billingDate <= endDate) &&
+        (endDate ? billingDate <= endDate : true) &&
         String(sub.dueDay) === format(billingDate, 'd')
       );
     });

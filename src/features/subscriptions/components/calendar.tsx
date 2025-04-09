@@ -182,7 +182,7 @@ function DayView({ currentDate, filteredSubscriptions }: DayViewProps) {
               const isWithinSubscription =
                 isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                 isSameDay(selectedDate, subscribe.startDatetime) ||
-                isSameDay(selectedDate, subscribe.endDatetime)
+                (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
               return isDay && isWithinSubscription
             })
             .map((subscribe) => (
@@ -240,7 +240,7 @@ function WeekView({ days, filteredSubscriptions }: WeekViewProps) {
                     const isWithinSubscription =
                       isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                       isSameDay(selectedDate, subscribe.startDatetime) ||
-                      isSameDay(selectedDate, subscribe.endDatetime)
+                      (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                     return isDay && isWithinSubscription
                   })
                   .map((subscribe) => (
@@ -340,7 +340,7 @@ function MonthView({
                     const isWithinSubscription =
                       isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                       isSameDay(selectedDate, subscribe.startDatetime) ||
-                      isSameDay(selectedDate, subscribe.endDatetime)
+                      (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                     return isDay && isWithinSubscription
                   })
                   .slice(0, 2)
@@ -350,12 +350,6 @@ function MonthView({
                         <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.title}
                         </p>
-                        {/* <time
-                          dateTime={subscribe.startDatetime}
-                          className="ml-3 hidden flex-none font-medium text-gray-500 group-hover:text-indigo-600 xl:block"
-                        >
-                          {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
-                        </time> */}
                       </div>
                     </li>
                   ))}
@@ -365,7 +359,7 @@ function MonthView({
                   const isWithinSubscription =
                     isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                     isSameDay(selectedDate, subscribe.startDatetime) ||
-                    isSameDay(selectedDate, subscribe.endDatetime)
+                    (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                   return isDay && isWithinSubscription
                 }).length > 2 && (
                   <li className="text-gray-500 font-normal">
@@ -375,7 +369,7 @@ function MonthView({
                       const isWithinSubscription =
                         isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                         isSameDay(selectedDate, subscribe.startDatetime) ||
-                        isSameDay(selectedDate, subscribe.endDatetime)
+                        (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                       return isDay && isWithinSubscription
                     }).length - 2} more
                   </li>
@@ -440,7 +434,7 @@ function MonthView({
                       const isWithinSubscription =
                         isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                         isSameDay(selectedDate, subscribe.startDatetime) ||
-                        isSameDay(selectedDate, subscribe.endDatetime)
+                        (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                       return isDay && isWithinSubscription
                     })
                     .slice(0, 2)
@@ -457,7 +451,7 @@ function MonthView({
                     const isWithinSubscription =
                       isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                       isSameDay(selectedDate, subscribe.startDatetime) ||
-                      isSameDay(selectedDate, subscribe.endDatetime)
+                      (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                     return isDay && isWithinSubscription
                   }).length > 2 && (
                     <span className="mx-0.5 text-gray-500 text-xs font-normal">
@@ -623,7 +617,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                 const isWithinSubscription =
                   isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                   isSameDay(selectedDate, subscribe.startDatetime) ||
-                  isSameDay(selectedDate, subscribe.endDatetime)
+                  (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                 return isDay && isWithinSubscription
               })
               .map((subscribe) => (
