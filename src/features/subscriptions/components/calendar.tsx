@@ -33,6 +33,8 @@ import { capitalizeFirstLetter, classNames } from '@/services/utils'
 import AddSubscriptionDialog from './AddSubscriptionDialog'
 import SubscriptionListItem from './SubscriptionListItem'
 import { useSubscription } from '../subscriptionContext'
+import EditSubscriptionDialog from './EditSubscriptionDialog'
+import { QuestionMarkCircleIcon } from '@heroicons/react/24/solid'
 
 const locale = fr
 
@@ -139,10 +141,11 @@ interface EventListItemProps {
 
 function EventListItem({ subscribe }: EventListItemProps) {
   const { subscriptions, setSubscriptions } = useSubscription();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
 
   const handleEdit = (id?: string) => {
-    console.log("Modifier l'abonnement:", id);
+    setIsEditDialogOpen(true);
   };
 
   const handleDelete = async (id?: string) => {
@@ -157,16 +160,25 @@ function EventListItem({ subscribe }: EventListItemProps) {
   };
   return (
     <>
+      {console.log(subscribe)}
       <SubscriptionListItem
         key={subscribe.id}
         price={subscribe.price}
         title={subscribe.title}
         description={subscribe.description}
         company={subscribe.companies[0]}
+        customCompany={subscribe.customCompany}
         category={subscribe.categories[0]}
         onEdit={() => handleEdit(subscribe.id)}
         onDelete={() => handleDelete(subscribe.id)}
       />
+      {isEditDialogOpen && (
+        <EditSubscriptionDialog
+          isOpen={isEditDialogOpen}
+          onClose={() => setIsEditDialogOpen(false)}
+          subscription={subscribe}
+        />
+      )}
       {/* <li key={subscribe.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
         <div className="flex-auto">
           <p className="font-semibold text-gray-900">{subscribe.title}</p>
@@ -378,7 +390,10 @@ function MonthView({
                   .slice(0, 2)
                   .map((subscribe) => (
                     <li key={subscribe.id}>
-                      <div className="group flex">
+                      <div className="group flex gap-1 items-center">
+                        <div className={`min-w-4 w-4 h-4 rounded-2xl flex items-center justify-center `}>
+                          {subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
+                        </div>
                         <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.title}
                         </p>
@@ -403,7 +418,7 @@ function MonthView({
                           isSameDay(selectedDate, subscribe.startDatetime) ||
                           (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                         return isDay && isWithinSubscription
-                      }).length - 2} more
+                      }).length - 2} en plus
                     </li>
                   )}
               </ul>
@@ -517,20 +532,19 @@ export default function Calendar({ subscriptions }: CalendarProps) {
   const [filteredSubscriptions, setFilteredSubscriptions] = useState<Subscription[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  // Génère les jours en fonction du mode (day, week, month)
   const generateDays = (mode: string, date: Date): string[] => {
     if (mode === 'day') {
       return [format(date, 'yyyy-MM-dd')]
     } else if (mode === 'week') {
       return eachDayOfInterval({
-        start: startOfWeek(date),
-        end: endOfWeek(date),
+        start: startOfWeek(date, { weekStartsOn: 1 }),
+        end: endOfWeek(date, { weekStartsOn: 1 }),
       }).map((day) => format(day, 'yyyy-MM-dd'))
     } else {
       const monthStart = startOfMonth(date)
       return eachDayOfInterval({
-        start: startOfWeek(monthStart),
-        end: endOfWeek(endOfMonth(monthStart)),
+        start: startOfWeek(monthStart, { weekStartsOn: 1 }),
+        end: endOfWeek(endOfMonth(monthStart), { weekStartsOn: 1 }),
       }).map((day) => format(day, 'yyyy-MM-dd'))
     }
   }
@@ -626,7 +640,9 @@ export default function Calendar({ subscriptions }: CalendarProps) {
               filteredSubscriptions={filteredSubscriptions}
             />
           ) : viewMode === 'week' ? (
-            <WeekView days={newDays} filteredSubscriptions={filteredSubscriptions} />
+            <WeekView
+              days={newDays}
+              filteredSubscriptions={filteredSubscriptions} />
           ) : (
             <MonthView
               days={newDays}

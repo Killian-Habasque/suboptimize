@@ -27,6 +27,7 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
     company,
     description,
     category,
+    customCompany,
     dueType,
     onEdit,
     onDelete,
@@ -54,11 +55,12 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
 
     return (
         <div className="relative flex justify-center items-center w-full p-4 gap-4">
-            {company && company.imageLink && <BrandBubble image={company.imageLink} altText={title} />}
+            <BrandBubble image={company && company.imageLink ? company.imageLink : null} altText={title}/>
             <div className="w-full">
                 {title && <h3 className="text-xl font-semibold">{title}</h3>}
                 <div className="flex gap-2 items-center flex-wrap">
                     {company && <div className="text-sm flex gap-2 text-gray-500 items-center font-normal">{company.name}</div>}
+                    {customCompany && <div className="text-sm flex gap-2 text-gray-500 items-center font-normal">{customCompany}</div>}
                     {category && <CategoryBadge icon={<PhoneIcon className="w-4" />} label={category.name} />}
                     {dueType && <DueTypeBadge type={dueType} />}
                 </div>
@@ -73,7 +75,7 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
                         <MenuButton className="relative flex rounded-full bg-white text-sm ring-2 ring-white/25 focus:outline-none focus:ring-gray/100 cursor-pointer">
                             <span className="absolute -inset-1.5" />
                             <span className="sr-only">Open user menu</span>
-                            <div className="w-8 h-8 rounded-full bg-blue-50 cursor-pointer">
+                            <div className="w-8 h-8 rounded-full cursor-pointer hover:bg-blue-50">
                                 <EllipsisVerticalIcon className="w-full h-full text-gray-400" />
                             </div>
                         </MenuButton>
@@ -118,7 +120,7 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <div className="fixed inset-0 bg-black bg-opacity-50" />
+                        <div className="fixed inset-0 bg-black/50" />
                     </TransitionChild>
 
                     <div className="fixed inset-0 flex items-center justify-center p-4">
