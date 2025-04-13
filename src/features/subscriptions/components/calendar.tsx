@@ -244,20 +244,24 @@ function DayView({ currentDate, filteredSubscriptions }: DayViewProps) {
 interface WeekViewProps {
   days: string[]
   filteredSubscriptions: Subscription[]
+  selectedDay: string
+  onSelectDay: (day: string) => void
 }
 
-function WeekView({ days, filteredSubscriptions }: WeekViewProps) {
+function WeekView({ days, filteredSubscriptions, selectedDay, onSelectDay }: WeekViewProps) {
   return (
     <div className="w-full bg-white">
       <div className="grid grid-cols-7 divide-x divide-gray-100 h-full">
         {days.map((day) => {
           const parsedDay = parse(day, 'yyyy-MM-dd', new Date())
+          const isSelected = day === selectedDay
           return (
             <div
               key={day}
+              onClick={() => onSelectDay(day)}
               className={classNames(
-                'min-h-[600px] p-4',
-                isToday(parsedDay) ? 'bg-blue-50' : 'bg-white'
+                'min-h-[600px] p-4 cursor-pointer',
+                isToday(parsedDay) ? 'bg-blue-50' : 'bg-white',
               )}
             >
               <div className="text-center mb-4">
@@ -268,9 +272,13 @@ function WeekView({ days, filteredSubscriptions }: WeekViewProps) {
                   dateTime={day}
                   className={classNames(
                     'inline-flex h-6 w-6 items-center justify-center rounded-full mt-1',
-                    isToday(parsedDay)
+                    isSelected && isToday(parsedDay)
                       ? 'bg-indigo-600 text-white'
-                      : 'text-gray-900'
+                      : isSelected
+                        ? 'bg-gray-900 text-white'
+                        : isToday(parsedDay)
+                          ? 'bg-indigo-100 text-indigo-600'
+                          : 'text-gray-900'
                   )}
                 >
                   {format(parsedDay, 'd')}
@@ -288,21 +296,14 @@ function WeekView({ days, filteredSubscriptions }: WeekViewProps) {
                     return isDay && isWithinSubscription
                   })
                   .map((subscribe) => (
-                    <li
-                      key={subscribe.id}
-                      className="group rounded-lg bg-white p-3 hover:bg-gray-50 shadow-sm ring-1 ring-gray-100"
-                    >
-                      <div className="flex-auto">
-                        <p className="text-sm font-semibold text-gray-900 truncate">
+                    <li key={subscribe.id}>
+                      <div className="group flex gap-1 items-center">
+                        <div className={`min-w-4 w-4 h-4 rounded-2xl flex items-center justify-center `}>
+                          {subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
+                        </div>
+                        <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.title}
                         </p>
-                        <time
-                          dateTime={subscribe.startDatetime}
-                          className="mt-1 flex items-center text-xs text-gray-500"
-                        >
-                          <ClockIcon className="mr-1.5 h-4 w-4 text-gray-400" aria-hidden="true" />
-                          {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
-                        </time>
                       </div>
                     </li>
                   ))}
@@ -344,7 +345,8 @@ function MonthView({
               key={dayStr}
               onClick={() => onSelectDay(dayStr)}
               className={classNames(
-                isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
+                isSameMonth(day, today) ? 'bg-white' : '!bg-gray-50',
+                isToday(day) ? '!bg-blue-50' : 'bg-white',
                 (!isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && isToday(day)
                   ? 'text-indigo-600'
                   : ''),
@@ -642,6 +644,8 @@ export default function Calendar({ subscriptions }: CalendarProps) {
           ) : viewMode === 'week' ? (
             <WeekView
               days={newDays}
+              selectedDay={selectedDay}
+              onSelectDay={setSelectedDay}
               filteredSubscriptions={filteredSubscriptions} />
           ) : (
             <MonthView
@@ -655,7 +659,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
         </div>
       </div>
 
-      {(viewMode !== 'day' && viewMode !== 'week') && (
+      {(viewMode !== 'day') && (
         <div className="px-4 py-10 sm:px-6">
           <ol className="divide-y divide-gray-100 rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
             {filteredSubscriptions
