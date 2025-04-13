@@ -27,10 +27,14 @@ import {
 import { fr } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
 
-import { filter_Subscriptions_by_month } from "@/features/subscriptions/subscriptionService"
+import { delete_Subscription, filter_Subscriptions_by_month } from "@/features/subscriptions/subscriptionService"
 import { Subscription } from '@/lib/types'
 import { capitalizeFirstLetter, classNames } from '@/services/utils'
 import AddSubscriptionDialog from './AddSubscriptionDialog'
+import SubscriptionListItem from './SubscriptionListItem'
+import { useSubscription } from '../subscriptionContext'
+import EditSubscriptionDialog from './EditSubscriptionDialog'
+import { QuestionMarkCircleIcon } from '@heroicons/react/24/solid'
 
 const locale = fr
 
@@ -136,24 +140,64 @@ interface EventListItemProps {
 }
 
 function EventListItem({ subscribe }: EventListItemProps) {
+  const { subscriptions, setSubscriptions } = useSubscription();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+
+  const handleEdit = (id?: string) => {
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDelete = async (id?: string) => {
+    if (!id) return;
+
+    try {
+      await delete_Subscription(id);
+      setSubscriptions(subscriptions.filter((sub) => sub.id !== id));
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'abonnement:", error);
+    }
+  };
   return (
-    <li key={subscribe.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
-      <div className="flex-auto">
-        <p className="font-semibold text-gray-900">{subscribe.title}</p>
-        <time
-          dateTime={subscribe.startDatetime}
-          className="mt-2 flex items-center text-gray-700"
+    <>
+      {console.log(subscribe)}
+      <SubscriptionListItem
+        key={subscribe.id}
+        price={subscribe.price}
+        title={subscribe.title}
+        description={subscribe.description}
+        company={subscribe.companies ? subscribe.companies[0] : null}
+        customCompany={subscribe.customCompany}
+        category={subscribe.categories ? subscribe.categories[0] : null}
+        onEdit={() => handleEdit(subscribe.id)}
+        onDelete={() => handleDelete(subscribe.id)}
+      />
+      {isEditDialogOpen && (
+        <EditSubscriptionDialog
+          isOpen={isEditDialogOpen}
+          onClose={() => setIsEditDialogOpen(false)}
+          subscription={subscribe}
+        />
+      )}
+      {/* <li key={subscribe.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
+        <div className="flex-auto">
+          <p className="font-semibold text-gray-900">{subscribe.title}</p>
+          <time
+            dateTime={subscribe.startDatetime}
+            className="mt-2 flex items-center text-gray-700"
+          >
+            <ClockIcon className="mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+            {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
+          </time>
+        </div>
+        <div
+          className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 opacity-0 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 focus:opacity-100 group-hover:opacity-100"
         >
-          <ClockIcon className="mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-          {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
-        </time>
-      </div>
-      <div
-        className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 opacity-0 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 focus:opacity-100 group-hover:opacity-100"
-      >
-        Edit<span className="sr-only">, {subscribe.title}</span>
-      </div>
-    </li>
+          Edit<span className="sr-only">, {subscribe.title}</span>
+        </div>
+      </li> */}
+    </>
+
   )
 }
 
@@ -174,7 +218,7 @@ function DayView({ currentDate, filteredSubscriptions }: DayViewProps) {
             {capitalizeFirstLetter(format(currentDate, 'EEEE d MMMM yyyy', { locale }))}
           </h2>
         </div>
-        <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
+        <ol className="divide-y divide-gray-100 rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
           {filteredSubscriptions
             .filter((subscribe) => {
               const selectedDate = currentDate
@@ -182,7 +226,7 @@ function DayView({ currentDate, filteredSubscriptions }: DayViewProps) {
               const isWithinSubscription =
                 isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                 isSameDay(selectedDate, subscribe.startDatetime) ||
-                isSameDay(selectedDate, subscribe.endDatetime)
+                (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
               return isDay && isWithinSubscription
             })
             .map((subscribe) => (
@@ -200,20 +244,24 @@ function DayView({ currentDate, filteredSubscriptions }: DayViewProps) {
 interface WeekViewProps {
   days: string[]
   filteredSubscriptions: Subscription[]
+  selectedDay: string
+  onSelectDay: (day: string) => void
 }
 
-function WeekView({ days, filteredSubscriptions }: WeekViewProps) {
+function WeekView({ days, filteredSubscriptions, selectedDay, onSelectDay }: WeekViewProps) {
   return (
     <div className="w-full bg-white">
       <div className="grid grid-cols-7 divide-x divide-gray-100 h-full">
         {days.map((day) => {
           const parsedDay = parse(day, 'yyyy-MM-dd', new Date())
+          const isSelected = day === selectedDay
           return (
             <div
               key={day}
+              onClick={() => onSelectDay(day)}
               className={classNames(
-                'min-h-[600px] p-4',
-                isToday(parsedDay) ? 'bg-blue-50' : 'bg-white'
+                'min-h-[600px] p-4 cursor-pointer',
+                isToday(parsedDay) ? 'bg-blue-50' : 'bg-white',
               )}
             >
               <div className="text-center mb-4">
@@ -224,9 +272,13 @@ function WeekView({ days, filteredSubscriptions }: WeekViewProps) {
                   dateTime={day}
                   className={classNames(
                     'inline-flex h-6 w-6 items-center justify-center rounded-full mt-1',
-                    isToday(parsedDay)
+                    isSelected && isToday(parsedDay)
                       ? 'bg-indigo-600 text-white'
-                      : 'text-gray-900'
+                      : isSelected
+                        ? 'bg-gray-900 text-white'
+                        : isToday(parsedDay)
+                          ? 'bg-indigo-100 text-indigo-600'
+                          : 'text-gray-900'
                   )}
                 >
                   {format(parsedDay, 'd')}
@@ -240,25 +292,18 @@ function WeekView({ days, filteredSubscriptions }: WeekViewProps) {
                     const isWithinSubscription =
                       isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                       isSameDay(selectedDate, subscribe.startDatetime) ||
-                      isSameDay(selectedDate, subscribe.endDatetime)
+                      (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                     return isDay && isWithinSubscription
                   })
                   .map((subscribe) => (
-                    <li
-                      key={subscribe.id}
-                      className="group rounded-lg bg-white p-3 hover:bg-gray-50 shadow-sm ring-1 ring-gray-100"
-                    >
-                      <div className="flex-auto">
-                        <p className="text-sm font-semibold text-gray-900 truncate">
+                    <li key={subscribe.id}>
+                      <div className="group flex gap-1 items-center">
+                        <div className={`min-w-4 w-4 h-4 rounded-xs flex items-center justify-center `}>
+                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
+                        </div>
+                        <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.title}
                         </p>
-                        <time
-                          dateTime={subscribe.startDatetime}
-                          className="mt-1 flex items-center text-xs text-gray-500"
-                        >
-                          <ClockIcon className="mr-1.5 h-4 w-4 text-gray-400" aria-hidden="true" />
-                          {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
-                        </time>
                       </div>
                     </li>
                   ))}
@@ -300,7 +345,8 @@ function MonthView({
               key={dayStr}
               onClick={() => onSelectDay(dayStr)}
               className={classNames(
-                isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
+                isSameMonth(day, today) ? 'bg-white' : '!bg-gray-50',
+                isToday(day) ? '!bg-blue-50' : 'bg-white',
                 (!isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && isToday(day)
                   ? 'text-indigo-600'
                   : ''),
@@ -340,22 +386,19 @@ function MonthView({
                     const isWithinSubscription =
                       isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                       isSameDay(selectedDate, subscribe.startDatetime) ||
-                      isSameDay(selectedDate, subscribe.endDatetime)
+                      (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                     return isDay && isWithinSubscription
                   })
                   .slice(0, 2)
                   .map((subscribe) => (
                     <li key={subscribe.id}>
-                      <div className="group flex">
+                      <div className="group flex gap-1 items-center">
+                        <div className={`min-w-4 w-4 h-4 rounded-2xl flex items-center justify-center `}>
+                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
+                        </div>
                         <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.title}
                         </p>
-                        {/* <time
-                          dateTime={subscribe.startDatetime}
-                          className="ml-3 hidden flex-none font-medium text-gray-500 group-hover:text-indigo-600 xl:block"
-                        >
-                          {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
-                        </time> */}
                       </div>
                     </li>
                   ))}
@@ -365,21 +408,21 @@ function MonthView({
                   const isWithinSubscription =
                     isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                     isSameDay(selectedDate, subscribe.startDatetime) ||
-                    isSameDay(selectedDate, subscribe.endDatetime)
+                    (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                   return isDay && isWithinSubscription
                 }).length > 2 && (
-                  <li className="text-gray-500 font-normal">
-                    + {filteredSubscriptions.filter((subscribe) => {
-                      const selectedDate = day
-                      const isDay = String(subscribe.dueDay) === format(selectedDate, 'd')
-                      const isWithinSubscription =
-                        isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
-                        isSameDay(selectedDate, subscribe.startDatetime) ||
-                        isSameDay(selectedDate, subscribe.endDatetime)
-                      return isDay && isWithinSubscription
-                    }).length - 2} more
-                  </li>
-                )}
+                    <li className="text-gray-500 font-normal">
+                      + {filteredSubscriptions.filter((subscribe) => {
+                        const selectedDate = day
+                        const isDay = String(subscribe.dueDay) === format(selectedDate, 'd')
+                        const isWithinSubscription =
+                          isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
+                          isSameDay(selectedDate, subscribe.startDatetime) ||
+                          (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
+                        return isDay && isWithinSubscription
+                      }).length - 2} en plus
+                    </li>
+                  )}
               </ul>
             </div>
           )
@@ -440,7 +483,7 @@ function MonthView({
                       const isWithinSubscription =
                         isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                         isSameDay(selectedDate, subscribe.startDatetime) ||
-                        isSameDay(selectedDate, subscribe.endDatetime)
+                        (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                       return isDay && isWithinSubscription
                     })
                     .slice(0, 2)
@@ -457,14 +500,14 @@ function MonthView({
                     const isWithinSubscription =
                       isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                       isSameDay(selectedDate, subscribe.startDatetime) ||
-                      isSameDay(selectedDate, subscribe.endDatetime)
+                      (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                     return isDay && isWithinSubscription
                   }).length > 2 && (
-                    <span className="mx-0.5 text-gray-500 text-xs font-normal">
-                      +
-                      {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'd')).length - 2}
-                    </span>
-                  )}
+                      <span className="mx-0.5 text-gray-500 text-xs font-normal">
+                        +
+                        {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'd')).length - 2}
+                      </span>
+                    )}
                 </div>
               )}
             </button>
@@ -491,20 +534,19 @@ export default function Calendar({ subscriptions }: CalendarProps) {
   const [filteredSubscriptions, setFilteredSubscriptions] = useState<Subscription[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  // Génère les jours en fonction du mode (day, week, month)
   const generateDays = (mode: string, date: Date): string[] => {
     if (mode === 'day') {
       return [format(date, 'yyyy-MM-dd')]
     } else if (mode === 'week') {
       return eachDayOfInterval({
-        start: startOfWeek(date),
-        end: endOfWeek(date),
+        start: startOfWeek(date, { weekStartsOn: 1 }),
+        end: endOfWeek(date, { weekStartsOn: 1 }),
       }).map((day) => format(day, 'yyyy-MM-dd'))
     } else {
       const monthStart = startOfMonth(date)
       return eachDayOfInterval({
-        start: startOfWeek(monthStart),
-        end: endOfWeek(endOfMonth(monthStart)),
+        start: startOfWeek(monthStart, { weekStartsOn: 1 }),
+        end: endOfWeek(endOfMonth(monthStart), { weekStartsOn: 1 }),
       }).map((day) => format(day, 'yyyy-MM-dd'))
     }
   }
@@ -600,7 +642,11 @@ export default function Calendar({ subscriptions }: CalendarProps) {
               filteredSubscriptions={filteredSubscriptions}
             />
           ) : viewMode === 'week' ? (
-            <WeekView days={newDays} filteredSubscriptions={filteredSubscriptions} />
+            <WeekView
+              days={newDays}
+              selectedDay={selectedDay}
+              onSelectDay={setSelectedDay}
+              filteredSubscriptions={filteredSubscriptions} />
           ) : (
             <MonthView
               days={newDays}
@@ -613,9 +659,9 @@ export default function Calendar({ subscriptions }: CalendarProps) {
         </div>
       </div>
 
-      {(viewMode !== 'day' && viewMode !== 'week') && (
+      {(viewMode !== 'day') && (
         <div className="px-4 py-10 sm:px-6">
-          <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
+          <ol className="divide-y divide-gray-100 rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
             {filteredSubscriptions
               .filter((subscribe) => {
                 const selectedDate = parse(selectedDay, 'yyyy-MM-dd', new Date())
@@ -623,7 +669,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
                 const isWithinSubscription =
                   isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
                   isSameDay(selectedDate, subscribe.startDatetime) ||
-                  isSameDay(selectedDate, subscribe.endDatetime)
+                  (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                 return isDay && isWithinSubscription
               })
               .map((subscribe) => (

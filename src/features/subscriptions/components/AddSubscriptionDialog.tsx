@@ -1,211 +1,295 @@
-"use client"
+"use client";
 
-import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
-import { useState, useEffect } from 'react';
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from "@headlessui/react";
 import { add_Subscription } from "@/features/subscriptions/subscriptionService";
-import { Category, Company } from "@prisma/client";
-import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/react';
 import { useSubscription } from "@/features/subscriptions/subscriptionContext";
+import { Category, Company } from "@prisma/client";
+import { useQuery } from "@tanstack/react-query";
+
+const schema = z.object({
+    title: z.string().min(1, "Le titre est obligatoire"),
+    dueType: z.enum(["monthly", "yearly"]),
+    dueDate: z.string(),
+    endDate: z.string().optional(),
+    price: z.coerce.number().min(0, "Le prix doit être positif"),
+    category: z.any().nullable(),
+    company: z.any().nullable(),
+    customCompany: z.string().optional(),
+});
 
 interface AddSubscriptionDialogProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-const AddSubscriptionDialog = ({ isOpen, onClose }: AddSubscriptionDialogProps) => {
+const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, onClose }) => {
     const { setSubscriptions } = useSubscription();
-    const [title, setTitle] = useState('');
-    const [dueType, setDueType] = useState('monthly');
-    const [dueDate, setDueDate] = useState(new Date());
-    const [endDate, setEndDate] = useState<Date | null>(null);
-    const [price, setPrice] = useState(0);
-    const [category, setCategory] = useState<Category | null>(null);
-    const [company, setCompany] = useState<Company | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
     const [companies, setCompanies] = useState<Company[]>([]);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
+    const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
+    const [errorMessage, setErrorMessage] = useState<string>("");
+    const [searchOfferTerm, setSearchOfferTerm] = useState("");
+    const [selectedOffer, setSelectedOffer] = useState<any>(null);
+    const [step, setStep] = useState<"search" | "custom">("search");
+
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        watch,
+        formState: { errors, isSubmitting },
+    } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            title: "",
+            dueType: "monthly",
+            dueDate: new Date().toISOString().split("T")[0],
+            endDate: "",
+            price: 0,
+            category: null,
+            company: null,
+            customCompany: "",
+        },
+    });
+
+    const { data: offersData } = useQuery({
+        queryKey: ["offers", searchOfferTerm],
+        queryFn: async () => {
+            const response = await fetch(`/api/offers?searchTerm=${encodeURIComponent(searchOfferTerm)}`);
+            return response.json();
+        },
+        enabled: !!searchOfferTerm,
+    });
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [categoriesRes, companiesRes] = await Promise.all([
-                    fetch('/api/categories'),
-                    fetch('/api/companies')
-                ]);
-
-                if (categoriesRes.ok && companiesRes.ok) {
-                    const [categoriesData, companiesData] = await Promise.all([
-                        categoriesRes.json(),
-                        companiesRes.json()
+        if (isOpen) {
+            const fetchData = async () => {
+                try {
+                    const [categoriesRes, companiesRes] = await Promise.all([
+                        fetch("/api/categories"),
+                        fetch("/api/companies"),
                     ]);
 
-                    setCategories(categoriesData);
-                    setCompanies(companiesData);
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setErrorMessage('Erreur lors du chargement des données');
-            }
-        };
+                    if (categoriesRes.ok && companiesRes.ok) {
+                        const [categoriesData, companiesData] = await Promise.all([
+                            categoriesRes.json(),
+                            companiesRes.json(),
+                        ]);
 
-        if (isOpen) {
+                        setCategories(categoriesData);
+                        setFilteredCategories(categoriesData);
+                        setCompanies(companiesData);
+                        setFilteredCompanies(companiesData);
+                    }
+                } catch (error) {
+                    console.error("Erreur lors du chargement des données :", error);
+                }
+            };
             fetchData();
         }
     }, [isOpen]);
 
-    const onSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        
-        if (!title.trim()) {
-            setErrorMessage('Le titre est obligatoire.');
-            setIsSubmitting(false);
-            return;
+    useEffect(() => {
+        if (isOpen) {
+            setValue("title", "");
+            setValue("dueType", "monthly");
+            setValue("dueDate", new Date().toISOString().split("T")[0]);
+            setValue("endDate", "");
+            setValue("price", 0);
+            setValue("category", null);
+            setValue("company", null);
+            setValue("customCompany", "");
+            setSearchOfferTerm("");
+            setSelectedOffer(null);
+            setStep("search");
+            setErrorMessage("");
         }
+    }, [isOpen]);
 
+    const onSubmit = async (data: any) => {
+        setErrorMessage("");
         try {
             const newSubscription = await add_Subscription(
-                title,
-                dueDate,
-                endDate,
-                price,
-                category ? [category.id] : [],
-                company ? [company.id] : []
+                data.title,
+                new Date(data.dueDate),
+                data.endDate ? new Date(data.endDate) : null,
+                data.price,
+                data.category ? [data.category.id] : [],
+                data.company ? [data.company.id] : [],
+                data.customCompany || null
             );
 
-            setSubscriptions((prevSubscriptions) => [...prevSubscriptions, newSubscription]);
-
+            setSubscriptions((prev) => [...prev, newSubscription]);
             onClose();
-        } catch (error) {
-            console.error('Error:', error);
-            setErrorMessage('Une erreur est survenue lors de l\'ajout de l\'abonnement.');
-        } finally {
-            setIsSubmitting(false);
+        } catch (error: unknown) {
+            console.error("Erreur lors de l'ajout de l'abonnement :", error);
+            setErrorMessage((error as Error).message);
         }
+    };
+
+    const handleOfferSelect = (offer: any) => {
+        setSelectedOffer(offer);
+        setValue("title", offer.name);
+        setValue("price", offer.price);
+        setValue("category", offer.categories.length > 0 ? { id: offer.categories[0].id, name: offer.categories[0].name } : null);
+        setValue("company", offer.companies.length > 0 ? { id: offer.companies[0].id, name: offer.companies[0].name } : null);
+        
+        setStep("custom");
     };
 
     return (
         <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 flex items-center justify-center z-50">
             <DialogPanel className="w-96 bg-white p-6 shadow-xl rounded-lg">
                 <DialogTitle className="text-xl font-semibold text-gray-800">Ajouter un abonnement</DialogTitle>
-                <form onSubmit={onSubmit} className="space-y-4 mt-4 relative">
+
+                {step === "search" ? (
                     <div>
-                        <label className="text-sm font-bold">Titre*</label>
                         <input
                             type="text"
-                            required
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            className="w-full mt-2 px-3 py-2 border rounded-lg"
+                            placeholder="Rechercher une offre..."
+                            value={searchOfferTerm}
+                            onChange={(e) => setSearchOfferTerm(e.target.value)}
+                            className="mb-4 p-2 border rounded"
                         />
+                        <ul className="border rounded h-40 overflow-scroll">
+                            {offersData && offersData.offers.length > 0 ? (
+                                offersData.offers.map((offer) => (
+                                    <li key={offer.id} onClick={() => handleOfferSelect(offer)} className="cursor-pointer p-2 hover:bg-gray-200">
+                                        {offer.name} - {offer.price} €
+                                    </li>
+                                ))
+                            ) : <span className="w-full flex justify-center p-2 opacity-25">
+                                {searchOfferTerm ? "Aucun abonnement trouvé" : "Rechercher un abonnement"}
+                            </span>}
+                        </ul>
+                        <button onClick={() => {
+                            setStep("custom");
+                            setValue("title", "");
+                            setValue("dueType", "monthly");
+                            setValue("dueDate", new Date().toISOString().split("T")[0]);
+                            setValue("endDate", "");
+                            setValue("price", 0);
+                            setValue("category", null);
+                            setValue("company", null);
+                            setValue("customCompany", "");
+                        }} className="mt-4 text-blue-600">Ajouter une offre personnalisée</button>
                     </div>
-
-                    <div>
-                        <label className="text-sm font-bold">Type d&apos;échéance</label>
-                        <select
-                            required
-                            value={dueType}
-                            onChange={(e) => setDueType(e.target.value)}
-                            className="w-full mt-2 px-3 py-2 border rounded-lg"
-                        >
-                            <option value="monthly">Mensuel</option>
-                            <option value="yearly">Annuel</option>
-                        </select>
-                    </div>
-
-                    <div>
-                            <label className="text-sm text-gray-600 font-bold">
-                                Date d&apos;échéance
-                            </label>
-                            <input
-                                type="date"
-                                required
-                                value={dueDate.toISOString().split('T')[0]}
-                                onChange={(e) => setDueDate(new Date(e.target.value))}
-                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
-                            />
+                ) : (
+                    <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-4 mt-4">
+                        <div>
+                            <label className="text-sm font-bold">Titre*</label>
+                            <input {...register("title")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer} />
+                            {errors.title && <p className="text-red-600">{errors.title.message}</p>}
                         </div>
 
                         <div>
-                            <label className="text-sm text-gray-600 font-bold">
-                                Date de fin (optionnelle)
-                            </label>
+                            <label className="text-sm font-bold">Type d'échéance</label>
+                            <select {...register("dueType")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer}>
+                                <option value="monthly">Mensuel</option>
+                                <option value="yearly">Annuel</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-bold">Date d'échéance</label>
+                            <input type="date" {...register("dueDate")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer} />
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-bold">Date de fin (optionnelle)</label>
+                            <input type="date" {...register("endDate")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer} />
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-bold">Prix</label>
+                            <input type="number" step="0.01" {...register("price")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer} />
+                            {errors.price && <p className="text-red-600">{errors.price.message}</p>}
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-bold">Catégorie</label>
+                            <Combobox value={watch("category")} onChange={(value) => setValue("category", value)}>
+                                <ComboboxInput
+                                    className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`}
+                                    displayValue={(cat) => cat?.name || ""}
+                                    onChange={(event) => {
+                                        const query = event.target.value.toLowerCase();
+                                        setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query)));
+                                    }}
+                                    placeholder="Rechercher ou saisir une catégorie..."
+                                    disabled={!!selectedOffer}
+                                />
+                                <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
+                                    {filteredCategories.map((cat) => (
+                                        <ComboboxOption key={cat.id} value={cat} className="px-4 py-2 cursor-pointer">
+                                            {cat.name}
+                                        </ComboboxOption>
+                                    ))}
+                                </ComboboxOptions>
+                            </Combobox>
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-bold">Entreprise</label>
+                            <Combobox value={watch("company")} onChange={(value) => setValue("company", value)}>
+                                <ComboboxInput
+                                    className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`}
+                                    displayValue={(com) => com?.name || ""}
+                                    onChange={(event) => {
+                                        const query = event.target.value.toLowerCase();
+                                        setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query)));
+                                    }}
+                                    placeholder="Rechercher ou saisir une entreprise..."
+                                    disabled={!!selectedOffer}
+                                />
+                                <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
+                                    {filteredCompanies.map((com) => (
+                                        <ComboboxOption key={com.id} value={com} className="px-4 py-2 cursor-pointer">
+                                            {com.name}
+                                        </ComboboxOption>
+                                    ))}
+                                </ComboboxOptions>
+                            </Combobox>
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-bold">Entreprise personnalisée</label>
                             <input
-                                type="date"
-                                value={endDate?.toISOString().split('T')[0] || ''}
-                                onChange={(e) => setEndDate(e.target.value ? new Date(e.target.value) : null)}
-                                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg"
+                                type="text"
+                                {...register("customCompany")}
+                                className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`}
+                                placeholder="Saisissez une nouvelle entreprise..."
+                                disabled={!!selectedOffer}
                             />
                         </div>
 
-                    <div>
-                        <label className="text-sm font-bold">Prix</label>
-                        <input
-                            type="number"
-                            required
-                            step="0.01"
-                            value={price}
-                            onChange={(e) => setPrice(parseFloat(e.target.value))}
-                            className="w-full mt-2 px-3 py-2 border rounded-lg"
-                        />
-                    </div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setSelectedOffer(null);
+                                setStep("search");
+                            }}
+                            className="mt-4 text-blue-600"
+                        >
+                            Retour à la recherche d'offres
+                        </button>
 
-                    <div>
-                        <label className="text-sm font-bold">Catégorie</label>
-                        <Combobox value={category} onChange={setCategory}>
-                            <ComboboxInput
-                                className="w-full px-3 py-2 border rounded-lg"
-                                displayValue={(cat: Category | null) => cat?.name || ''}
-                                onChange={(event) => {
-                                    const value = event.target.value.toLowerCase();
-                                    setCategory(categories.find(c => c.name.toLowerCase().includes(value)) || null);
-                                }}
-                                placeholder="Rechercher une catégorie..."
-                            />
-                            <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
-                                {categories.map((cat) => (
-                                    <ComboboxOption key={cat.id} value={cat} className="px-4 py-2 cursor-pointer">
-                                        {cat.name}
-                                    </ComboboxOption>
-                                ))}
-                            </ComboboxOptions>
-                        </Combobox>
-                    </div>
-
-                    <div>
-                        <label className="text-sm font-bold">Company</label>
-                        <Combobox value={company} onChange={setCompany}>
-                            <ComboboxInput
-                                className="w-full px-3 py-2 border rounded-lg"
-                                displayValue={(company: Company | null) => company?.name || ''}
-                                onChange={(event) => {
-                                    const value = event.target.value.toLowerCase();
-                                    setCompany(companies.find(c => c.name.toLowerCase().includes(value)) || null);
-                                }}
-                                placeholder="Rechercher une catégorie..."
-                            />
-                            <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
-                                {companies.map((company) => (
-                                    <ComboboxOption key={company.id} value={company} className="px-4 py-2 cursor-pointer">
-                                        {company.name}
-                                    </ComboboxOption>
-                                ))}
-                            </ComboboxOptions>
-                        </Combobox>
-                    </div>
-                    {errorMessage && <div className="text-red-600 font-bold text-sm">{errorMessage}</div>}
-
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className={`w-full px-4 py-2 text-white font-medium rounded-lg ${
-                            isSubmitting ? 'bg-gray-300' : 'bg-indigo-600 hover:bg-indigo-700'
-                        }`}
-                    >
-                        {isSubmitting ? 'Ajout en cours...' : 'Ajouter l&apos;abonnement'}
-                    </button>
-                </form>
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className={`w-full px-4 py-2 text-white font-medium rounded-lg ${isSubmitting ? "bg-gray-300" : "bg-indigo-600 hover:bg-indigo-700"}`}
+                        >
+                            {isSubmitting ? "Ajout en cours..." : "Ajouter l'abonnement"}
+                        </button>
+                        {errorMessage && <p className="text-red-600">{errorMessage}</p>}
+                    </form>
+                )}
             </DialogPanel>
         </Dialog>
     );

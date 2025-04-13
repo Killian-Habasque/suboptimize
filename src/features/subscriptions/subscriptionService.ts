@@ -26,6 +26,7 @@ export const add_Subscription = async (
   price: number,
   categoryIds: string[],
   companyIds: string[],
+  customCompany: string | null
 ) => {
   const response = await fetch('/api/subscriptions', {
     method: 'POST',
@@ -40,21 +41,73 @@ export const add_Subscription = async (
       price,
       categoryIds,
       companyIds,
+      customCompany
     }),
-  })
+  });
 
   if (!response.ok) {
-    throw new Error('Erreur lors de l\'ajout de l\'abonnement')
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Erreur lors de l'ajout de l'offre");
   }
 
-  return response.json()
+  return response.json();
 }
+
+
+export const update_Subscription = async (
+  id: string,
+  title: string,
+  dueDate: Date,
+  endDate: Date | null,
+  price: number,
+  categoryIds: string[],
+  companyIds: string[],
+  customCompany: string | null
+) => {
+  const response = await fetch(`/api/subscriptions/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      title,
+      dueDate,
+      endDate,
+      price,
+      categoryIds,
+      companyIds,
+      customCompany
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Erreur lors de la modification de l'abonnement");
+  }
+
+  return response.json();
+}
+
+export const delete_Subscription = async (id: string) => {
+  const response = await fetch(`/api/subscriptions/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Erreur lors de la suppression de l'abonnement");
+  }
+
+  return true;
+}
+
 
 export const filter_Subscriptions_by_month = (
   subscriptions: Subscription[],
   visibleDays: string[]
 ) => {
-
   return subscriptions.filter((sub) => {
     const startDate = new Date(sub.startDatetime);
     startDate.setHours(0, 0, 0, 0);
@@ -65,10 +118,9 @@ export const filter_Subscriptions_by_month = (
       const day = parse(dayString, 'yyyy-MM-dd', new Date());
       const billingDate = new Date(day);
       billingDate.setHours(0, 0, 0, 0);
-
       return (
         billingDate >= startDate &&
-        (!endDate || billingDate <= endDate) &&
+        (endDate ? billingDate <= endDate : true) &&
         String(sub.dueDay) === format(billingDate, 'd')
       );
     });
