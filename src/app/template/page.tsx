@@ -6,8 +6,9 @@ import Container from "@/components/layout/container";
 import Grid from "@/components/layout/grid";
 import GridItem from "@/components/layout/grid-item";
 import Footer from "@/components/navigation/footer";
-import Calendar from "@/features/subscriptions/components/calendar";
+import Calendar from "@/features/subscriptions/components/Calendar";
 import { useSubscription } from "@/features/subscriptions/subscriptionContext";
+import UpcomingSubscriptions from "@/features/subscriptions/components/UpcomingSubscriptions";
 
 const Template = () => {
   const { subscriptions } = useSubscription();
@@ -23,10 +24,7 @@ const Template = () => {
           </GridItem>
           <GridItem colSpan={1}>
             <Card>
-              Test
-            </Card>
-            <Card>
-              Test 2
+            <UpcomingSubscriptions subscriptions={subscriptions} />
             </Card>
           </GridItem>
         </Grid>

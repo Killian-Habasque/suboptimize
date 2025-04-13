@@ -29,7 +29,7 @@ interface EditSubscriptionDialogProps {
 }
 
 const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen, onClose, subscription }) => {
-    const { subscriptions, setSubscriptions } = useSubscription();
+    const { , setSubscriptions } = useSubscription();
     const [categories, setCategories] = useState<Category[]>([]);
     const [companies, setCompanies] = useState<Company[]>([]);
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
@@ -267,14 +267,14 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
                                         <button
                                             type="button"
                                             onClick={onClose}
-                                            className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                                            className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer"
                                         >
                                             Annuler
                                         </button>
                                         <button
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className={`px-4 py-2 text-white font-medium rounded-lg ${isSubmitting ? "bg-gray-300" : "bg-indigo-600 hover:bg-indigo-700"}`}
+                                            className={`px-4 py-2 text-white font-medium rounded-lg ${isSubmitting ? "bg-gray-300" : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"}`}
                                         >
                                             {isSubmitting ? "Modification en cours..." : "Modifier l'abonnement"}
                                         </button>

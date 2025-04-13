@@ -1,6 +1,6 @@
 "use client"
 import { useSubscription } from "@/features/subscriptions/subscriptionContext";
-import Calendar from '@/features/subscriptions/components/calendar';
+import Calendar from '@/features/subscriptions/components/Calendar';
 
 const Subscriptions = () => {
     const { subscriptions, loading } = useSubscription();

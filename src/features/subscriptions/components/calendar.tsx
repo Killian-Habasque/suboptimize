@@ -166,9 +166,9 @@ function EventListItem({ subscribe }: EventListItemProps) {
         price={subscribe.price}
         title={subscribe.title}
         description={subscribe.description}
-        company={subscribe.companies[0]}
+        company={subscribe.companies ? subscribe.companies[0] : null}
         customCompany={subscribe.customCompany}
-        category={subscribe.categories[0]}
+        category={subscribe.categories ? subscribe.categories[0] : null}
         onEdit={() => handleEdit(subscribe.id)}
         onDelete={() => handleDelete(subscribe.id)}
       />
@@ -298,8 +298,8 @@ function WeekView({ days, filteredSubscriptions, selectedDay, onSelectDay }: Wee
                   .map((subscribe) => (
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
-                        <div className={`min-w-4 w-4 h-4 rounded-2xl flex items-center justify-center `}>
-                          {subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
+                        <div className={`min-w-4 w-4 h-4 rounded-xs flex items-center justify-center `}>
+                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
                         </div>
                         <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.title}
@@ -394,7 +394,7 @@ function MonthView({
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
                         <div className={`min-w-4 w-4 h-4 rounded-2xl flex items-center justify-center `}>
-                          {subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
+                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
                         </div>
                         <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.title}
