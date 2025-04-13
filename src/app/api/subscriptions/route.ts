@@ -4,7 +4,6 @@ import { baseAuth } from "@/lib/auth"
 import { Prisma } from "@prisma/client"
 
 
-
 export async function GET() {
     try {
         const session = await baseAuth()

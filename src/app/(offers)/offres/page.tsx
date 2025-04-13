@@ -1,12 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction, Key } from "react";
 import { debounce } from "lodash";
 import AddOfferDialog from "@/features/offers/components/AddOfferDialog";
 import OfferListItem from "@/features/offers/components/OfferListItem";
 import Button from "@/components/ui/Button";
 import { PlusIcon } from "@heroicons/react/20/solid";
+import { Offer } from "@prisma/client";
 
 const fetchOffers = async (page: number, limit: number, searchTerm: string) => {
     const response = await fetch(`/api/offers?page=${page}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}`);
@@ -25,7 +26,7 @@ const Offers = () => {
     const limit = 10;
 
     useEffect(() => {
-        const handler = debounce((value) => {
+        const handler = debounce((value: SetStateAction<string>) => {
             setDebouncedSearchTerm(value);
         }, 500);
         handler(searchTerm);
@@ -75,11 +76,15 @@ const Offers = () => {
             {error && <p className="text-red-500">{error.message}</p>}
 
             {data && data.offers.length > 0 ? (
-                data.offers.map((offer) => (
-                    <div key={offer.id}>
-                        <h2>{offer.name}</h2>
-                        <p>{offer.price} €</p>
-                    </div>
+                data.offers.map((offer: Offer) => (
+                    <OfferListItem
+                        key={offer.id}
+                        price={offer.price}
+                        title={offer.name}
+                        description={offer.description}
+                        company={offer.companies[0]}
+                        category={offer.categories[0]}
+                    />
                 ))
             ) : (
                 !isFetching && <p>Aucune offre pour l'instant</p>

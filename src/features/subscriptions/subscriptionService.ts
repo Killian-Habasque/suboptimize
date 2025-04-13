@@ -53,6 +53,57 @@ export const add_Subscription = async (
   return response.json();
 }
 
+
+export const update_Subscription = async (
+  id: string,
+  title: string,
+  dueDate: Date,
+  endDate: Date | null,
+  price: number,
+  categoryIds: string[],
+  companyIds: string[],
+  customCompany: string | null
+) => {
+  const response = await fetch(`/api/subscriptions/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      title,
+      dueDate,
+      endDate,
+      price,
+      categoryIds,
+      companyIds,
+      customCompany
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Erreur lors de la modification de l'abonnement");
+  }
+
+  return response.json();
+}
+
+export const delete_Subscription = async (id: string) => {
+  const response = await fetch(`/api/subscriptions/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Erreur lors de la suppression de l'abonnement");
+  }
+
+  return true;
+}
+
+
 export const filter_Subscriptions_by_month = (
   subscriptions: Subscription[],
   visibleDays: string[]

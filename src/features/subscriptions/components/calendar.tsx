@@ -27,10 +27,12 @@ import {
 import { fr } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
 
-import { filter_Subscriptions_by_month } from "@/features/subscriptions/subscriptionService"
+import { delete_Subscription, filter_Subscriptions_by_month } from "@/features/subscriptions/subscriptionService"
 import { Subscription } from '@/lib/types'
 import { capitalizeFirstLetter, classNames } from '@/services/utils'
 import AddSubscriptionDialog from './AddSubscriptionDialog'
+import SubscriptionListItem from './SubscriptionListItem'
+import { useSubscription } from '../subscriptionContext'
 
 const locale = fr
 
@@ -136,24 +138,54 @@ interface EventListItemProps {
 }
 
 function EventListItem({ subscribe }: EventListItemProps) {
+  const { subscriptions, setSubscriptions } = useSubscription();
+
+
+  const handleEdit = (id?: string) => {
+    console.log("Modifier l'abonnement:", id);
+  };
+
+  const handleDelete = async (id?: string) => {
+    if (!id) return;
+
+    try {
+      await delete_Subscription(id);
+      setSubscriptions(subscriptions.filter((sub) => sub.id !== id));
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'abonnement:", error);
+    }
+  };
   return (
-    <li key={subscribe.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
-      <div className="flex-auto">
-        <p className="font-semibold text-gray-900">{subscribe.title}</p>
-        <time
-          dateTime={subscribe.startDatetime}
-          className="mt-2 flex items-center text-gray-700"
+    <>
+      <SubscriptionListItem
+        key={subscribe.id}
+        price={subscribe.price}
+        title={subscribe.title}
+        description={subscribe.description}
+        company={subscribe.companies[0]}
+        category={subscribe.categories[0]}
+        onEdit={() => handleEdit(subscribe.id)}
+        onDelete={() => handleDelete(subscribe.id)}
+      />
+      {/* <li key={subscribe.id} className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
+        <div className="flex-auto">
+          <p className="font-semibold text-gray-900">{subscribe.title}</p>
+          <time
+            dateTime={subscribe.startDatetime}
+            className="mt-2 flex items-center text-gray-700"
+          >
+            <ClockIcon className="mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
+            {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
+          </time>
+        </div>
+        <div
+          className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 opacity-0 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 focus:opacity-100 group-hover:opacity-100"
         >
-          <ClockIcon className="mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
-          {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
-        </time>
-      </div>
-      <div
-        className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 opacity-0 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 focus:opacity-100 group-hover:opacity-100"
-      >
-        Edit<span className="sr-only">, {subscribe.title}</span>
-      </div>
-    </li>
+          Edit<span className="sr-only">, {subscribe.title}</span>
+        </div>
+      </li> */}
+    </>
+
   )
 }
 
@@ -174,7 +206,7 @@ function DayView({ currentDate, filteredSubscriptions }: DayViewProps) {
             {capitalizeFirstLetter(format(currentDate, 'EEEE d MMMM yyyy', { locale }))}
           </h2>
         </div>
-        <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
+        <ol className="divide-y divide-gray-100 rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
           {filteredSubscriptions
             .filter((subscribe) => {
               const selectedDate = currentDate
@@ -362,18 +394,18 @@ function MonthView({
                     (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                   return isDay && isWithinSubscription
                 }).length > 2 && (
-                  <li className="text-gray-500 font-normal">
-                    + {filteredSubscriptions.filter((subscribe) => {
-                      const selectedDate = day
-                      const isDay = String(subscribe.dueDay) === format(selectedDate, 'd')
-                      const isWithinSubscription =
-                        isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
-                        isSameDay(selectedDate, subscribe.startDatetime) ||
-                        (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
-                      return isDay && isWithinSubscription
-                    }).length - 2} more
-                  </li>
-                )}
+                    <li className="text-gray-500 font-normal">
+                      + {filteredSubscriptions.filter((subscribe) => {
+                        const selectedDate = day
+                        const isDay = String(subscribe.dueDay) === format(selectedDate, 'd')
+                        const isWithinSubscription =
+                          isWithinInterval(selectedDate, { start: subscribe.startDatetime, end: subscribe.endDatetime }) ||
+                          isSameDay(selectedDate, subscribe.startDatetime) ||
+                          (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
+                        return isDay && isWithinSubscription
+                      }).length - 2} more
+                    </li>
+                  )}
               </ul>
             </div>
           )
@@ -454,11 +486,11 @@ function MonthView({
                       (subscribe.endDatetime === null && selectedDate >= new Date(subscribe.startDatetime))
                     return isDay && isWithinSubscription
                   }).length > 2 && (
-                    <span className="mx-0.5 text-gray-500 text-xs font-normal">
-                      +
-                      {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'd')).length - 2}
-                    </span>
-                  )}
+                      <span className="mx-0.5 text-gray-500 text-xs font-normal">
+                        +
+                        {filteredSubscriptions.filter((subscribe) => String(subscribe.dueDay) === format(day, 'd')).length - 2}
+                      </span>
+                    )}
                 </div>
               )}
             </button>
@@ -609,7 +641,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
 
       {(viewMode !== 'day' && viewMode !== 'week') && (
         <div className="px-4 py-10 sm:px-6">
-          <ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
+          <ol className="divide-y divide-gray-100 rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
             {filteredSubscriptions
               .filter((subscribe) => {
                 const selectedDate = parse(selectedDay, 'yyyy-MM-dd', new Date())
