@@ -10,6 +10,17 @@ import { add_Subscription } from "@/features/subscriptions/subscriptionService";
 import { useSubscription } from "@/features/subscriptions/subscriptionContext";
 import { Category, Company } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
+import SubscriptionListItem from "./SubscriptionListItem";
+import OfferListItem from "@/features/offers/components/OfferListItem";
+
+// Définir l'interface pour les offres
+interface Offer {
+    id: string;
+    name: string;
+    price: number;
+    categories: { id: string; name: string }[];
+    companies: { id: string; name: string }[];
+}
 
 const schema = z.object({
     title: z.string().min(1, "Le titre est obligatoire"),
@@ -17,8 +28,8 @@ const schema = z.object({
     dueDate: z.string(),
     endDate: z.string().optional(),
     price: z.coerce.number().min(0, "Le prix doit être positif"),
-    category: z.any().nullable(),
-    company: z.any().nullable(),
+    category: z.object({ id: z.string(), name: z.string() }).nullable(),
+    company: z.object({ id: z.string(), name: z.string() }).nullable(),
     customCompany: z.string().optional(),
 });
 
@@ -35,7 +46,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
     const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [searchOfferTerm, setSearchOfferTerm] = useState("");
-    const [selectedOffer, setSelectedOffer] = useState<any>(null);
+    const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
     const [step, setStep] = useState<"search" | "custom">("search");
 
     const {
@@ -58,7 +69,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
         },
     });
 
-    const { data: offersData } = useQuery({
+    const { data: offersData } = useQuery<{ offers: Offer[] }>({
         queryKey: ["offers", searchOfferTerm],
         queryFn: async () => {
             const response = await fetch(`/api/offers?searchTerm=${encodeURIComponent(searchOfferTerm)}`);
@@ -110,9 +121,9 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
             setStep("search");
             setErrorMessage("");
         }
-    }, [isOpen]);
+    }, [isOpen, setValue]);
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: z.infer<typeof schema>) => {
         setErrorMessage("");
         try {
             const newSubscription = await add_Subscription(
@@ -133,19 +144,19 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
         }
     };
 
-    const handleOfferSelect = (offer: any) => {
+    const handleOfferSelect = (offer: Offer) => {
         setSelectedOffer(offer);
         setValue("title", offer.name);
         setValue("price", offer.price);
         setValue("category", offer.categories.length > 0 ? { id: offer.categories[0].id, name: offer.categories[0].name } : null);
         setValue("company", offer.companies.length > 0 ? { id: offer.companies[0].id, name: offer.companies[0].name } : null);
-        
+
         setStep("custom");
     };
 
     return (
         <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 flex items-center justify-center z-50">
-            <DialogPanel className="w-96 bg-white p-6 shadow-xl rounded-lg">
+            <DialogPanel className="relative w-5xl h-3/4 bg-white p-6 shadow-xl rounded-lg">
                 <DialogTitle className="text-xl font-semibold text-gray-800">Ajouter un abonnement</DialogTitle>
 
                 {step === "search" ? (
@@ -157,12 +168,25 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             onChange={(e) => setSearchOfferTerm(e.target.value)}
                             className="mb-4 p-2 border rounded"
                         />
-                        <ul className="border rounded h-40 overflow-scroll">
+                        <ul className="border rounded h-96 overflow-scroll">
                             {offersData && offersData.offers.length > 0 ? (
-                                offersData.offers.map((offer) => (
-                                    <li key={offer.id} onClick={() => handleOfferSelect(offer)} className="cursor-pointer p-2 hover:bg-gray-200">
-                                        {offer.name} - {offer.price} €
-                                    </li>
+                                offersData.offers.map((offer: Offer) => (
+
+                                    <>
+                                        {/* <li key={offer.id} onClick={() => handleOfferSelect(offer)} className="cursor-pointer p-2 hover:bg-gray-200">
+                                            {offer.name} - {offer.price} €
+                                        </li> */}
+                                        <OfferListItem
+                                            key={offer.id}
+                                            price={offer.price}
+                                            title={offer.name}
+                                            // description={offer.description}
+                                            company={offer.companies[0]}
+                                            category={offer.categories[0]}
+                                            onClick={() => handleOfferSelect(offer)} 
+                                        />
+                                    </>
+
                                 ))
                             ) : <span className="w-full flex justify-center p-2 opacity-25">
                                 {searchOfferTerm ? "Aucun abonnement trouvé" : "Rechercher un abonnement"}
@@ -189,7 +213,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                         </div>
 
                         <div>
-                            <label className="text-sm font-bold">Type d'échéance</label>
+                            <label className="text-sm font-bold">Type d&apos;échéance</label>
                             <select {...register("dueType")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer}>
                                 <option value="monthly">Mensuel</option>
                                 <option value="yearly">Annuel</option>
@@ -197,7 +221,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                         </div>
 
                         <div>
-                            <label className="text-sm font-bold">Date d'échéance</label>
+                            <label className="text-sm font-bold">Date d&apos;échéance</label>
                             <input type="date" {...register("dueDate")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer} />
                         </div>
 
@@ -217,7 +241,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             <Combobox value={watch("category")} onChange={(value) => setValue("category", value)}>
                                 <ComboboxInput
                                     className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`}
-                                    displayValue={(cat) => cat?.name || ""}
+                                    displayValue={(cat: { name: string } | null) => cat?.name || ""}
                                     onChange={(event) => {
                                         const query = event.target.value.toLowerCase();
                                         setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query)));
@@ -240,7 +264,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             <Combobox value={watch("company")} onChange={(value) => setValue("company", value)}>
                                 <ComboboxInput
                                     className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`}
-                                    displayValue={(com) => com?.name || ""}
+                                    displayValue={(com: { name: string } | null) => com?.name || ""}
                                     onChange={(event) => {
                                         const query = event.target.value.toLowerCase();
                                         setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query)));
@@ -277,7 +301,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             }}
                             className="mt-4 text-blue-600"
                         >
-                            Retour à la recherche d'offres
+                            Retour à la recherche d&apos;offres
                         </button>
 
                         <button
@@ -285,7 +309,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             disabled={isSubmitting}
                             className={`w-full px-4 py-2 text-white font-medium rounded-lg ${isSubmitting ? "bg-gray-300" : "bg-indigo-600 hover:bg-indigo-700"}`}
                         >
-                            {isSubmitting ? "Ajout en cours..." : "Ajouter l'abonnement"}
+                            {isSubmitting ? "Ajout en cours..." : "Ajouter l&apos;abonnement"}
                         </button>
                         {errorMessage && <p className="text-red-600">{errorMessage}</p>}
                     </form>

@@ -4,8 +4,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
-  ChevronRightIcon,
-  ClockIcon
+  ChevronRightIcon
 } from '@heroicons/react/20/solid'
 import {
   add,
@@ -26,6 +25,7 @@ import {
 } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 import { delete_Subscription, filter_Subscriptions_by_month } from "@/features/subscriptions/subscriptionService"
 import { Subscription } from '@/lib/types'
@@ -144,7 +144,7 @@ function EventListItem({ subscribe }: EventListItemProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
 
-  const handleEdit = (id?: string) => {
+  const handleEdit = () => {
     setIsEditDialogOpen(true);
   };
 
@@ -169,7 +169,7 @@ function EventListItem({ subscribe }: EventListItemProps) {
         company={subscribe.companies ? subscribe.companies[0] : null}
         customCompany={subscribe.customCompany}
         category={subscribe.categories ? subscribe.categories[0] : null}
-        onEdit={() => handleEdit(subscribe.id)}
+        onEdit={() => handleEdit()}
         onDelete={() => handleDelete(subscribe.id)}
       />
       {isEditDialogOpen && (
@@ -186,7 +186,6 @@ function EventListItem({ subscribe }: EventListItemProps) {
             dateTime={subscribe.startDatetime}
             className="mt-2 flex items-center text-gray-700"
           >
-            <ClockIcon className="mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
             {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
           </time>
         </div>
@@ -299,7 +298,16 @@ function WeekView({ days, filteredSubscriptions, selectedDay, onSelectDay }: Wee
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
                         <div className={`min-w-4 w-4 h-4 rounded-xs flex items-center justify-center `}>
-                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
+                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? 
+                            <Image 
+                              src={subscribe.companies[0].imageLink} 
+                              alt={subscribe.companies[0].name || "Company logo"} 
+                              width={40} 
+                              height={40} 
+                              className='object-contain' 
+                            /> : 
+                            <QuestionMarkCircleIcon className='w-10 h-10 text-black' />
+                          }
                         </div>
                         <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.title}
@@ -345,7 +353,7 @@ function MonthView({
               key={dayStr}
               onClick={() => onSelectDay(dayStr)}
               className={classNames(
-                isSameMonth(day, today) ? 'bg-white' : '!bg-gray-50',
+                isSameMonth(day, today) ? '' : '!bg-gray-50',
                 isToday(day) ? '!bg-blue-50' : 'bg-white',
                 (!isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && isToday(day)
                   ? 'text-indigo-600'
@@ -394,7 +402,16 @@ function MonthView({
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
                         <div className={`min-w-4 w-4 h-4 rounded-2xl flex items-center justify-center `}>
-                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
+                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? 
+                            <Image 
+                              src={subscribe.companies[0].imageLink} 
+                              alt={subscribe.companies[0].name || "Company logo"} 
+                              width={40} 
+                              height={40} 
+                              className='object-contain' 
+                            /> : 
+                            <QuestionMarkCircleIcon className='w-10 h-10 text-black' />
+                          }
                         </div>
                         <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
                           {subscribe.title}
@@ -593,6 +610,8 @@ export default function Calendar({ subscriptions }: CalendarProps) {
     setSelectedDay(format(today, 'yyyy-MM-dd'))
   }
 
+  const serializedDays = JSON.stringify(newDays)
+
   useEffect(() => {
     const sortedSubscriptions = filter_Subscriptions_by_month(
       subscriptions,
@@ -600,7 +619,8 @@ export default function Calendar({ subscriptions }: CalendarProps) {
     )
     setFilteredSubscriptions(sortedSubscriptions)
     console.log(sortedSubscriptions)
-  }, [subscriptions, JSON.stringify(newDays)])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subscriptions, serializedDays])
 
 
 

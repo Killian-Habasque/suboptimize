@@ -84,9 +84,9 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                                     price={subscription.price}
                                     title={subscription.title}
                                     description={subscription.description}
-                                    company={subscription.companies ? subscription.companies[0] : null}
+                                    company={subscription.companies && subscription.companies.length > 0 ? subscription.companies[0] : null}
                                     customCompany={subscription.customCompany}
-                                    category={subscription.categories ? subscription.categories[0] : null}
+                                    category={subscription.categories && subscription.categories.length > 0 ? subscription.categories[0] : null}
                                 />
                             </div>
                         ))
@@ -117,9 +117,9 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                                     price={subscription.price}
                                     title={subscription.title}
                                     description={subscription.description}
-                                    company={subscription.companies[0]}
+                                    company={subscription.companies && subscription.companies.length > 0 ? subscription.companies[0] : null}
                                     customCompany={subscription.customCompany}
-                                    category={subscription.categories[0]}
+                                    category={subscription.categories && subscription.categories.length > 0 ? subscription.categories[0] : null}
                                 />
                             </div>
                         ))
@@ -149,9 +149,9 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                                     price={subscription.price}
                                     title={subscription.title}
                                     description={subscription.description}
-                                    company={subscription.companies[0]}
+                                    company={subscription.companies && subscription.companies.length > 0 ? subscription.companies[0] : null}
                                     customCompany={subscription.customCompany}
-                                    category={subscription.categories[0]}
+                                    category={subscription.categories && subscription.categories.length > 0 ? subscription.categories[0] : null}
                                 />
                             </div>
                         ))

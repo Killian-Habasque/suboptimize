@@ -17,8 +17,8 @@ const schema = z.object({
     dueDate: z.string(),
     endDate: z.string().optional(),
     price: z.coerce.number().min(0, "Le prix doit être positif"),
-    category: z.any().nullable(),
-    company: z.any().nullable(),
+    category: z.object({ id: z.string(), name: z.string() }).nullable(),
+    company: z.object({ id: z.string(), name: z.string() }).nullable(),
     customCompany: z.string().optional(),
 });
 
@@ -29,7 +29,7 @@ interface EditSubscriptionDialogProps {
 }
 
 const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen, onClose, subscription }) => {
-    const { , setSubscriptions } = useSubscription();
+    const { setSubscriptions } = useSubscription();
     const [categories, setCategories] = useState<Category[]>([]);
     const [companies, setCompanies] = useState<Company[]>([]);
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
@@ -87,7 +87,9 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
     useEffect(() => {
         if (isOpen && subscription) {
             setValue("title", subscription.title || "");
-            setValue("dueType", subscription.dueType || "monthly");
+            setValue("dueType", (subscription.dueType === "monthly" || subscription.dueType === "yearly") 
+                ? subscription.dueType 
+                : "monthly");
 
             // Format date for the input
             const startDate = new Date(subscription.startDatetime);
@@ -125,7 +127,7 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
         }
     }, [isOpen, subscription, setValue]);
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: z.infer<typeof schema>) => {
         setErrorMessage("");
         try {
             const updatedSubscription = await update_Subscription(
@@ -177,7 +179,7 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
                             leaveTo="opacity-0 scale-95"
                         >
                             <DialogPanel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                <DialogTitle className="text-xl font-semibold text-gray-800">Modifier l'abonnement</DialogTitle>
+                                <DialogTitle className="text-xl font-semibold text-gray-800">Modifier l&apos;abonnement</DialogTitle>
                                 <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-4 mt-4">
                                     <div>
                                         <label className="text-sm font-bold">Titre*</label>
@@ -186,7 +188,7 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
                                     </div>
 
                                     <div>
-                                        <label className="text-sm font-bold">Type d'échéance</label>
+                                        <label className="text-sm font-bold">Type d&apos;échéance</label>
                                         <select {...register("dueType")} className="w-full px-3 py-2 border rounded-lg">
                                             <option value="monthly">Mensuel</option>
                                             <option value="yearly">Annuel</option>
@@ -194,7 +196,7 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
                                     </div>
 
                                     <div>
-                                        <label className="text-sm font-bold">Date d'échéance</label>
+                                        <label className="text-sm font-bold">Date d&apos;échéance</label>
                                         <input type="date" {...register("dueDate")} className="w-full px-3 py-2 border rounded-lg" />
                                     </div>
 
@@ -214,7 +216,7 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
                                         <Combobox value={watch("category")} onChange={(value) => setValue("category", value)}>
                                             <ComboboxInput
                                                 className="w-full px-3 py-2 border rounded-lg"
-                                                displayValue={(cat) => cat?.name || ""}
+                                                displayValue={(cat: { name: string } | null) => cat?.name || ""}
                                                 onChange={(event) => {
                                                     const query = event.target.value.toLowerCase();
                                                     setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query)));
@@ -236,7 +238,7 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
                                         <Combobox value={watch("company")} onChange={(value) => setValue("company", value)}>
                                             <ComboboxInput
                                                 className="w-full px-3 py-2 border rounded-lg"
-                                                displayValue={(com) => com?.name || ""}
+                                                displayValue={(com: { name: string } | null) => com?.name || ""}
                                                 onChange={(event) => {
                                                     const query = event.target.value.toLowerCase();
                                                     setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query)));
@@ -276,7 +278,7 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
                                             disabled={isSubmitting}
                                             className={`px-4 py-2 text-white font-medium rounded-lg ${isSubmitting ? "bg-gray-300" : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"}`}
                                         >
-                                            {isSubmitting ? "Modification en cours..." : "Modifier l'abonnement"}
+                                            {isSubmitting ? "Modification en cours..." : "Modifier l&apos;abonnement"}
                                         </button>
                                     </div>
 

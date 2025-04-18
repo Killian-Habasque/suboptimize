@@ -1,13 +1,20 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect, SetStateAction, Key } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import { debounce } from "lodash";
 import AddOfferDialog from "@/features/offers/components/AddOfferDialog";
 import OfferListItem from "@/features/offers/components/OfferListItem";
 import Button from "@/components/ui/Button";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { Offer } from "@prisma/client";
+import { Category, Company } from "@prisma/client";
+
+// Étendre le type Offer pour inclure les relations
+interface OfferWithRelations extends Offer {
+    companies: Company[];
+    categories: Category[];
+}
 
 const fetchOffers = async (page: number, limit: number, searchTerm: string) => {
     const response = await fetch(`/api/offers?page=${page}&limit=${limit}&searchTerm=${encodeURIComponent(searchTerm)}`);
@@ -48,14 +55,14 @@ const Offers = () => {
                 Ajouter une offre
             </Button>
             {/* <div className="w-[500px]"> */}
-            <OfferListItem
+            {/* <OfferListItem
                 image="/assets/orange.png"
                 price="10,99"
                 title="Forfait mobile 2h - 100gb"
                 brand="Orange"
                 category="Téléphone"
                 dueType="mensuel"
-            />
+            /> */}
             {/* </div> */}
 
             <input
@@ -76,7 +83,7 @@ const Offers = () => {
             {error && <p className="text-red-500">{error.message}</p>}
 
             {data && data.offers.length > 0 ? (
-                data.offers.map((offer: Offer) => (
+                data.offers.map((offer: OfferWithRelations) => (
                     <OfferListItem
                         key={offer.id}
                         price={offer.price}
@@ -87,7 +94,7 @@ const Offers = () => {
                     />
                 ))
             ) : (
-                !isFetching && <p>Aucune offre pour l'instant</p>
+                !isFetching && <p>Aucune offre pour l&apos;instant</p>
             )}
 
             <div className="flex gap-4 mt-4">

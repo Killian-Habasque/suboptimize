@@ -1,27 +1,18 @@
 import { User as NextAuthUser } from "next-auth";
+import { Category as PrismaCategory, Company as PrismaCompany } from "@prisma/client";
 
 export interface User extends NextAuthUser {
     image?: string | null | undefined; 
 } 
 
-export interface Company {
-    imageLink: Company | undefined;
-    id: string;
-    name: string;
-    slug: string;
-}
-
-export interface Category {
-    id: string;
-    title: string;
-    slug: string;
-}
+export type Company = PrismaCompany;
+export type Category = PrismaCategory;
 
 export interface Subscription {
     id: string;
     title: string;
     slug: string;
-    dueType: string;
+    dueType: "monthly" | "yearly";
     description: string;
     dueDay: number;
     price: number;

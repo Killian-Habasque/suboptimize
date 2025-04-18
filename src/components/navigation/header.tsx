@@ -52,15 +52,19 @@ const Header = () => {
                     <div className="absolute left-0 shrink-0 lg:static">
                         <a href="#">
                             <span className="sr-only">Your Company</span>
-                            <img
+                            <Image
                                 alt="Sub'optimize"
                                 src="/logo_suboptimize.svg"
                                 className="h-8 w-auto hidden lg:block"
+                                width={32}
+                                height={32}
                             />
-                            <img
+                            <Image
                                 alt="Sub'optimize"
                                 src="/logo_icon.svg"
                                 className="h-8 w-auto lg:hidden"
+                                width={32}
+                                height={32}
                             />
                         </a>
                     </div>
@@ -96,7 +100,13 @@ const Header = () => {
                                             className="h-8 w-8 rounded-full"
                                         />
                                     ) : (
-                                        <img alt="" src={defaultUser.imageUrl} className="h-8 w-8 rounded-full" />
+                                        <Image 
+                                            alt="default user" 
+                                            src={defaultUser.imageUrl} 
+                                            className="h-8 w-8 rounded-full" 
+                                            width={32}
+                                            height={32}
+                                        />
                                     )
                                     }
 
@@ -210,10 +220,12 @@ const Header = () => {
                         <div className="pb-2 pt-3">
                             <div className="flex items-center justify-between px-4">
                                 <div>
-                                    <img
+                                    <Image
                                         alt="Sub'optimize"
                                         src="/logo_suboptimize_dark.svg"
                                         className="h-8 w-auto"
+                                        width={32}
+                                        height={32}
                                     />
                                 </div>
                                 <div className="-mr-2">
@@ -261,7 +273,13 @@ const Header = () => {
                             {session?.user ? (
                                 <div className="flex items-center px-5">
                                     <div className="shrink-0">
-                                        <img alt="" src={session.user.image || defaultUser.imageUrl} className="h-10 w-10 rounded-full" />
+                                        <Image 
+                                            alt="user avatar" 
+                                            src={session.user.image || defaultUser.imageUrl} 
+                                            className="h-10 w-10 rounded-full" 
+                                            width={40}
+                                            height={40}
+                                        />
                                     </div>
                                     <div className="ml-3 min-w-0 flex-1">
                                         <div className="truncate text-base font-medium text-gray-800"> {session.user.name}</div>

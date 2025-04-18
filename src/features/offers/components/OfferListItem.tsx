@@ -21,9 +21,10 @@ const OfferListItem: React.FC<OfferListItemProps> = ({
     description,
     category,
     dueType,
+    onClick
 }) => {
     return (
-        <div className='relative flex justify-center items-center w-full p-4 gap-4'>
+        <div className='relative flex justify-center items-center w-full p-4 gap-4' onClick={() => onClick()}>
             {company && company.imageLink && <BrandBubble image={company.imageLink} altText={title} />}
             <div className='w-full'>
                 {title && <h3 className='text-xl font-semibold'>{title}</h3>}
@@ -57,7 +58,7 @@ const OfferListItem: React.FC<OfferListItemProps> = ({
                             <a
                                 href={"test"}
                                 className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-                                onClick={""}
+                                // onClick={""}
                             >
                                 Modifier
                             </a>
@@ -66,7 +67,7 @@ const OfferListItem: React.FC<OfferListItemProps> = ({
                             <a
                                 href={"test"}
                                 className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-                                onClick={""}
+                                // onClick={""}
                             >
                                 Supprimer
                             </a>
