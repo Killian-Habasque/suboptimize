@@ -156,7 +156,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
 
     return (
         <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 flex items-center justify-center z-50">
-            <DialogPanel className="relative w-5xl h-3/4 bg-white p-6 shadow-xl rounded-lg">
+            <DialogPanel className="relative w-5xl min-h-3/4 bg-white p-6 shadow-xl rounded-lg">
                 <DialogTitle className="text-xl font-semibold text-gray-800">Ajouter un abonnement</DialogTitle>
 
                 {step === "search" ? (
@@ -171,22 +171,15 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                         <ul className="border rounded h-96 overflow-scroll">
                             {offersData && offersData.offers.length > 0 ? (
                                 offersData.offers.map((offer: Offer) => (
-
-                                    <>
-                                        {/* <li key={offer.id} onClick={() => handleOfferSelect(offer)} className="cursor-pointer p-2 hover:bg-gray-200">
-                                            {offer.name} - {offer.price} €
-                                        </li> */}
-                                        <OfferListItem
-                                            key={offer.id}
-                                            price={offer.price}
-                                            title={offer.name}
-                                            // description={offer.description}
-                                            company={offer.companies[0]}
-                                            category={offer.categories[0]}
-                                            onClick={() => handleOfferSelect(offer)} 
-                                        />
-                                    </>
-
+                                    <OfferListItem
+                                        key={offer.id}
+                                        price={offer.price}
+                                        title={offer.name}
+                                        // description={offer.description}
+                                        company={offer.companies[0]}
+                                        category={offer.categories[0]}
+                                        onClick={() => handleOfferSelect(offer)}
+                                    />
                                 ))
                             ) : <span className="w-full flex justify-center p-2 opacity-25">
                                 {searchOfferTerm ? "Aucun abonnement trouvé" : "Rechercher un abonnement"}
@@ -307,7 +300,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`w-full px-4 py-2 text-white font-medium rounded-lg ${isSubmitting ? "bg-gray-300" : "bg-indigo-600 hover:bg-indigo-700"}`}
+                            className={`w-full px-4 py-2 text-white font-medium rounded-lg ${isSubmitting ? "bg-gray-300" : "bg-primary hover:bg-secondary"}`}
                         >
                             {isSubmitting ? "Ajout en cours..." : "Ajouter l&apos;abonnement"}
                         </button>

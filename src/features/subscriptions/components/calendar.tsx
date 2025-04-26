@@ -122,7 +122,7 @@ function CalendarHeader({
           <div className="ml-6 h-6 w-px bg-gray-300" />
           <button
             onClick={onAddEvent}
-            className="ml-6 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="ml-6 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             Add event
           </button>
@@ -272,11 +272,11 @@ function WeekView({ days, filteredSubscriptions, selectedDay, onSelectDay }: Wee
                   className={classNames(
                     'inline-flex h-6 w-6 items-center justify-center rounded-full mt-1',
                     isSelected && isToday(parsedDay)
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-primary text-white'
                       : isSelected
                         ? 'bg-gray-900 text-white'
                         : isToday(parsedDay)
-                          ? 'bg-indigo-100 text-indigo-600'
+                          ? 'bg-secondary text-primary'
                           : 'text-gray-900'
                   )}
                 >
@@ -309,7 +309,7 @@ function WeekView({ days, filteredSubscriptions, selectedDay, onSelectDay }: Wee
                             <QuestionMarkCircleIcon className='w-10 h-10 text-black' />
                           }
                         </div>
-                        <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
+                        <p className="flex-auto truncate text-gray-900 group-hover:text-primary">
                           {subscribe.title}
                         </p>
                       </div>
@@ -356,7 +356,7 @@ function MonthView({
                 isSameMonth(day, today) ? '' : '!bg-gray-50',
                 isToday(day) ? '!bg-blue-50' : 'bg-white',
                 (!isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && isToday(day)
-                  ? 'text-indigo-600'
+                  ? 'text-primary'
                   : ''),
                 (!isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) &&
                   isSameMonth(day, today) &&
@@ -376,7 +376,7 @@ function MonthView({
                 className={classNames(
                   'flex h-6 w-6 items-center justify-center rounded-full',
                   (isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && isToday(day)
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-primary text-white'
                     : ''),
                   (isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && !isToday(day)
                     ? 'bg-gray-900 text-white'
@@ -413,7 +413,7 @@ function MonthView({
                             <QuestionMarkCircleIcon className='w-10 h-10 text-black' />
                           }
                         </div>
-                        <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
+                        <p className="flex-auto truncate text-gray-900 group-hover:text-primary">
                           {subscribe.title}
                         </p>
                       </div>
@@ -458,7 +458,7 @@ function MonthView({
               className={classNames(
                 isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
                 (!isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && isToday(day)
-                  ? 'text-indigo-600'
+                  ? 'text-primary'
                   : ''),
                 (!isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) &&
                   isSameMonth(day, today) &&
@@ -478,7 +478,7 @@ function MonthView({
                 className={classNames(
                   'flex h-6 w-6 items-center justify-center rounded-full',
                   (isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && isToday(day)
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-primary text-white'
                     : ''),
                   (isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && !isToday(day)
                     ? 'bg-gray-900 text-white'

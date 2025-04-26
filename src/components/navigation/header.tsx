@@ -1,3 +1,5 @@
+"use client";
+
 import {
     Menu,
     MenuButton,
@@ -30,9 +32,9 @@ const navigation = [
     { name: 'Mes alertes', href: '/offres', current: false },
 ]
 const userNavigation = [
-    { name: 'Your Profile', href: '/profil' },
-    { name: 'Settings', href: '#' },
-    { name: 'Sign out', href: '#' },
+    { name: 'Mon profil', href: '/profil' },
+    { name: 'Réglages', href: '#' },
+    { name: 'Déconnexion', href: '#' },
 ]
 
 

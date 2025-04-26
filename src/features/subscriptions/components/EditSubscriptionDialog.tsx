@@ -276,7 +276,7 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
                                         <button
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className={`px-4 py-2 text-white font-medium rounded-lg ${isSubmitting ? "bg-gray-300" : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"}`}
+                                            className={`px-4 py-2 text-white font-medium rounded-lg ${isSubmitting ? "bg-gray-300" : "bg-primary hover:bg-secondary cursor-pointer"}`}
                                         >
                                             {isSubmitting ? "Modification en cours..." : "Modifier l&apos;abonnement"}
                                         </button>
