@@ -12,6 +12,7 @@ interface OfferListItemProps {
     category?: Category;
     company?: Company;
     dueType?: 'mensuel' | 'annuel';
+    onClick?: () => void;
 }
 
 const OfferListItem: React.FC<OfferListItemProps> = ({
@@ -24,7 +25,7 @@ const OfferListItem: React.FC<OfferListItemProps> = ({
     onClick
 }) => {
     return (
-        <div className='relative flex justify-center items-center w-full p-4 gap-4' onClick={() => onClick()}>
+        <div className='relative flex justify-center items-center w-full p-4 gap-4' onClick={() => onClick && onClick()}>
             {company && company.imageLink && <BrandBubble image={company.imageLink} altText={title} />}
             <div className='w-full'>
                 {title && <h3 className='text-xl font-semibold'>{title}</h3>}

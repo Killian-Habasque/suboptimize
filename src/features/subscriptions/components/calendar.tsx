@@ -62,7 +62,7 @@ function CalendarHeader({
 }: CalendarHeaderProps) {
   const firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', new Date())
   return (
-    <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4 lg:flex-none">
+    <header className="flex items-center justify-between border-b border-gray-200 py-4 lg:flex-none">
       <h1 className="text-base font-semibold leading-6 text-gray-900">
         <time dateTime="2022-01">
           {capitalizeFirstLetter(format(firstDayCurrentMonth, 'MMMM yyyy', { locale }))}
@@ -98,7 +98,13 @@ function CalendarHeader({
         <div className="hidden md:ml-4 md:flex md:items-center">
           <Menu as="div" className="relative">
             <MenuButton className="flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 cursor-pointer">
-              {capitalizeFirstLetter(viewMode)} view
+              {viewMode === 'day' ? (
+                "Jour"
+              ) : viewMode === 'week' ? (
+                "Semaine"
+              ) : (
+                "Mois"
+              )}
               <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
             </MenuButton>
             <MenuItems className="absolute right-0 mt-2 w-32 origin-top-right bg-white shadow-lg ring-1 ring-black/[5%]">
@@ -112,7 +118,13 @@ function CalendarHeader({
                         'w-full block px-4 py-2 text-sm cursor-pointer'
                       )}
                     >
-                      {capitalizeFirstLetter(mode)} view
+                      {mode === 'day' ? (
+                        "Jour"
+                      ) : mode === 'week' ? (
+                        "Semaine"
+                      ) : (
+                        "Mois"
+                      )}
                     </button>
                   )}
                 </MenuItem>
@@ -122,9 +134,9 @@ function CalendarHeader({
           <div className="ml-6 h-6 w-px bg-gray-300" />
           <button
             onClick={onAddEvent}
-            className="ml-6 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            className="cursor-pointer ml-6 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            Add event
+            Ajouter un abonnement
           </button>
         </div>
       </div>
@@ -298,14 +310,14 @@ function WeekView({ days, filteredSubscriptions, selectedDay, onSelectDay }: Wee
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
                         <div className={`min-w-4 w-4 h-4 rounded-xs flex items-center justify-center `}>
-                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? 
-                            <Image 
-                              src={subscribe.companies[0].imageLink} 
-                              alt={subscribe.companies[0].name || "Company logo"} 
-                              width={40} 
-                              height={40} 
-                              className='object-contain' 
-                            /> : 
+                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ?
+                            <Image
+                              src={subscribe.companies[0].imageLink}
+                              alt={subscribe.companies[0].name || "Company logo"}
+                              width={40}
+                              height={40}
+                              className='object-contain'
+                            /> :
                             <QuestionMarkCircleIcon className='w-10 h-10 text-black' />
                           }
                         </div>
@@ -402,14 +414,14 @@ function MonthView({
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
                         <div className={`min-w-4 w-4 h-4 rounded-2xl flex items-center justify-center `}>
-                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? 
-                            <Image 
-                              src={subscribe.companies[0].imageLink} 
-                              alt={subscribe.companies[0].name || "Company logo"} 
-                              width={40} 
-                              height={40} 
-                              className='object-contain' 
-                            /> : 
+                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ?
+                            <Image
+                              src={subscribe.companies[0].imageLink}
+                              alt={subscribe.companies[0].name || "Company logo"}
+                              width={40}
+                              height={40}
+                              className='object-contain'
+                            /> :
                             <QuestionMarkCircleIcon className='w-10 h-10 text-black' />
                           }
                         </div>

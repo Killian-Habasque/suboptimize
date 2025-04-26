@@ -17,6 +17,7 @@ import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import Image from 'next/image'
 import Button from '../ui/Button'
+import { usePathname } from 'next/navigation';
 
 
 const defaultUser = {
@@ -26,10 +27,10 @@ const defaultUser = {
         'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
 }
 const navigation = [
-    { name: 'Calendrier des abonnements', href: '/template', current: true },
+    { name: 'Calendrier des abonnements', href: '/template', current: false },
     { name: 'Offres', href: '/offres', current: false },
-    { name: 'Tendances', href: '/offres', current: false },
-    { name: 'Mes alertes', href: '/offres', current: false },
+    { name: 'Tendances', href: '#', current: false },
+    { name: 'Mes alertes', href: '#', current: false },
 ]
 const userNavigation = [
     { name: 'Mon profil', href: '/profil' },
@@ -41,6 +42,7 @@ const userNavigation = [
 
 const Header = () => {
     const { data: session } = useSession()
+    const pathname = usePathname();
 
     const handleSignOut = async () => {
         await signOut({ redirect: true, callbackUrl: '/' })
@@ -102,10 +104,10 @@ const Header = () => {
                                             className="h-8 w-8 rounded-full"
                                         />
                                     ) : (
-                                        <Image 
-                                            alt="default user" 
-                                            src={defaultUser.imageUrl} 
-                                            className="h-8 w-8 rounded-full" 
+                                        <Image
+                                            alt="default user"
+                                            src={defaultUser.imageUrl}
+                                            className="h-8 w-8 rounded-full"
                                             width={32}
                                             height={32}
                                         />
@@ -120,13 +122,13 @@ const Header = () => {
                             >
                                 {userNavigation.map((item) => (
                                     <MenuItem key={item.name}>
-                                        <a
+                                        <Link
                                             href={item.href}
                                             className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-                                            onClick={item.name === 'Sign out' ? handleSignOut : undefined}
+                                            onClick={item.name === 'Déconnexion' ? handleSignOut : undefined}
                                         >
                                             {item.name}
-                                        </a>
+                                        </Link>
                                     </MenuItem>
                                 ))}
                             </MenuItems>
@@ -137,7 +139,7 @@ const Header = () => {
                     <div className="min-w-0 flex-1 px-12 lg:hidden">
                         <div className="mx-auto w-full max-w-xs">
                             <label htmlFor="desktop-search" className="sr-only">
-                                Search
+                                Rechercher
                             </label>
                             <div className="relative text-white focus-within:text-gray-600">
                                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -147,7 +149,7 @@ const Header = () => {
                                     id="desktop-search"
                                     name="search"
                                     type="search"
-                                    placeholder="Search"
+                                    placeholder="Rechercher"
                                     className="block w-full rounded-md border-0 bg-white/20 py-1.5 pl-10 pr-3 text-white placeholder:text-white focus:bg-white focus:text-gray-900 focus:ring-0 focus:placeholder:text-gray-500 sm:text-sm sm:leading-6"
                                 />
                             </div>
@@ -169,25 +171,28 @@ const Header = () => {
                     <div className="grid grid-cols-3 items-center gap-8">
                         <div className="col-span-2">
                             <nav className="flex space-x-4">
-                                {navigation.map((item) => (
-                                    <a
-                                        key={item.name}
-                                        href={item.href}
-                                        aria-current={item.current ? 'page' : undefined}
-                                        className={classNames(
-                                            item.current ? 'text-white' : 'text-indigo-100',
-                                            'rounded-md bg-white/0 px-3 py-2 text-sm font-medium hover:bg-white/25',
-                                        )}
-                                    >
-                                        {item.name}
-                                    </a>
-                                ))}
+                                {navigation.map((item) => {
+                                    const isCurrent = pathname === item.href;
+                                    return (
+                                        <Link
+                                            key={item.name}
+                                            href={item.href}
+                                            aria-current={isCurrent ? 'page' : undefined}
+                                            className={classNames(
+                                                isCurrent ? 'text-white' : 'text-indigo-100',
+                                                'rounded-md bg-white/0 px-3 py-2 text-sm font-medium hover:bg-white/25',
+                                            )}
+                                        >
+                                            {item.name}
+                                        </Link>
+                                    );
+                                })}
                             </nav>
                         </div>
                         <div>
                             <div className="mx-auto w-full max-w-md">
                                 <label htmlFor="mobile-search" className="sr-only">
-                                    Search
+                                    Rechercher
                                 </label>
                                 <div className="relative text-white focus-within:text-gray-600">
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -197,7 +202,7 @@ const Header = () => {
                                         id="mobile-search"
                                         name="search"
                                         type="search"
-                                        placeholder="Search"
+                                        placeholder="Rechercher"
                                         className="block w-full rounded-md border-0 bg-white/20 py-1.5 pl-10 pr-3 text-white placeholder:text-white focus:bg-white focus:text-gray-900 focus:ring-0 focus:placeholder:text-gray-500 sm:text-sm sm:leading-6"
                                     />
                                 </div>
@@ -239,46 +244,46 @@ const Header = () => {
                                 </div>
                             </div>
                             <div className="mt-3 space-y-1 px-2">
-                                <a
+                                <Link
                                     href="#"
                                     className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
                                 >
                                     Home
-                                </a>
-                                <a
+                                </Link>
+                                <Link
                                     href="#"
                                     className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
                                 >
                                     Profile
-                                </a>
-                                <a
+                                </Link>
+                                <Link
                                     href="#"
                                     className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
                                 >
                                     Resources
-                                </a>
-                                <a
+                                </Link>
+                                <Link
                                     href="#"
                                     className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
                                 >
                                     Company Directory
-                                </a>
-                                <a
+                                </Link>
+                                <Link
                                     href="#"
                                     className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
                                 >
                                     Openings
-                                </a>
+                                </Link>
                             </div>
                         </div>
                         <div className="pb-2 pt-4">
                             {session?.user ? (
                                 <div className="flex items-center px-5">
                                     <div className="shrink-0">
-                                        <Image 
-                                            alt="user avatar" 
-                                            src={session.user.image || defaultUser.imageUrl} 
-                                            className="h-10 w-10 rounded-full" 
+                                        <Image
+                                            alt="user avatar"
+                                            src={session.user.image || defaultUser.imageUrl}
+                                            className="h-10 w-10 rounded-full"
                                             width={40}
                                             height={40}
                                         />
@@ -303,7 +308,7 @@ const Header = () => {
                                         key={item.name}
                                         href={item.href}
                                         className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
-                                        onClick={item.name === 'Sign out' ? handleSignOut : undefined}
+                                        onClick={item.name === 'Déconnexion' ? handleSignOut : undefined}
                                     >
                                         {item.name}
                                     </Link>

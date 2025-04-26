@@ -3,6 +3,8 @@ import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { SubscriptionProvider } from "@/features/subscriptions/subscriptionContext";
 import QueryProvider from "@/features/offers/offerProvider";
+import Header from "@/components/navigation/header";
+import Footer from "@/components/navigation/footer";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,8 +22,12 @@ export default function RootLayout({
         <QueryProvider>
           <SessionProvider>
             <SubscriptionProvider>
-              <div className="w-full h-screen flex flex-col min-h-full">
-                {children}
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-grow">
+                  {children}
+                </main>
+                <Footer />
               </div>
             </SubscriptionProvider>
           </SessionProvider>
