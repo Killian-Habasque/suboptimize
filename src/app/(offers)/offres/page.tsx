@@ -16,7 +16,7 @@ const Offers = () => {
                 <GridItem colSpan={2}>
                     <Card>
                         <div className="p-4">
-                            <h1 className="text-2xl font-bold mb-6">Top offres</h1>
+                            <h1 className="text-2xl font-bold mb-6 text-primary">Top offres</h1>
                             <OfferList />
                         </div>
                     </Card>

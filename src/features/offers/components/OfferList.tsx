@@ -50,24 +50,19 @@ const OfferList = () => {
                     placeholder="Rechercher une offre..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    className="w-full p-3 outline-none ring-1 ring-inset ring-gray-300 border-none rounded-lg"
                 />
             </div>
 
             {data?.offers.map((offer: OfferWithRelations) => (
-                <div key={offer.id} className="bg-white rounded-lg shadow">
-                    <div className="flex items-center px-4 py-2 bg-gray-50 rounded-t-lg">
-                        <div className="bg-blue-100 rounded-full px-3 py-1 text-sm font-medium text-blue-800">
-                            {offer.score || 70}
-                        </div>
-                    </div>
+                <div key={offer.id} className='ring-1 ring-inset ring-gray-300 rounded-lg'>
                     <OfferListItem
                         title={offer.name}
                         price={offer.price}
                         description={offer.description}
                         company={offer.companies[0]}
                         category={offer.categories[0]}
-                        onClick={() => {}}
+                        preview={false}
                     />
                 </div>
             ))}
