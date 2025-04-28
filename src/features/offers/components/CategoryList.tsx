@@ -1,5 +1,6 @@
 import React from 'react';
-import { PhoneIcon, MusicalNoteIcon, HomeIcon, WifiIcon, HeartIcon, BoltIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { PhoneIcon, MusicalNoteIcon, HomeIcon, WifiIcon, HeartIcon, BoltIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
+import CategoryBadge from '@/components/ui/CategoryBadge';
 
 const categories = [
     { name: 'Téléphone', icon: PhoneIcon },
@@ -19,18 +20,20 @@ const CategoryList = () => {
                 {categories.map((category) => {
                     const Icon = category.icon;
                     return (
-                        <button
+                        <CategoryBadge
                             key={category.name}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors"
-                        >
-                            <Icon className="w-5 h-5" />
-                            <span>{category.name}</span>
-                        </button>
+                            icon={<Icon className="w-5 h-5" />}
+                            label={category.name}
+                            variant='secondary'
+                        />
                     );
                 })}
+                <button className="text-gray-600">
+                    + 10 autres
+                </button>
             </div>
-            <button className="w-full mt-4 text-center text-gray-600 hover:text-gray-800">
-                + 10 autres
+            <button className='w-full justify-center border border-gray-300 rounded-md py-2 px-4 text-sm flex gap-2 items-center font-medium shadow-xs cursor-pointer text-gray-700 hover:bg-gray-100 transition duration-200'>
+                En voir plus
             </button>
         </div>
     );

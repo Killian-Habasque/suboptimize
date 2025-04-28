@@ -1,42 +1,67 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-
-const brands = [
-    { name: 'Sosh', image: '/brands/sosh.png' },
-    { name: 'Hellobank', image: '/brands/hellobank.png' },
-    { name: 'Bouygues', image: '/brands/bouygues.png' },
-    { name: 'Chatgpt', image: '/brands/chatgpt.png' },
-    { name: 'Spotify', image: '/brands/spotify.png' },
-    { name: 'Verisure', image: '/brands/verisure.png' },
-    { name: 'Free', image: '/brands/free.png' },
-    { name: 'Orange', image: '/brands/orange.png' },
-    { name: 'Ovh', image: '/brands/ovh.png' },
-];
+import { get_popular_companies } from '../offerService';
+import { Company } from '@prisma/client';
+import BrandBubble from '@/components/ui/BrandBubble';
 
 const PopularBrands = () => {
+    const [companies, setCompanies] = useState<Company[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCompanies = async () => {
+            try {
+                const popularCompanies = await get_popular_companies();
+                setCompanies(popularCompanies);
+            } catch (error) {
+                console.error('Error fetching companies:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCompanies();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="space-y-4">
+                <h2 className="text-xl font-semibold mb-4">Marques populaires</h2>
+                <div className="grid grid-cols-5 gap-4">
+                    {[...Array(9)].map((_, index) => (
+                        <div
+                            key={index}
+                            className="flex flex-col items-center justify-center bg-white rounded-lg animate-pulse"
+                        >
+                            <div className="w-12 h-12 bg-gray-200 rounded-full" />
+                            <div className="w-12 h-2 bg-gray-200 rounded mt-2" />
+                        </div>
+                    ))}
+                </div>
+                <div className="w-full h-10 bg-gray-200 rounded-md" />
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-4">
             <h2 className="text-xl font-semibold mb-4">Marques populaires</h2>
-            <div className="grid grid-cols-3 gap-4">
-                {brands.map((brand) => (
+            <div className="grid grid-cols-5 gap-4">
+                {companies.map((company) => (
                     <div
-                        key={brand.name}
-                        className="flex flex-col items-center justify-center p-2 bg-white rounded-lg hover:shadow-md transition-shadow"
+                        key={company.id}
+                        className="flex flex-col items-center justify-center bg-white rounded-lg"
                     >
-                        <div className="w-12 h-12 relative">
-                            <Image
-                                src={brand.image}
-                                alt={brand.name}
-                                fill
-                                className="object-contain"
-                            />
-                        </div>
-                        <span className="text-sm text-gray-600 mt-2">{brand.name}</span>
+                        <BrandBubble image={company?.imageLink ? company.imageLink : null} brandName={company.name || undefined} altText={company.name} variant="medium" />
+                        <span className="text-xs text-gray-400 mt-2 font-medium">{company.name}</span>
                     </div>
                 ))}
+                <button className="w-full mt-4 text-xs text-center text-gray-400">
+                    + 500 autres
+                </button>
             </div>
-            <button className="w-full mt-4 text-center text-gray-600 hover:text-gray-800">
-                + 500 autres
+            <button className='w-full justify-center border border-gray-300 rounded-md py-2 px-4 text-sm flex gap-2 items-center font-medium shadow-xs cursor-pointer text-gray-700 hover:bg-gray-100 transition duration-200'>
+                En voir plus
             </button>
         </div>
     );

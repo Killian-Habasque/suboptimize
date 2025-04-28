@@ -64,3 +64,16 @@ export const add_Offer = async (offerData: {
 
     return response.json();
 };
+
+export const get_popular_companies = async () => {
+    try {
+        const response = await fetch('/api/companies/popular');
+        if (!response.ok) {
+            throw new Error('Failed to fetch popular companies');
+        }
+        return response.json();
+    } catch (error) {
+        console.error("Error fetching popular companies:", error);
+        throw new Error("Failed to fetch popular companies");
+    }
+};

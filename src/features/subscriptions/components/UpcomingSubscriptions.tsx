@@ -62,7 +62,7 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
     }, [subscriptions])
 
     return (
-        <div className="space-y-6 overflow-auto max-h-[calc(100vh-240px)] pr-2">
+        <div className="space-y-6 overflow-auto max-h-[calc(100vh-240px)] pr-4">
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
@@ -78,7 +78,7 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                 <div className="bg-white rounded-lg divide-y divide-gray-200">
                     {todaySubscriptions.length > 0 ? (
                         todaySubscriptions.map(subscription => (
-                            <div key={subscription.id} className="p-1">
+                            <div key={subscription.id} className="p-2">
                                 <SubscriptionListItem
                                     id={subscription.id}
                                     price={subscription.price}
@@ -111,7 +111,7 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                 <div className="bg-white rounded-lg divide-y divide-gray-200">
                     {tomorrowSubscriptions.length > 0 ? (
                         tomorrowSubscriptions.map(subscription => (
-                            <div key={subscription.id} className="p-1">
+                            <div key={subscription.id} className="p-2">
                                 <SubscriptionListItem
                                     id={subscription.id}
                                     price={subscription.price}
@@ -143,7 +143,7 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                 <div className="bg-white rounded-lg divide-y divide-gray-200">
                     {monthSubscriptions.length > 0 ? (
                         monthSubscriptions.map(subscription => (
-                            <div key={subscription.id} className="p-1">
+                            <div key={subscription.id} className="p-2">
                                 <SubscriptionListItem
                                     id={subscription.id}
                                     price={subscription.price}

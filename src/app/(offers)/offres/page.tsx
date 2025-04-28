@@ -1,6 +1,5 @@
 "use client";
 
-import React from 'react';
 import Container from "@/components/layout/container";
 import Grid from "@/components/layout/grid";
 import GridItem from "@/components/layout/grid-item";

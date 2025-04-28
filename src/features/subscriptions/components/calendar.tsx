@@ -25,8 +25,6 @@ import {
 } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
-
 import { delete_Subscription, filter_Subscriptions_by_month } from "@/features/subscriptions/subscriptionService"
 import { Subscription } from '@/lib/types'
 import { capitalizeFirstLetter, classNames } from '@/services/utils'
@@ -34,7 +32,7 @@ import AddSubscriptionDialog from './AddSubscriptionDialog'
 import SubscriptionListItem from './SubscriptionListItem'
 import { useSubscription } from '../subscriptionContext'
 import EditSubscriptionDialog from './EditSubscriptionDialog'
-import { QuestionMarkCircleIcon } from '@heroicons/react/24/solid'
+import BrandBubble from '@/components/ui/BrandBubble'
 
 const locale = fr
 
@@ -171,8 +169,7 @@ function EventListItem({ subscribe }: EventListItemProps) {
     }
   };
   return (
-    <>
-      {console.log(subscribe)}
+    <div className='py-4 px-8'>
       <SubscriptionListItem
         key={subscribe.id}
         price={subscribe.price}
@@ -207,7 +204,7 @@ function EventListItem({ subscribe }: EventListItemProps) {
           Edit<span className="sr-only">, {subscribe.title}</span>
         </div>
       </li> */}
-    </>
+    </div>
 
   )
 }
@@ -309,18 +306,12 @@ function WeekView({ days, filteredSubscriptions, selectedDay, onSelectDay }: Wee
                   .map((subscribe) => (
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
-                        <div className={`min-w-4 w-4 h-4 rounded-xs flex items-center justify-center `}>
-                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ?
-                            <Image
-                              src={subscribe.companies[0].imageLink}
-                              alt={subscribe.companies[0].name || "Company logo"}
-                              width={40}
-                              height={40}
-                              className='object-contain'
-                            /> :
-                            <QuestionMarkCircleIcon className='w-10 h-10 text-black' />
-                          }
-                        </div>
+                        <BrandBubble
+                          image={subscribe.companies?.[0]?.imageLink}
+                          brandName={subscribe.companies?.[0]?.name || subscribe.customCompany}
+                          altText={subscribe.title}
+                          variant="small"
+                        />
                         <p className="flex-auto truncate text-gray-900 group-hover:text-primary">
                           {subscribe.title}
                         </p>
@@ -413,18 +404,12 @@ function MonthView({
                   .map((subscribe) => (
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
-                        <div className={`min-w-4 w-4 h-4 rounded-2xl flex items-center justify-center `}>
-                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ?
-                            <Image
-                              src={subscribe.companies[0].imageLink}
-                              alt={subscribe.companies[0].name || "Company logo"}
-                              width={40}
-                              height={40}
-                              className='object-contain'
-                            /> :
-                            <QuestionMarkCircleIcon className='w-10 h-10 text-black' />
-                          }
-                        </div>
+                        <BrandBubble
+                          image={subscribe.companies?.[0]?.imageLink}
+                          brandName={subscribe.companies?.[0]?.name || subscribe.customCompany}
+                          altText={subscribe.title}
+                          variant="small"
+                        />
                         <p className="flex-auto truncate text-gray-900 group-hover:text-primary">
                           {subscribe.title}
                         </p>
