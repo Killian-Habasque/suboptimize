@@ -1,80 +1,92 @@
-import { EllipsisVerticalIcon, PhoneIcon } from "@heroicons/react/24/solid";
+import { BookmarkIcon, ChatBubbleOvalLeftIcon, MinusIcon, PlusIcon, PhoneIcon } from "@heroicons/react/24/solid";
 import CategoryBadge from '@/components/ui/CategoryBadge';
 import DueTypeBadge from "@/components/ui/DueTypeBadge";
 import BrandBubble from '@/components/ui/BrandBubble';
 import { Category, Company } from "@prisma/client";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import Link from "next/link";
 
 interface OfferListItemProps {
+    slug?: string;
+    rankingScore?: number;
     price?: number;
+    normalPrice?: number;
     title?: string;
     description?: string;
     category?: Category;
     company?: Company;
     dueType?: 'mensuel' | 'annuel';
+    onClick?: () => void;
+    preview?: boolean;
 }
 
 const OfferListItem: React.FC<OfferListItemProps> = ({
+    slug,
+    rankingScore,
     price,
+    normalPrice,
     title,
     company,
     description,
     category,
     dueType,
+    onClick,
+    preview = true
 }) => {
     return (
-        <div className='relative flex justify-center items-center w-full p-4 gap-4'>
-            {company && company.imageLink && <BrandBubble image={company.imageLink} altText={title} />}
-            <div className='w-full'>
-                {title && <h3 className='text-xl font-semibold'>{title}</h3>}
-                <div className='flex gap-2 items-center flex-wrap'>
-                    {company && <div className='text-sm flex gap-2 text-gray-500 items-center font-normal'>{company.name}</div>}
+        <Link href={slug ? `/offres/${slug}` : "#"} className="relative flex justify-center items-center w-full py-4 px-8 gap-8 hover:opacity-[0.75]" onClick={() => onClick && onClick()}>
+            <BrandBubble image={company?.imageLink ? company.imageLink : null} brandName={company?.name || undefined} altText={title || ''} variant="large" />
+
+            <div className="w-full flex flex-col gap-1">
+
+                {!preview && (
+                    <div className="flex justify-between">
+                        <div className="size-fit bg-secondary rounded-full px-1 py-1 text-sm font-medium text-white flex gap-2">
+                            <MinusIcon className="w-5 h-5 bg-white rounded-full text-secondary cursor-pointer" />
+                            {rankingScore || 0}
+                            <PlusIcon className="w-5 h-5 bg-white rounded-full text-secondary cursor-pointer" />
+                        </div>
+                        <p className="text-sm text-primary">Posté il y a 3 jours</p>
+                    </div>
+
+                )}
+
+                {title && <h3 className="text-xl font-semibold">{title}</h3>}
+
+                <div className="flex gap-2 items-center flex-wrap">
+                    {company?.name && (
+                        <div className="text-sm flex gap-2 text-gray-500 items-center font-normal">
+                            {company.name}
+                        </div>
+                    )}
                     {category && <CategoryBadge icon={<PhoneIcon className="w-4" />} label={category.name} />}
                     {dueType && <DueTypeBadge type={dueType} />}
                 </div>
-                <div className='flex gap-2 items-center flex-wrap'>
+
+                <div className="flex gap-2 items-center flex-wrap">
                     {description && <p className="text-xs text-gray-500 font-normal">{description}</p>}
                 </div>
-                {price && <span className='text-lg font-semibold'>{price} €</span>}
-            </div>
-            <div className='flex items-center'>
-                <Menu as="div" className="relative ml-4 shrink-0">
-                    <div>
-                        <MenuButton className="relative flex rounded-full bg-white text-sm ring-2 ring-white/25 focus:outline-none focus:ring-gray/100 cursor-pointer">
-                            <span className="absolute -inset-1.5" />
-                            <span className="sr-only">Open user menu</span>
-                            <div className='w-8 h-8 rounded-full bg-blue-50 cursor-pointer'>
-                                <EllipsisVerticalIcon className='w-full h-full text-gray-400' />
-                            </div>
-                        </MenuButton>
-                    </div>
-                    <MenuItems
-                        transition
-                        className="absolute -right-2 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/[5%] focus:outline-none data-[closed]:data-[leave]:scale-95 data-[closed]:data-[leave]:transform data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-75 data-[leave]:ease-in"
-                    >
 
-                        <MenuItem key={"edit"}>
-                            <a
-                                href={"test"}
-                                className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-                                onClick={""}
-                            >
-                                Modifier
-                            </a>
-                        </MenuItem>
-                        <MenuItem key={"delete"}>
-                            <a
-                                href={"test"}
-                                className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-                                onClick={""}
-                            >
-                                Supprimer
-                            </a>
-                        </MenuItem>
-                    </MenuItems>
-                </Menu>
+                {price && (
+                    <div className="flex items-center gap-2">
+                        {normalPrice && (
+                            <span className="text-gray-400 line-through text-md">
+                                {normalPrice} €
+                            </span>
+                        )}
+                        <span className="text-lg font-semibold">
+                            {price} €
+                        </span>
+                    </div>
+                )}
+
+                {!preview && (
+                    <div className="flex gap-2">
+                        <ChatBubbleOvalLeftIcon className="w-5 h-5 bg-white rounded-full text-primary cursor-pointer" />
+                        <BookmarkIcon className="w-5 h-5 bg-white rounded-full text-primary cursor-pointer" />
+                    </div>
+                )}
             </div>
-        </div>
+        </Link>
     );
 };
 

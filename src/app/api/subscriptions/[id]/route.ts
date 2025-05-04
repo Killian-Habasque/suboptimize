@@ -1,22 +1,24 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { baseAuth } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await baseAuth();
 
+    
     if (!session?.user?.id) {
-      return new NextResponse("Non autorisé", { status: 401 });
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
+    const id = (await params).id; 
 
     const subscription = await prisma.subscription.findUnique({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
       include: {
@@ -26,39 +28,40 @@ export async function GET(
     });
 
     if (!subscription) {
-      return new NextResponse("Abonnement non trouvé", { status: 404 });
+      return NextResponse.json({ error: "Abonnement non trouvé" }, { status: 404 });
     }
 
     return NextResponse.json(subscription);
   } catch (error) {
     console.error("Erreur lors de la récupération de l'abonnement:", error);
-    return new NextResponse(
-      "Erreur lors de la récupération de l'abonnement",
+    return NextResponse.json(
+      { error: "Erreur lors de la récupération de l'abonnement" },
       { status: 500 }
     );
   }
 }
 
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await baseAuth();
 
     if (!session?.user?.id) {
-      return new NextResponse("Non autorisé", { status: 401 });
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
+    const id = (await params).id; 
     const existingSubscription = await prisma.subscription.findUnique({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     });
 
     if (!existingSubscription) {
-      return new NextResponse("Abonnement non trouvé", { status: 404 });
+      return NextResponse.json({ error: "Abonnement non trouvé" }, { status: 404 });
     }
 
     const {
@@ -73,7 +76,7 @@ export async function PUT(
 
     const updatedSubscription = await prisma.subscription.update({
       where: {
-        id: params.id,
+        id: id,
       },
       data: {
         title,
@@ -120,30 +123,32 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await baseAuth();
 
     if (!session?.user?.id) {
-      return new NextResponse("Non autorisé", { status: 401 });
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
+
+    const id = (await params).id; 
 
     const existingSubscription = await prisma.subscription.findUnique({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     });
 
     if (!existingSubscription) {
-      return new NextResponse("Abonnement non trouvé", { status: 404 });
+      return NextResponse.json({ error: "Abonnement non trouvé" }, { status: 404 });
     }
 
     await prisma.subscription.delete({
       where: {
-        id: params.id,
+        id: id,
       },
     });
 

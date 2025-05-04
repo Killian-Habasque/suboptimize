@@ -4,8 +4,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
-  ChevronRightIcon,
-  ClockIcon
+  ChevronRightIcon
 } from '@heroicons/react/20/solid'
 import {
   add,
@@ -26,7 +25,6 @@ import {
 } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
-
 import { delete_Subscription, filter_Subscriptions_by_month } from "@/features/subscriptions/subscriptionService"
 import { Subscription } from '@/lib/types'
 import { capitalizeFirstLetter, classNames } from '@/services/utils'
@@ -34,7 +32,7 @@ import AddSubscriptionDialog from './AddSubscriptionDialog'
 import SubscriptionListItem from './SubscriptionListItem'
 import { useSubscription } from '../subscriptionContext'
 import EditSubscriptionDialog from './EditSubscriptionDialog'
-import { QuestionMarkCircleIcon } from '@heroicons/react/24/solid'
+import BrandBubble from '@/components/ui/BrandBubble'
 
 const locale = fr
 
@@ -62,7 +60,7 @@ function CalendarHeader({
 }: CalendarHeaderProps) {
   const firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', new Date())
   return (
-    <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4 lg:flex-none">
+    <header className="flex items-center justify-between border-b border-gray-200 py-4 lg:flex-none">
       <h1 className="text-base font-semibold leading-6 text-gray-900">
         <time dateTime="2022-01">
           {capitalizeFirstLetter(format(firstDayCurrentMonth, 'MMMM yyyy', { locale }))}
@@ -98,7 +96,13 @@ function CalendarHeader({
         <div className="hidden md:ml-4 md:flex md:items-center">
           <Menu as="div" className="relative">
             <MenuButton className="flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 cursor-pointer">
-              {capitalizeFirstLetter(viewMode)} view
+              {viewMode === 'day' ? (
+                "Jour"
+              ) : viewMode === 'week' ? (
+                "Semaine"
+              ) : (
+                "Mois"
+              )}
               <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
             </MenuButton>
             <MenuItems className="absolute right-0 mt-2 w-32 origin-top-right bg-white shadow-lg ring-1 ring-black/[5%]">
@@ -112,7 +116,13 @@ function CalendarHeader({
                         'w-full block px-4 py-2 text-sm cursor-pointer'
                       )}
                     >
-                      {capitalizeFirstLetter(mode)} view
+                      {mode === 'day' ? (
+                        "Jour"
+                      ) : mode === 'week' ? (
+                        "Semaine"
+                      ) : (
+                        "Mois"
+                      )}
                     </button>
                   )}
                 </MenuItem>
@@ -122,9 +132,9 @@ function CalendarHeader({
           <div className="ml-6 h-6 w-px bg-gray-300" />
           <button
             onClick={onAddEvent}
-            className="ml-6 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="cursor-pointer ml-6 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            Add event
+            Ajouter un abonnement
           </button>
         </div>
       </div>
@@ -144,7 +154,7 @@ function EventListItem({ subscribe }: EventListItemProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
 
-  const handleEdit = (id?: string) => {
+  const handleEdit = () => {
     setIsEditDialogOpen(true);
   };
 
@@ -159,8 +169,7 @@ function EventListItem({ subscribe }: EventListItemProps) {
     }
   };
   return (
-    <>
-      {console.log(subscribe)}
+    <div className='py-4 px-8'>
       <SubscriptionListItem
         key={subscribe.id}
         price={subscribe.price}
@@ -169,7 +178,7 @@ function EventListItem({ subscribe }: EventListItemProps) {
         company={subscribe.companies ? subscribe.companies[0] : null}
         customCompany={subscribe.customCompany}
         category={subscribe.categories ? subscribe.categories[0] : null}
-        onEdit={() => handleEdit(subscribe.id)}
+        onEdit={() => handleEdit()}
         onDelete={() => handleDelete(subscribe.id)}
       />
       {isEditDialogOpen && (
@@ -186,7 +195,6 @@ function EventListItem({ subscribe }: EventListItemProps) {
             dateTime={subscribe.startDatetime}
             className="mt-2 flex items-center text-gray-700"
           >
-            <ClockIcon className="mr-2 h-5 w-5 text-gray-400" aria-hidden="true" />
             {format(new Date(subscribe.startDatetime), 'MMM dd, yyyy')}
           </time>
         </div>
@@ -196,7 +204,7 @@ function EventListItem({ subscribe }: EventListItemProps) {
           Edit<span className="sr-only">, {subscribe.title}</span>
         </div>
       </li> */}
-    </>
+    </div>
 
   )
 }
@@ -273,11 +281,11 @@ function WeekView({ days, filteredSubscriptions, selectedDay, onSelectDay }: Wee
                   className={classNames(
                     'inline-flex h-6 w-6 items-center justify-center rounded-full mt-1',
                     isSelected && isToday(parsedDay)
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-primary text-white'
                       : isSelected
                         ? 'bg-gray-900 text-white'
                         : isToday(parsedDay)
-                          ? 'bg-indigo-100 text-indigo-600'
+                          ? 'bg-secondary text-primary'
                           : 'text-gray-900'
                   )}
                 >
@@ -298,10 +306,13 @@ function WeekView({ days, filteredSubscriptions, selectedDay, onSelectDay }: Wee
                   .map((subscribe) => (
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
-                        <div className={`min-w-4 w-4 h-4 rounded-xs flex items-center justify-center `}>
-                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
-                        </div>
-                        <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
+                        <BrandBubble
+                          image={subscribe.companies?.[0]?.imageLink}
+                          brandName={subscribe.companies?.[0]?.name || subscribe.customCompany}
+                          altText={subscribe.title}
+                          variant="small"
+                        />
+                        <p className="flex-auto truncate text-gray-900 group-hover:text-primary">
                           {subscribe.title}
                         </p>
                       </div>
@@ -345,10 +356,10 @@ function MonthView({
               key={dayStr}
               onClick={() => onSelectDay(dayStr)}
               className={classNames(
-                isSameMonth(day, today) ? 'bg-white' : '!bg-gray-50',
+                isSameMonth(day, today) ? '' : '!bg-gray-50',
                 isToday(day) ? '!bg-blue-50' : 'bg-white',
                 (!isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && isToday(day)
-                  ? 'text-indigo-600'
+                  ? 'text-primary'
                   : ''),
                 (!isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) &&
                   isSameMonth(day, today) &&
@@ -368,7 +379,7 @@ function MonthView({
                 className={classNames(
                   'flex h-6 w-6 items-center justify-center rounded-full',
                   (isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && isToday(day)
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-primary text-white'
                     : ''),
                   (isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && !isToday(day)
                     ? 'bg-gray-900 text-white'
@@ -393,10 +404,13 @@ function MonthView({
                   .map((subscribe) => (
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
-                        <div className={`min-w-4 w-4 h-4 rounded-2xl flex items-center justify-center `}>
-                          {subscribe.companies && subscribe.companies[0] && subscribe.companies[0].imageLink ? <img src={subscribe.companies[0].imageLink} className='w-10 h-10 object-contain' /> : <QuestionMarkCircleIcon className='w-10 h-10 text-black' />}
-                        </div>
-                        <p className="flex-auto truncate text-gray-900 group-hover:text-indigo-600">
+                        <BrandBubble
+                          image={subscribe.companies?.[0]?.imageLink}
+                          brandName={subscribe.companies?.[0]?.name || subscribe.customCompany}
+                          altText={subscribe.title}
+                          variant="small"
+                        />
+                        <p className="flex-auto truncate text-gray-900 group-hover:text-primary">
                           {subscribe.title}
                         </p>
                       </div>
@@ -441,7 +455,7 @@ function MonthView({
               className={classNames(
                 isSameMonth(day, today) ? 'bg-white' : 'bg-gray-50',
                 (!isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && isToday(day)
-                  ? 'text-indigo-600'
+                  ? 'text-primary'
                   : ''),
                 (!isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) &&
                   isSameMonth(day, today) &&
@@ -461,7 +475,7 @@ function MonthView({
                 className={classNames(
                   'flex h-6 w-6 items-center justify-center rounded-full',
                   (isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && isToday(day)
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-primary text-white'
                     : ''),
                   (isEqual(day, parse(selectedDay, 'yyyy-MM-dd', new Date())) && !isToday(day)
                     ? 'bg-gray-900 text-white'
@@ -593,6 +607,8 @@ export default function Calendar({ subscriptions }: CalendarProps) {
     setSelectedDay(format(today, 'yyyy-MM-dd'))
   }
 
+  const serializedDays = JSON.stringify(newDays)
+
   useEffect(() => {
     const sortedSubscriptions = filter_Subscriptions_by_month(
       subscriptions,
@@ -600,7 +616,8 @@ export default function Calendar({ subscriptions }: CalendarProps) {
     )
     setFilteredSubscriptions(sortedSubscriptions)
     console.log(sortedSubscriptions)
-  }, [subscriptions, JSON.stringify(newDays)])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subscriptions, serializedDays])
 
 
 

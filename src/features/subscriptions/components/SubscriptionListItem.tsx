@@ -55,8 +55,8 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
     };
 
     return (
-        <div className="relative flex justify-center items-center w-full p-4 gap-4">
-            <BrandBubble image={company && company.imageLink ? company.imageLink : null} altText={title} />
+        <div className={`relative flex justify-center items-center w-full gap-8`}>
+            <BrandBubble image={company?.imageLink ? company.imageLink : null}  brandName={company?.name || customCompany || undefined} altText={title} />
             <div className="w-full">
                 {title && <h3 className="text-xl font-semibold">{title}</h3>}
                 <div className="flex gap-2 items-center flex-wrap">

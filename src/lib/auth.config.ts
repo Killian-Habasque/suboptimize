@@ -21,10 +21,15 @@ export default {
             return token;
         },
         async session({ session, token }) {
-            if (token?.id) {
+            if (token.id) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 session.user.id = token.id;
             }
             return session;
         }
-    }
+    },
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    trustHosts: true
 } satisfies NextAuthConfig

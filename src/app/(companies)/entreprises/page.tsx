@@ -1,13 +1,21 @@
 "use client"
-import { useEffect, useState } from 'react';
+import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
+import Image from 'next/image';
+
+interface Company {
+  id: string;
+  name: string;
+  slug: string;
+  imageLink?: string;
+}
 
 export default function CompaniesPage() {
     const [name, setName] = useState('');
     const [slug, setSlug] = useState('');
-    const [imageFile, setImageFile] = useState(null);
-    const [companies, setCompanies] = useState([]);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [companies, setCompanies] = useState<Company[]>([]);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (imageFile && imageFile.size > 500 * 1024) {
@@ -63,6 +71,12 @@ export default function CompaniesPage() {
         fetchCompanies();
     }, []);
 
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setImageFile(e.target.files[0]);
+        }
+    };
+
     return (
         <div>
             <h1>Ajouter une entreprise</h1>
@@ -70,21 +84,21 @@ export default function CompaniesPage() {
                 <input
                     type="text"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                     placeholder="Nom de l'entreprise"
                     required
                 />
                 <input
                     type="text"
                     value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setSlug(e.target.value)}
                     placeholder="Slug de l'entreprise"
                     required
                 />
                 <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setImageFile(e.target.files[0])}
+                    onChange={handleFileChange}
                     required
                 />
                 <button type="submit">Ajouter</button>
@@ -95,7 +109,15 @@ export default function CompaniesPage() {
                 {companies.map((company) => (
                     <li key={company.id}>
                         {company.name} - {company.slug}
-                        {company.imageLink && <img src={company.imageLink} alt={company.name} style={{ width: '100px', height: 'auto' }} />}
+                        {company.imageLink && 
+                            <Image 
+                                src={company.imageLink} 
+                                alt={company.name} 
+                                width={100} 
+                                height={100} 
+                                style={{ height: 'auto' }} 
+                            />
+                        }
                     </li>
                 ))}
             </ul>

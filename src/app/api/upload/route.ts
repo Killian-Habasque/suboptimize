@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import { requiredAuth } from "@/lib/auth-helper";
 
 export async function POST(req: Request) {
-    const user = await requiredAuth();
+    // Authentification requise mais l'utilisateur n'est pas nécessaire dans cette fonction
+    await requiredAuth();
 
     const formData = await req.formData();
     const file = formData.get("file") as Blob | null;

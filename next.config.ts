@@ -14,6 +14,22 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'v9aolganobwwpe19.public.blob.vercel-storage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cms.doowup.fr',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cms.doowup.fr',
+      },
     ],
   },
 };
