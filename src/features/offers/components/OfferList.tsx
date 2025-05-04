@@ -105,6 +105,7 @@ const OfferList = () => {
                         company={offer.companies[0]}
                         category={offer.categories[0]}
                         preview={false}
+                        slug={offer.slug}
                     />
                 </div>
             ))}

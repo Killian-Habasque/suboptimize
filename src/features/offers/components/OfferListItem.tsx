@@ -6,7 +6,7 @@ import { Category, Company } from "@prisma/client";
 import Link from "next/link";
 
 interface OfferListItemProps {
-    link?: string;
+    slug?: string;
     rankingScore?: number;
     price?: number;
     normalPrice?: number;
@@ -20,7 +20,7 @@ interface OfferListItemProps {
 }
 
 const OfferListItem: React.FC<OfferListItemProps> = ({
-    link,
+    slug,
     rankingScore,
     price,
     normalPrice,
@@ -33,7 +33,7 @@ const OfferListItem: React.FC<OfferListItemProps> = ({
     preview = true
 }) => {
     return (
-        <Link href={link ? `/offres/${link}` : "#"} className="relative flex justify-center items-center w-full py-4 px-8 gap-8 hover:opacity-[0.75]" onClick={() => onClick && onClick()}>
+        <Link href={slug ? `/offres/${slug}` : "#"} className="relative flex justify-center items-center w-full py-4 px-8 gap-8 hover:opacity-[0.75]" onClick={() => onClick && onClick()}>
             <BrandBubble image={company?.imageLink ? company.imageLink : null} brandName={company?.name || undefined} altText={title || ''} variant="large" />
 
             <div className="w-full flex flex-col gap-1">
