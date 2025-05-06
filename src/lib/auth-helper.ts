@@ -13,10 +13,20 @@ export const requiredAuth = async () => {
     }
     return user;
 };
+
 export const requiredGuest = async () => {
     const user = await auth();
     if (user) {
         redirect("/profil");
+    }
+    return user;
+};
+
+export const requiredAdmin = async () => {
+    const user = await requiredAuth();
+    console.log('User role:', user.role);
+    if (user.role !== "admin") {
+        redirect("/");
     }
     return user;
 };

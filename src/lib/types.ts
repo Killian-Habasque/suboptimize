@@ -1,5 +1,6 @@
 import { User as NextAuthUser } from "next-auth";
 import { Category as PrismaCategory, Company as PrismaCompany } from "@prisma/client";
+import type { DefaultSession } from "next-auth"
 
 export interface User extends NextAuthUser {
     image?: string | null | undefined; 
@@ -24,3 +25,24 @@ export interface Subscription {
     companies?: Company[];
     offerId?: string;
 }
+
+
+
+declare module "next-auth" {
+    interface User {
+        role?: string
+    }
+
+    interface Session {
+        user: {
+            id: string
+            role?: string
+        } & DefaultSession["user"]
+    }
+}
+
+declare module "next-auth/jwt" {
+    interface JWT {
+        role?: string
+    }
+} 
