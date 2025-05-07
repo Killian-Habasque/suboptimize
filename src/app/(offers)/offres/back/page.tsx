@@ -50,7 +50,7 @@ const Offers = () => {
 
     return (
         <div className="text-2xl font-bold pt-14">
-            <Button onClick={() => setIsDialogOpen(true)} className="mb-4">
+            <Button variant="secondary" onClick={() => setIsDialogOpen(true)} className="mb-4">
                 <PlusIcon className="w-5 h-5" />
                 Ajouter une offre
             </Button>

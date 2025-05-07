@@ -8,18 +8,25 @@ interface SubmitButtonProps {
     className?: string;
     loading?: boolean;
     type?: 'button' | 'submit' | 'reset';
+    variant?: 'primary' | 'secondary' | 'dark' | 'light' | 'danger';
+    size?: 'sm' | 'md' | 'lg';
 }
 
 const SubmitButton: React.FC<SubmitButtonProps> = ({ 
     children, 
     className = '', 
     loading = false,
-    type = 'submit'
+    type = 'submit',
+    variant = 'primary',
+    size = 'md'
 }) => {
     return (
         <Button
             type={type}
-            className={`w-full bg-blue-600 text-white hover:bg-blue-700 ${className}`}
+            variant={variant}
+            size={size}
+            fullWidth
+            className={className}
             onClick={(e: MouseEvent<HTMLButtonElement>) => {
                 if (loading) {
                     e.preventDefault();

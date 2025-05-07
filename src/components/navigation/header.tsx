@@ -76,7 +76,7 @@ const Header = () => {
                     {/* Right section on desktop */}
                     <div className="hidden lg:ml-4 lg:flex lg:items-center lg:pr-0.5">
 
-                        <Button className="bg-secondary text-white py-1 hover:text-primary !py-1">
+                        <Button variant="secondary">
                             <PlusIcon aria-hidden="true" className="h-4 w-4" />
                             Poster
                         </Button>
