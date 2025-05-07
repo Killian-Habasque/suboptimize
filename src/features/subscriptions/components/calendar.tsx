@@ -32,7 +32,7 @@ import AddSubscriptionDialog from './AddSubscriptionDialog'
 import SubscriptionListItem from './SubscriptionListItem'
 import { useSubscription } from '../subscriptionContext'
 import EditSubscriptionDialog from './EditSubscriptionDialog'
-import BrandBubble from '@/components/ui/BrandBubble'
+import BrandBubble from '@/components/ui/brand-bubble'
 
 const locale = fr
 

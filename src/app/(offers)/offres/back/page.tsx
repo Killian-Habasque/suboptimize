@@ -5,7 +5,7 @@ import { useState, useEffect, SetStateAction } from "react";
 import { debounce } from "lodash";
 import AddOfferDialog from "@/features/offers/components/AddOfferDialog";
 import OfferListItem from "@/features/offers/components/OfferListItem";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { Offer } from "@prisma/client";
 import { Category, Company } from "@prisma/client";

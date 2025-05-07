@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { get_popular_companies } from '../offerService';
 import { Company } from '@prisma/client';
-import BrandBubble from '@/components/ui/BrandBubble';
+import BrandBubble from '@/components/ui/brand-bubble';
 
 const PopularBrands = () => {
     const [companies, setCompanies] = useState<Company[]>([]);

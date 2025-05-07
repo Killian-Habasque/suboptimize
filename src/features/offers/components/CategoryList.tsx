@@ -1,6 +1,6 @@
 import React from 'react';
 import { PhoneIcon, MusicalNoteIcon, HomeIcon, WifiIcon, HeartIcon, BoltIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
-import CategoryBadge from '@/components/ui/CategoryBadge';
+import CategoryBadge from '@/components/ui/category-badge';
 
 const categories = [
     { name: 'Téléphone', icon: PhoneIcon },

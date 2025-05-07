@@ -1,7 +1,7 @@
 import { BookmarkIcon, ChatBubbleOvalLeftIcon, MinusIcon, PlusIcon, PhoneIcon } from "@heroicons/react/24/solid";
-import CategoryBadge from '@/components/ui/CategoryBadge';
-import DueTypeBadge from "@/components/ui/DueTypeBadge";
-import BrandBubble from '@/components/ui/BrandBubble';
+import CategoryBadge from '@/components/ui/category-badge';
+import DueTypeBadge from "@/components/ui/duetype-badge";
+import BrandBubble from '@/components/ui/brand-bubble';
 import { Category, Company } from "@prisma/client";
 import Link from "next/link";
 
