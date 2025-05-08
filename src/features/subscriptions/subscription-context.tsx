@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { get_all_user_Subscriptions } from "./subscriptionService";
+import { get_all_user_Subscriptions } from "./subscription-service";
 import { Subscription } from "@/lib/types";
 import { useSession } from "next-auth/react";
 

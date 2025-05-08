@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { get_popular_companies } from '../offerService';
+import { get_popular_companies } from '../offer-service';
 import { Company } from '@prisma/client';
 import CompanyBubble from '@/components/ui/company-bubble';
 

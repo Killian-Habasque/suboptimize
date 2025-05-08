@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
-import { add_Offer, OfferFormData, OfferApiData } from '../offerService';
+import { add_Offer, OfferFormData, OfferApiData } from '../offer-service';
 import Field from '@/components/form/field';
 import SubmitButton from '@/components/form/submit-button';
 import Button from '@/components/ui/button';

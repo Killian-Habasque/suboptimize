@@ -25,13 +25,13 @@ import {
 } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
-import { delete_Subscription, filter_Subscriptions_by_month } from "@/features/subscriptions/subscriptionService"
+import { delete_Subscription, filter_Subscriptions_by_month } from "@/features/subscriptions/subscription-service"
 import { Subscription } from '@/lib/types'
 import { capitalizeFirstLetter, classNames } from '@/services/utils'
-import AddSubscriptionDialog from './AddSubscriptionDialog'
-import SubscriptionListItem from './SubscriptionListItem'
-import { useSubscription } from '../subscriptionContext'
-import EditSubscriptionDialog from './EditSubscriptionDialog'
+import AddSubscriptionDialog from './add-subscription-dialog'
+import SubscriptionListItem from './list-item-subscription'
+import { useSubscription } from '../subscription-context'
+import EditSubscriptionDialog from './edit-subscription-dialog'
 import CompanyBubble from '@/components/ui/company-bubble'
 
 const locale = fr

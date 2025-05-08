@@ -2,7 +2,7 @@
 
 import { Subscription } from "@/lib/types";
 import Image from "next/image";
-import { useSubscription } from "@/features/subscriptions/subscriptionContext";
+import { useSubscription } from "@/features/subscriptions/subscription-context";
 
 const ProfileSubscriptions = () => {
     const { subscriptions = [], loading } = useSubscription();

@@ -15,6 +15,7 @@ interface FieldProps<T extends FieldValues> {
     errors?: FieldErrors<T>;
     className?: string;
     step?: string;
+    disabled?: boolean;
 }
 
 const Field = <T extends FieldValues>({ 
@@ -28,7 +29,8 @@ const Field = <T extends FieldValues>({
     name,
     errors,
     className = '',
-    step = type === 'number' ? '0.01' : undefined
+    step = type === 'number' ? '0.01' : undefined,
+    disabled = false
 }: FieldProps<T>) => {
     const error = errors?.[name];
     const isTextarea = type === 'textarea';
@@ -44,7 +46,8 @@ const Field = <T extends FieldValues>({
                     {...register(name)}
                     placeholder={placeholder}
                     required={required}
-                    className={`w-full px-3 py-2 border ${error ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${className}`}
+                    disabled={disabled}
+                    className={`w-full px-3 py-2 border ${error ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''} ${className}`}
                 />
             ) : (
                 <input
@@ -55,7 +58,8 @@ const Field = <T extends FieldValues>({
                     placeholder={placeholder}
                     required={required}
                     accept={accept}
-                    className={`w-full px-3 py-2 border ${error ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${className}`}
+                    disabled={disabled}
+                    className={`w-full px-3 py-2 border ${error ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''} ${className}`}
                 />
             )}
             {error && (

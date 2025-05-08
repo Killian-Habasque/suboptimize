@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
-import { SubscriptionProvider } from "@/features/subscriptions/subscriptionContext";
-import QueryProvider from "@/features/offers/offerProvider";
+import { SubscriptionProvider } from "@/features/subscriptions/subscription-context";
+import QueryProvider from "@/features/offers/offer-provider";
 import Header from "@/components/navigation/header";
 import Footer from "@/components/navigation/footer";
 
