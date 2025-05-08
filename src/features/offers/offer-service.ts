@@ -1,6 +1,24 @@
 import { prisma } from "@/lib/prisma";
 import { Offer } from "@prisma/client";
 
+export interface OfferFormData {
+    name: string;
+    description: string;
+    price: string;
+    normalPrice: string;
+    imageLink?: string;
+}
+
+export interface OfferApiData {
+    name: string;
+    description: string;
+    price: number;
+    normalPrice: number;
+    imageLink?: string;
+    slug: string;
+    userId: string;
+}
+
 export const get_all_Offers = async (page: number, limit: number, searchTerm: string): Promise<{ offers: Offer[], lastDocId?: string | undefined, totalOffers?: number | undefined }> => {
     try {
         const skip = (page - 1) * limit;
@@ -42,15 +60,7 @@ export const get_all_Offers = async (page: number, limit: number, searchTerm: st
     }
 };
 
-export const add_Offer = async (offerData: {
-    name: string;
-    description: string;
-    price: number;
-    normalPrice: number;
-    imageLink?: string;
-    slug: string;
-    userId: string;
-}) => {
+export const add_Offer = async (offerData: OfferApiData) => {
     const response = await fetch('/api/offers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

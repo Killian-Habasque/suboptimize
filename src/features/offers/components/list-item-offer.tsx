@@ -1,7 +1,7 @@
 import { BookmarkIcon, ChatBubbleOvalLeftIcon, MinusIcon, PlusIcon, PhoneIcon } from "@heroicons/react/24/solid";
-import CategoryBadge from '@/components/ui/CategoryBadge';
-import DueTypeBadge from "@/components/ui/DueTypeBadge";
-import BrandBubble from '@/components/ui/BrandBubble';
+import CategoryBadge from '@/components/ui/category-badge';
+import DueTypeBadge from "@/components/ui/duetype-badge";
+import CompanyBubble from '@/components/ui/company-bubble';
 import { Category, Company } from "@prisma/client";
 import Link from "next/link";
 
@@ -34,7 +34,7 @@ const OfferListItem: React.FC<OfferListItemProps> = ({
 }) => {
     return (
         <Link href={slug ? `/offres/${slug}` : "#"} className="relative flex justify-center items-center w-full py-4 px-8 gap-8 hover:opacity-[0.75]" onClick={() => onClick && onClick()}>
-            <BrandBubble image={company?.imageLink ? company.imageLink : null} brandName={company?.name || undefined} altText={title || ''} variant="large" />
+            <CompanyBubble image={company?.imageLink ? company.imageLink : null} brandName={company?.name || undefined} altText={title || ''} variant="large" />
 
             <div className="w-full flex flex-col gap-1">
 

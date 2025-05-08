@@ -1,7 +1,7 @@
 import { EllipsisVerticalIcon, PhoneIcon } from "@heroicons/react/24/solid";
-import CategoryBadge from '@/components/ui/CategoryBadge';
-import DueTypeBadge from "@/components/ui/DueTypeBadge";
-import BrandBubble from '@/components/ui/BrandBubble';
+import CategoryBadge from '@/components/ui/category-badge';
+import DueTypeBadge from "@/components/ui/duetype-badge";
+import CompanyBubble from '@/components/ui/company-bubble';
 import { Category, Company } from "@prisma/client";
 import { Description, DialogPanel, DialogTitle, Menu, MenuButton, MenuItem, MenuItems, TransitionChild } from "@headlessui/react";
 import { useState } from "react";
@@ -56,7 +56,7 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
 
     return (
         <div className={`relative flex justify-center items-center w-full gap-8`}>
-            <BrandBubble image={company?.imageLink ? company.imageLink : null}  brandName={company?.name || customCompany || undefined} altText={title} />
+            <CompanyBubble image={company?.imageLink ? company.imageLink : null}  brandName={company?.name || customCompany || undefined} altText={title} />
             <div className="w-full">
                 {title && <h3 className="text-xl font-semibold">{title}</h3>}
                 <div className="flex gap-2 items-center flex-wrap">

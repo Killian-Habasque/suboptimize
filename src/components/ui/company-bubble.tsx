@@ -2,7 +2,7 @@ import { QuestionMarkCircleIcon } from '@heroicons/react/24/solid';
 import React from 'react';
 import Image from 'next/image';
 
-interface BrandBubbleProps {
+interface CompanyBubbleProps {
   image?: string | null;
   altText?: string;
   className?: string;
@@ -10,7 +10,7 @@ interface BrandBubbleProps {
   variant?: 'small' | 'medium' | 'large'; 
 }
 
-const BrandBubble: React.FC<BrandBubbleProps> = ({
+const CompanyBubble: React.FC<CompanyBubbleProps> = ({
   image,
   altText,
   brandName,
@@ -57,4 +57,4 @@ const BrandBubble: React.FC<BrandBubbleProps> = ({
   );
 };
 
-export default BrandBubble;
+export default CompanyBubble;

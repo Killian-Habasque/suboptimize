@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from "@headlessui/react";
-import { update_Subscription } from "@/features/subscriptions/subscriptionService";
-import { useSubscription } from "@/features/subscriptions/subscriptionContext";
+import { update_Subscription } from "@/features/subscriptions/subscription-service";
+import { useSubscription } from "@/features/subscriptions/subscription-context";
 import { Category, Company } from "@prisma/client";
 import { Subscription } from "@/lib/types";
 

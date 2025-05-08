@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { get_all_Offers } from "@/features/offers/offerService";
+import { get_all_Offers } from "@/features/offers/offer-service";
 import { prisma } from "@/lib/prisma";
 import { baseAuth } from "@/lib/auth";
 import { Prisma } from "@prisma/client"; // Importer le type Prisma si nécessaire

@@ -2,7 +2,7 @@
 
 import { Subscription } from "@/lib/types";
 import { useMemo } from "react";
-import { useSubscription } from "@/features/subscriptions/subscriptionContext";
+import { useSubscription } from "@/features/subscriptions/subscription-context";
 
 const ProfileStats = () => {
     const { subscriptions = [], loading } = useSubscription();

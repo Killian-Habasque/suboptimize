@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Subscription } from '@/lib/types'
-import SubscriptionListItem from './SubscriptionListItem'
+import SubscriptionListItem from './list-item-subscription'
 import {
     addDays,
     format,
@@ -10,7 +10,7 @@ import {
     startOfToday
 } from 'date-fns'
 import { CalendarDaysIcon, ClockIcon } from '@heroicons/react/24/outline'
-import { filter_Subscriptions_by_month } from '../subscriptionService'
+import { filter_Subscriptions_by_month } from '../subscription-service'
 
 interface UpcomingSubscriptionsProps {
     subscriptions: Subscription[]

@@ -6,15 +6,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from "@headlessui/react";
-import { add_Subscription } from "@/features/subscriptions/subscriptionService";
-import { useSubscription } from "@/features/subscriptions/subscriptionContext";
+import { add_Subscription } from "@/features/subscriptions/subscription-service";
+import { useSubscription } from "@/features/subscriptions/subscription-context";
 import { Category, Company } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
-import SubscriptionListItem from "./SubscriptionListItem";
-import OfferListItem from "@/features/offers/components/OfferListItem";
+import OfferListItem from "@/features/offers/components/list-item-offer";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
+import Field from "@/components/form/field";
+import SubmitButton from "@/components/form/submit-button";
+import Button from "@/components/ui/button";
 
-// Définir l'interface pour les offres
 interface Offer {
     id: string;
     name: string;
@@ -28,7 +29,12 @@ const schema = z.object({
     dueType: z.enum(["monthly", "yearly"]),
     dueDate: z.string(),
     endDate: z.string().optional(),
-    price: z.coerce.number().min(0, "Le prix doit être positif"),
+    price: z.string()
+        .min(1, "Le prix est requis")
+        .refine((val) => {
+            const num = parseFloat(val.replace(',', '.'));
+            return !isNaN(num) && num >= 0;
+        }, "Le prix doit être un nombre positif"),
     category: z.object({ id: z.string(), name: z.string() }).nullable(),
     company: z.object({ id: z.string(), name: z.string() }).nullable(),
     customCompany: z.string().optional(),
@@ -63,7 +69,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
             dueType: "monthly",
             dueDate: new Date().toISOString().split("T")[0],
             endDate: "",
-            price: 0,
+            price: "",
             category: null,
             company: null,
             customCompany: "",
@@ -113,7 +119,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
             setValue("dueType", "monthly");
             setValue("dueDate", new Date().toISOString().split("T")[0]);
             setValue("endDate", "");
-            setValue("price", 0);
+            setValue("price", "");
             setValue("category", null);
             setValue("company", null);
             setValue("customCompany", "");
@@ -127,17 +133,20 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
     const onSubmit = async (data: z.infer<typeof schema>) => {
         setErrorMessage("");
         try {
-            const newSubscription = await add_Subscription(
+            await add_Subscription(
                 data.title,
                 new Date(data.dueDate),
                 data.endDate ? new Date(data.endDate) : null,
-                data.price,
+                parseFloat(data.price.replace(',', '.')),
                 data.category ? [data.category.id] : [],
                 data.company ? [data.company.id] : [],
                 data.customCompany || null
             );
 
-            setSubscriptions((prev) => [...prev, newSubscription]);
+            const response = await fetch("/api/subscriptions");
+            const updatedSubscriptions = await response.json();
+            setSubscriptions(updatedSubscriptions);
+            
             onClose();
         } catch (error: unknown) {
             console.error("Erreur lors de l'ajout de l'abonnement :", error);
@@ -148,10 +157,9 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
     const handleOfferSelect = (offer: Offer) => {
         setSelectedOffer(offer);
         setValue("title", offer.name);
-        setValue("price", offer.price);
+        setValue("price", offer.price.toString());
         setValue("category", offer.categories.length > 0 ? { id: offer.categories[0].id, name: offer.categories[0].name } : null);
         setValue("company", offer.companies.length > 0 ? { id: offer.companies[0].id, name: offer.companies[0].name } : null);
-
         setStep("custom");
     };
 
@@ -180,7 +188,6 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                                         key={offer.id}
                                         price={offer.price}
                                         title={offer.name}
-                                        // description={offer.description}
                                         company={offer.companies[0]}
                                         category={offer.categories[0]}
                                         onClick={() => handleOfferSelect(offer)}
@@ -190,77 +197,104 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                                 {searchOfferTerm ? "Aucun abonnement trouvé" : "Rechercher un abonnement"}
                             </span>}
                         </ul>
-                        <button
+                        <Button
                             onClick={() => {
                                 setStep("custom");
                                 setValue("title", "");
                                 setValue("dueType", "monthly");
                                 setValue("dueDate", new Date().toISOString().split("T")[0]);
                                 setValue("endDate", "");
-                                setValue("price", 0);
+                                setValue("price", "");
                                 setValue("category", null);
                                 setValue("company", null);
                                 setValue("customCompany", "");
                             }}
-                            className="cursor-pointer mt-4 align-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-secondary"
+                            variant="primary"
+                            className="mt-4"
                         >
                             Ajouter une offre personnalisée
-                        </button>
+                        </Button>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-4 grid grid-cols-2 gap-4">
                         <div className="col-span-2 flex gap-2 flex-col items-start">
-                            <button
+                            <Button
                                 type="button"
+                                variant="light"
                                 onClick={() => {
                                     setSelectedOffer(null);
                                     setStep("search");
                                 }}
-                                className="text-blue-600 flex gap-1 items-center text-sm cursor-pointer hover:text-blue-400"
+                                className="text-blue-600 hover:text-blue-400"
                             >
-                                <ArrowUturnLeftIcon className="w-4 h-4" />
+                                <ArrowUturnLeftIcon className="w-4 h-4 mr-1" />
                                 Retour à la recherche d&apos;offres
-                            </button>
+                            </Button>
                         </div>
 
-                        <div>
-                            <div>
-                                <label className="text-sm font-bold">Titre*</label>
-                                <input {...register("title")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer} />
-                                {errors.title && <p className="text-red-600">{errors.title.message}</p>}
-                            </div>
+                        <div className="space-y-4">
+                            <Field
+                                id="title"
+                                label="Titre"
+                                type="text"
+                                placeholder="Titre de l'abonnement"
+                                required
+                                register={register}
+                                name="title"
+                                errors={errors}
+                                disabled={!!selectedOffer}
+                            />
 
                             <div>
                                 <label className="text-sm font-bold">Type d&apos;échéance</label>
-                                <select {...register("dueType")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer}>
+                                <select {...register("dueType")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-100 cursor-not-allowed" : ""}`} disabled={!!selectedOffer}>
                                     <option value="monthly">Mensuel</option>
                                     <option value="yearly">Annuel</option>
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="text-sm font-bold">Date d&apos;échéance</label>
-                                <input type="date" {...register("dueDate")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer} />
-                            </div>
+                            <Field
+                                id="dueDate"
+                                label="Date d&apos;échéance"
+                                type="text"
+                                placeholder="Date d'échéance"
+                                required
+                                register={register}
+                                name="dueDate"
+                                errors={errors}
+                                disabled={!!selectedOffer}
+                            />
 
-                            <div>
-                                <label className="text-sm font-bold">Date de fin (optionnelle)</label>
-                                <input type="date" {...register("endDate")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer} />
-                            </div>
+                            <Field
+                                id="endDate"
+                                label="Date de fin (optionnelle)"
+                                type="text"
+                                placeholder="Date de fin"
+                                register={register}
+                                name="endDate"
+                                errors={errors}
+                                disabled={!!selectedOffer}
+                            />
 
-                            <div>
-                                <label className="text-sm font-bold">Prix</label>
-                                <input type="number" step="0.01" {...register("price")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`} disabled={!!selectedOffer} />
-                                {errors.price && <p className="text-red-600">{errors.price.message}</p>}
-                            </div>
+                            <Field
+                                id="price"
+                                label="Prix"
+                                type="text"
+                                placeholder="Prix (ex: 10,99)"
+                                required
+                                register={register}
+                                name="price"
+                                errors={errors}
+                                disabled={!!selectedOffer}
+                            />
                         </div>
 
-                        <div>
+                        <div className="relative space-y-4">
                             <div>
                                 <label className="text-sm font-bold">Catégorie</label>
                                 <Combobox value={watch("category")} onChange={(value) => setValue("category", value)}>
                                     <ComboboxInput
-                                        className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`}
+                                        className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-100 cursor-not-allowed" : ""}`}
                                         displayValue={(cat: { name: string } | null) => cat?.name || ""}
                                         onChange={(event) => {
                                             const query = event.target.value.toLowerCase();
@@ -283,7 +317,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                                 <label className="text-sm font-bold">Entreprise</label>
                                 <Combobox value={watch("company")} onChange={(value) => setValue("company", value)}>
                                     <ComboboxInput
-                                        className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`}
+                                        className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-100 cursor-not-allowed" : ""}`}
                                         displayValue={(com: { name: string } | null) => com?.name || ""}
                                         onChange={(event) => {
                                             const query = event.target.value.toLowerCase();
@@ -302,26 +336,23 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                                 </Combobox>
                             </div>
 
-                            <div>
-                                <label className="text-sm font-bold">Entreprise personnalisée</label>
-                                <input
-                                    type="text"
-                                    {...register("customCompany")}
-                                    className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-200 cursor-not-allowed" : ""}`}
-                                    placeholder="Saisissez une nouvelle entreprise..."
-                                    disabled={!!selectedOffer}
-                                />
-                            </div>
+                            <Field
+                                id="customCompany"
+                                label="Entreprise personnalisée"
+                                type="text"
+                                placeholder="Saisissez une nouvelle entreprise..."
+                                register={register}
+                                name="customCompany"
+                                errors={errors}
+                                disabled={!!selectedOffer}
+                            />
                         </div>
-                        <div className="col-span-2 flex gap-2 flex-col items-start">
-                            <button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className={`w-full px-4 py-2 text-white cursor-pointer font-medium rounded-lg ${isSubmitting ? "bg-gray-300" : "bg-primary hover:bg-secondary"}`}
-                            >
+
+                        <div className="col-span-2">
+                            <SubmitButton loading={isSubmitting}>
                                 {isSubmitting ? "Ajout en cours..." : "Ajouter l'abonnement"}
-                            </button>
-                            {errorMessage && <p className="text-red-600">{errorMessage}</p>}
+                            </SubmitButton>
+                            {errorMessage && <p className="text-red-600 mt-2">{errorMessage}</p>}
                         </div>
                     </form>
                 )}
@@ -330,4 +361,4 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
     );
 };
 
-export default AddSubscriptionDialog;
+export default AddSubscriptionDialog; 
