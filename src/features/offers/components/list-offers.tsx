@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import OfferListItem from './OfferListItem';
+import OfferListItem from './list-item-offer';
 import { useQuery } from '@tanstack/react-query';
 import { debounce } from "lodash";
 import { Offer, Category, Company } from "@prisma/client";
-import AddOfferDialog from './AddOfferDialog';
+import AddOfferDialog from './add-offer-dialog';
 
 interface OfferWithRelations extends Offer {
     companies: Company[];
@@ -45,14 +45,14 @@ const OfferList = () => {
     if (error) return <div className="text-center py-4 text-red-500">Une erreur est survenue</div>;
 
     const totalPages = Math.ceil((data?.total || 0) / limit);
-    const hasNextPage = data?.offers?.length > limit;
+    // const hasNextPage = data?.offers?.length > limit;
     const displayedOffers = data?.offers?.slice(0, limit) || [];
 
     const renderPageNumbers = () => {
         const pages = [];
         const maxVisiblePages = 5;
         let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
         if (endPage - startPage + 1 < maxVisiblePages) {
             startPage = Math.max(1, endPage - maxVisiblePages + 1);
@@ -91,7 +91,7 @@ const OfferList = () => {
                     onClick={() => setIsDialogOpen(true)}
                     className="cursor-pointer whitespace-nowrap ml-6 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
-                    Ajouter un abonnement
+                    Ajouter une offre
                 </button>
             </div>
 

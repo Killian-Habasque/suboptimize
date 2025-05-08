@@ -1,6 +1,9 @@
 "use client"
-import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
-import BrandBubble from '@/components/ui/brand-bubble';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import CompanyBubble from '@/components/ui/company-bubble';
 import Field from '@/components/form/field';
 import SubmitButton from '@/components/form/submit-button';
 
@@ -11,28 +14,54 @@ interface Company {
   imageLink?: string;
 }
 
+const companySchema = z.object({
+  name: z.string().min(1, "Le nom est requis"),
+  slug: z.string().min(1, "Le slug est requis"),
+  image: z.any().optional(),
+});
+
+type CompanyFormData = z.infer<typeof companySchema>;
+
 export default function CompaniesClient() {
-    const [name, setName] = useState('');
-    const [slug, setSlug] = useState('');
-    const [imageFile, setImageFile] = useState<File | null>(null);
     const [companies, setCompanies] = useState<Company[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<CompanyFormData>({
+        resolver: zodResolver(companySchema),
+        defaultValues: {
+            name: '',
+            slug: '',
+        },
+    });
+
+    const fetchCompanies = async () => {
+        const response = await fetch('/api/companies');
+        if (response.ok) {
+            const data = await response.json();
+            setCompanies(data);
+        }
+    };
+
+    useEffect(() => {
+        fetchCompanies();
+    }, []);
+
+    const onSubmit = async (data: CompanyFormData) => {
         setIsSubmitting(true);
-
         try {
-            if (imageFile && imageFile.size > 500 * 1024) {
-                alert("Le fichier doit être inférieur à 500 Ko.");
-                return;
-            }
-
             let imageUrl = '';
-            if (imageFile) {
+            const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+            const file = fileInput?.files?.[0];
+
+            if (file) {
+                if (file.size > 500 * 1024) {
+                    alert("Le fichier doit être inférieur à 500 Ko.");
+                    return;
+                }
+
                 const formData = new FormData();
-                formData.append('file', imageFile);
-                formData.append('slug', slug);
+                formData.append('file', file);
+                formData.append('slug', data.slug);
 
                 const uploadResponse = await fetch('/api/upload', {
                     method: 'POST',
@@ -53,13 +82,15 @@ export default function CompaniesClient() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name, slug, imageLink: imageUrl }),
+                body: JSON.stringify({ 
+                    name: data.name, 
+                    slug: data.slug, 
+                    imageLink: imageUrl 
+                }),
             });
 
             if (response.ok) {
-                setName('');
-                setSlug('');
-                setImageFile(null);
+                reset();
                 fetchCompanies();
             }
         } finally {
@@ -67,55 +98,39 @@ export default function CompaniesClient() {
         }
     };
 
-    const fetchCompanies = async () => {
-        const response = await fetch('/api/companies');
-        if (response.ok) {
-            const data = await response.json();
-            setCompanies(data);
-        }
-    };
-
-    useEffect(() => {
-        fetchCompanies();
-    }, []);
-
-    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setImageFile(e.target.files[0]);
-        }
-    };
-
     return (
         <div className="space-y-8">
             <div className="bg-white rounded-lg p-6">
                 <h1 className="text-xl font-semibold mb-6">Ajouter une entreprise</h1>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <Field
                         id="name"
                         label="Nom de l&apos;entreprise"
                         type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
                         placeholder="Nom de l&apos;entreprise"
                         required
+                        register={register}
+                        name="name"
+                        errors={errors}
                     />
                     <Field
                         id="slug"
                         label="Slug de l&apos;entreprise"
                         type="text"
-                        value={slug}
-                        onChange={(e) => setSlug(e.target.value)}
                         placeholder="Slug de l&apos;entreprise"
                         required
+                        register={register}
+                        name="slug"
+                        errors={errors}
                     />
                     <Field
                         id="image"
                         label="Logo de l&apos;entreprise"
                         type="file"
-                        value=""
-                        onChange={handleFileChange}
-                        placeholder=""
                         accept="image/*"
+                        register={register}
+                        name="image"
+                        errors={errors}
                     />
                     <SubmitButton loading={isSubmitting}>
                         Ajouter l&apos;entreprise
@@ -131,7 +146,7 @@ export default function CompaniesClient() {
                             key={company.id}
                             className="flex flex-col items-center justify-center bg-white rounded-lg p-4"
                         >
-                            <BrandBubble 
+                            <CompanyBubble 
                                 image={company.imageLink || null} 
                                 brandName={company.name} 
                                 altText={company.name} 

@@ -4,9 +4,9 @@ import Container from "@/components/layout/container";
 import Grid from "@/components/layout/grid";
 import GridItem from "@/components/layout/grid-item";
 import Card from "@/components/layout/card";
-import OfferList from "@/features/offers/components/OfferList";
-import CategoryList from "@/features/offers/components/CategoryList";
-import PopularBrands from "@/features/offers/components/PopularBrands";
+import OfferList from "@/features/offers/components/list-offers";
+import CategoryList from "@/features/offers/components/list-categories";
+import PopularCompanies from "@/features/offers/components/list-popular-companies";
 
 const Offers = () => {
     return (
@@ -28,7 +28,7 @@ const Offers = () => {
                     </Card>
                     <Card>
                         <div className="p-4">
-                            <PopularBrands />
+                            <PopularCompanies />
                         </div>
                     </Card>
                 </GridItem>

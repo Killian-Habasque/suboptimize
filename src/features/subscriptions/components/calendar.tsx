@@ -32,7 +32,7 @@ import AddSubscriptionDialog from './AddSubscriptionDialog'
 import SubscriptionListItem from './SubscriptionListItem'
 import { useSubscription } from '../subscriptionContext'
 import EditSubscriptionDialog from './EditSubscriptionDialog'
-import BrandBubble from '@/components/ui/brand-bubble'
+import CompanyBubble from '@/components/ui/company-bubble'
 
 const locale = fr
 
@@ -306,7 +306,7 @@ function WeekView({ days, filteredSubscriptions, selectedDay, onSelectDay }: Wee
                   .map((subscribe) => (
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
-                        <BrandBubble
+                        <CompanyBubble
                           image={subscribe.companies?.[0]?.imageLink}
                           brandName={subscribe.companies?.[0]?.name || subscribe.customCompany}
                           altText={subscribe.title}
@@ -404,7 +404,7 @@ function MonthView({
                   .map((subscribe) => (
                     <li key={subscribe.id}>
                       <div className="group flex gap-1 items-center">
-                        <BrandBubble
+                        <CompanyBubble
                           image={subscribe.companies?.[0]?.imageLink}
                           brandName={subscribe.companies?.[0]?.name || subscribe.customCompany}
                           altText={subscribe.title}

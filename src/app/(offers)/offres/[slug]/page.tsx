@@ -6,7 +6,7 @@ import Container from "@/components/layout/container";
 import Grid from "@/components/layout/grid";
 import GridItem from "@/components/layout/grid-item";
 import Card from "@/components/layout/card";
-import OfferListItem from "@/features/offers/components/OfferListItem";
+import OfferListItem from "@/features/offers/components/list-item-offer";
 import { Offer, Category, Company } from "@prisma/client";
 
 interface OfferWithRelations extends Offer {

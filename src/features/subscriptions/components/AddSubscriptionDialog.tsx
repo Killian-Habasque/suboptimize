@@ -11,7 +11,7 @@ import { useSubscription } from "@/features/subscriptions/subscriptionContext";
 import { Category, Company } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import SubscriptionListItem from "./SubscriptionListItem";
-import OfferListItem from "@/features/offers/components/OfferListItem";
+import OfferListItem from "@/features/offers/components/list-item-offer";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 
 // Définir l'interface pour les offres

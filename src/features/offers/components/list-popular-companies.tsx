@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { get_popular_companies } from '../offerService';
 import { Company } from '@prisma/client';
-import BrandBubble from '@/components/ui/brand-bubble';
+import CompanyBubble from '@/components/ui/company-bubble';
 
-const PopularBrands = () => {
+const PopularCompanies = () => {
     const [companies, setCompanies] = useState<Company[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -52,7 +51,7 @@ const PopularBrands = () => {
                         key={company.id}
                         className="flex flex-col items-center justify-center bg-white rounded-lg"
                     >
-                        <BrandBubble image={company?.imageLink ? company.imageLink : null} brandName={company.name || undefined} altText={company.name} variant="medium" />
+                        <CompanyBubble image={company?.imageLink ? company.imageLink : null} brandName={company.name || undefined} altText={company.name} variant="medium" />
                         <span className="text-xs text-gray-400 mt-2 font-medium">{company.name}</span>
                     </div>
                 ))}
@@ -67,4 +66,4 @@ const PopularBrands = () => {
     );
 };
 
-export default PopularBrands; 
+export default PopularCompanies; 
