@@ -12,6 +12,7 @@ import { Category, Company } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import OfferListItem from "@/features/offers/components/list-item-offer";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
+import { fetchCommonData } from "@/features/common-service";
 import Field from "@/components/form/field";
 import SubmitButton from "@/components/form/submit-button";
 import Button from "@/components/ui/button";
@@ -87,29 +88,18 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
 
     useEffect(() => {
         if (isOpen) {
-            const fetchData = async () => {
+            const loadData = async () => {
                 try {
-                    const [categoriesRes, companiesRes] = await Promise.all([
-                        fetch("/api/categories"),
-                        fetch("/api/companies"),
-                    ]);
-
-                    if (categoriesRes.ok && companiesRes.ok) {
-                        const [categoriesData, companiesData] = await Promise.all([
-                            categoriesRes.json(),
-                            companiesRes.json(),
-                        ]);
-
-                        setCategories(categoriesData);
-                        setFilteredCategories(categoriesData);
-                        setCompanies(companiesData);
-                        setFilteredCompanies(companiesData);
-                    }
+                    const { categories: categoriesData, companies: companiesData } = await fetchCommonData();
+                    setCategories(categoriesData);
+                    setFilteredCategories(categoriesData);
+                    setCompanies(companiesData);
+                    setFilteredCompanies(companiesData);
                 } catch (error) {
                     console.error("Erreur lors du chargement des données :", error);
                 }
             };
-            fetchData();
+            loadData();
         }
     }, [isOpen]);
 

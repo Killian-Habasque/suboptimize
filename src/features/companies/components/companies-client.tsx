@@ -126,6 +126,11 @@ export default function CompaniesClient() {
         setEditingCompany(company);
         setValue('name', company.name);
         setValue('slug', company.slug);
+        // Reset the file input
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.value = '';
+        }
     };
 
     const handleDelete = async (id: string) => {
@@ -153,6 +158,11 @@ export default function CompaniesClient() {
     const handleCancel = () => {
         setEditingCompany(null);
         reset();
+        // Reset the file input
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        if (fileInput) {
+            fileInput.value = '';
+        }
     };
 
     return (
@@ -191,6 +201,17 @@ export default function CompaniesClient() {
                         name="image"
                         errors={errors}
                     />
+                    {editingCompany?.imageLink && (
+                        <div className="mt-2">
+                            <p className="text-sm text-gray-600 mb-2">Image actuelle :</p>
+                            <CompanyBubble 
+                                image={editingCompany.imageLink} 
+                                brandName={editingCompany.name} 
+                                altText={editingCompany.name} 
+                                variant="small" 
+                            />
+                        </div>
+                    )}
                     <div className="flex gap-4">
                         <SubmitButton loading={isSubmitting}>
                             {editingCompany ? 'Modifier' : 'Ajouter'} l&apos;entreprise

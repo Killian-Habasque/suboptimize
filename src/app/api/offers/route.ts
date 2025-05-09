@@ -32,7 +32,17 @@ export async function POST(request: Request) {
             return new NextResponse("Non autorisé - Utilisateur non connecté", { status: 401 });
         }
 
-        const { name, description, price, normalPrice, imageLink } = await request.json();
+        const {
+            name,
+            description,
+            price,
+            normalPrice,
+            imageLink,
+            promoCode,
+            expirationDate,
+            categoryIds,
+            companyIds
+        } = await request.json();
 
         const newOffer = await prisma.offer.create({
             data: {
@@ -41,9 +51,21 @@ export async function POST(request: Request) {
                 price,
                 normalPrice,
                 imageLink,
-                slug: name.toLowerCase().replace(/ /g, '-'), 
-                userId: session.user.id, 
+                promoCode,
+                expirationDate: expirationDate ? new Date(expirationDate) : null,
+                slug: name.toLowerCase().replace(/ /g, '-'),
+                userId: session.user.id,
+                categories: {
+                    connect: categoryIds?.map((id: string) => ({ id })) || []
+                },
+                companies: {
+                    connect: companyIds?.map((id: string) => ({ id })) || []
+                }
             },
+            include: {
+                categories: true,
+                companies: true
+            }
         });
 
         return NextResponse.json(newOffer);

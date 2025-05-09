@@ -40,10 +40,10 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
     try {
         await requiredAdmin();
-        const { id, name, slug } = await request.json();
+        const { id, name, slug, imageLink } = await request.json();
         const updatedCompany = await prisma.company.update({
             where: { id },
-            data: { name, slug },
+            data: { name, slug, imageLink },
         });
         return NextResponse.json(updatedCompany);
     } catch (error) {
