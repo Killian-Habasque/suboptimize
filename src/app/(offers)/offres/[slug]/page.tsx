@@ -8,6 +8,7 @@ import GridItem from "@/components/layout/grid-item";
 import Card from "@/components/layout/card";
 import OfferListItem from "@/features/offers/components/list-item-offer";
 import { Offer, Category, Company } from "@prisma/client";
+import LoginCard from "@/features/auth/components/login-card";
 
 interface OfferWithRelations extends Offer {
     companies: Company[];
@@ -27,7 +28,7 @@ const OfferDetailsPage = () => {
                 if (!response.ok) throw new Error("Failed to fetch offer");
                 const data = await response.json();
                 setOffer(data);
-                
+
                 if (data.categories?.[0]?.id) {
                     const similarResponse = await fetch(`/api/offers/similar/${data.categories[0].id}`);
                     if (similarResponse.ok) {
@@ -72,8 +73,8 @@ const OfferDetailsPage = () => {
                                 <div className="flex items-center gap-4 mb-4">
                                     {offer.companies[0] && (
                                         <div className="flex items-center gap-2">
-                                            <img 
-                                                src={offer.companies[0].imageLink || ''} 
+                                            <img
+                                                src={offer.companies[0].imageLink || ''}
                                                 alt={offer.companies[0].name}
                                                 className="w-8 h-8 rounded-full"
                                             />
@@ -106,6 +107,7 @@ const OfferDetailsPage = () => {
                             <div className="mb-8">
                                 <h2 className="text-xl font-semibold mb-4">Commentaires</h2>
                                 <div className="space-y-4">
+                                    <LoginCard label="Pour voir les commentaires, connectez-vous !" />
                                     {/* Placeholder for comments */}
                                     <div className="text-center py-8 text-gray-500">
                                         La section commentaires sera bientôt disponible

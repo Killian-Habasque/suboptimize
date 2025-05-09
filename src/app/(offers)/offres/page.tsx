@@ -8,7 +8,7 @@ import OfferList from "@/features/offers/components/list-offers";
 import CategoryList from "@/features/offers/components/list-categories";
 import PopularCompanies from "@/features/offers/components/list-popular-companies";
 
-const Offers = () => {
+const OffersPage = () => {
     return (
         <Container>
             <Grid columns={3}>
@@ -37,4 +37,4 @@ const Offers = () => {
     );
 };
 
-export default Offers;
+export default OffersPage;

@@ -7,12 +7,15 @@ import GridItem from "@/components/layout/grid-item";
 import Calendar from "@/features/subscriptions/components/calendar";
 import { useSubscription } from "@/features/subscriptions/subscription-context";
 import UpcomingSubscriptions from "@/features/subscriptions/components/list-upcoming-subscriptions";
+import LoginCard from "@/features/auth/components/login-card";
 
-const Template = () => {
+const SubscriptionsPage = () => {
   const { subscriptions } = useSubscription();
+
   return (
     <Container>
       <Grid columns={3}>
+        <LoginCard label="Pour personnaliser votre calendrier, connectez-vous !" />
         <GridItem colSpan={2}>
           <Card>
             <Calendar subscriptions={subscriptions} />
@@ -27,4 +30,4 @@ const Template = () => {
     </Container>
   )
 }
-export default Template;
+export default SubscriptionsPage;

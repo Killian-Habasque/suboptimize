@@ -10,7 +10,7 @@ import {
     PopoverButton,
     PopoverPanel,
 } from '@headlessui/react'
-import { Bars3Icon, BellIcon, PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, BellIcon, PlusIcon, XMarkIcon, UserIcon } from '@heroicons/react/24/solid'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { classNames } from '@/services/utils'
 import Link from 'next/link'
@@ -79,61 +79,72 @@ const Header = () => {
 
                     {/* Right section on desktop */}
                     <div className="hidden lg:ml-4 lg:flex lg:items-center lg:pr-0.5">
-                        <Button variant="secondary">
-                            <PlusIcon aria-hidden="true" className="h-4 w-4" />
-                            Poster
-                        </Button>
-                        <button
-                            type="button"
-                            className="relative shrink-0 ml-4 rounded-full p-1 text-indigo-200 hover:bg-white/[0] hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
-                        >
-                            <span className="absolute -inset-1.5" />
-                            <span className="sr-only">View notifications</span>
-                            <BellIcon aria-hidden="true" className="h-6 w-6" />
-                        </button>
+                        {session?.user ? (
+                            <>
+                                <Button variant="secondary">
+                                    <PlusIcon aria-hidden="true" className="h-4 w-4" />
+                                    Poster
+                                </Button>
+                                <button
+                                    type="button"
+                                    className="relative shrink-0 ml-4 rounded-full p-1 text-indigo-200 hover:bg-white/[0] hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
+                                >
+                                    <span className="absolute -inset-1.5" />
+                                    <span className="sr-only">View notifications</span>
+                                    <BellIcon aria-hidden="true" className="h-6 w-6" />
+                                </button>
+                            </>
+                        ) : <>
+                            <Button href="/connexion" variant="secondary">
+                                <UserIcon aria-hidden="true" className="h-4 w-4" />
+                                Se connecter
+                            </Button>
+                        </>}
 
                         {/* Profile dropdown */}
-                        <Menu as="div" className="relative ml-4 shrink-0">
-                            <div>
-                                <MenuButton className="relative flex rounded-full bg-white text-sm ring-2 ring-white/25 focus:outline-none focus:ring-white/100">
-                                    <span className="absolute -inset-1.5" />
-                                    <span className="sr-only">Open user menu</span>
-                                    {session?.user?.image ? (
-                                        <Image
-                                            src={session.user.image}
-                                            alt="user avatar"
-                                            width={20}
-                                            height={20}
-                                            className="h-8 w-8 rounded-full"
-                                        />
-                                    ) : (
-                                        <Image
-                                            alt="default user"
-                                            src={defaultUser.imageUrl}
-                                            className="h-8 w-8 rounded-full"
-                                            width={32}
-                                            height={32}
-                                        />
-                                    )}
-                                </MenuButton>
-                            </div>
-                            <MenuItems
-                                transition
-                                className="absolute -right-2 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/[5%] focus:outline-none data-[closed]:data-[leave]:scale-95 data-[closed]:data-[leave]:transform data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-75 data-[leave]:ease-in"
-                            >
-                                {userNavigation.map((item) => (
-                                    <MenuItem key={item.name}>
-                                        <Link
-                                            href={item.href}
-                                            className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-                                            onClick={item.name === 'Déconnexion' ? handleSignOut : undefined}
-                                        >
-                                            {item.name}
-                                        </Link>
-                                    </MenuItem>
-                                ))}
-                            </MenuItems>
-                        </Menu>
+                        {session?.user ? (
+                            <Menu as="div" className="relative ml-4 shrink-0">
+                                <div>
+                                    <MenuButton className="relative flex rounded-full bg-white text-sm ring-2 ring-white/25 focus:outline-none focus:ring-white/100">
+                                        <span className="absolute -inset-1.5" />
+                                        <span className="sr-only">Open user menu</span>
+                                        {session?.user?.image ? (
+                                            <Image
+                                                src={session.user.image}
+                                                alt="user avatar"
+                                                width={20}
+                                                height={20}
+                                                className="h-8 w-8 rounded-full"
+                                            />
+                                        ) : (
+                                            <Image
+                                                alt="default user"
+                                                src={defaultUser.imageUrl}
+                                                className="h-8 w-8 rounded-full"
+                                                width={32}
+                                                height={32}
+                                            />
+                                        )}
+                                    </MenuButton>
+                                </div>
+                                <MenuItems
+                                    transition
+                                    className="absolute -right-2 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/[5%] focus:outline-none data-[closed]:data-[leave]:scale-95 data-[closed]:data-[leave]:transform data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-75 data-[leave]:ease-in"
+                                >
+                                    {userNavigation.map((item) => (
+                                        <MenuItem key={item.name}>
+                                            <Link
+                                                href={item.href}
+                                                className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+                                                onClick={item.name === 'Déconnexion' ? handleSignOut : undefined}
+                                            >
+                                                {item.name}
+                                            </Link>
+                                        </MenuItem>
+                                    ))}
+                                </MenuItems>
+                            </Menu>
+                        ) : ''}
                     </div>
 
                     {/* Search */}

@@ -615,7 +615,6 @@ export default function Calendar({ subscriptions }: CalendarProps) {
       newDays
     )
     setFilteredSubscriptions(sortedSubscriptions)
-    console.log(sortedSubscriptions)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscriptions, serializedDays])
 
