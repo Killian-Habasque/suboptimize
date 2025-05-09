@@ -19,26 +19,25 @@ import Image from 'next/image'
 import Button from '../ui/button'
 import { usePathname } from 'next/navigation';
 
-
 const defaultUser = {
     name: 'Tom Cook',
     email: 'tom@example.com',
     imageUrl:
         'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
 }
+
 const navigation = [
     { name: 'Calendrier des abonnements', href: '/abonnements', current: false },
     { name: 'Offres', href: '/offres', current: false },
-    { name: 'Tendances', href: '#', current: false },
-    { name: 'Mes alertes', href: '#', current: false },
+    { name: 'Entreprises', href: '/entreprises', current: false, admin: true },
+    { name: 'Catégories', href: '/categories', current: false, admin: true },
 ]
+
 const userNavigation = [
     { name: 'Mon profil', href: '/profil' },
     { name: 'Réglages', href: '#' },
     { name: 'Déconnexion', href: '#' },
 ]
-
-
 
 const Header = () => {
     const { data: session } = useSession()
@@ -47,7 +46,12 @@ const Header = () => {
     const handleSignOut = async () => {
         await signOut({ redirect: true, callbackUrl: '/' })
     }
-    console.log(session?.user?.image)
+
+    const filteredNavigation = navigation.filter(item => {
+        if (!item.admin) return true;
+        return session?.user?.role === 'admin';
+    });
+
     return (
         <Popover as="header" className="bg-primary pb-24">
             <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:max-w-custom lg:px-8">
@@ -75,7 +79,6 @@ const Header = () => {
 
                     {/* Right section on desktop */}
                     <div className="hidden lg:ml-4 lg:flex lg:items-center lg:pr-0.5">
-
                         <Button variant="secondary">
                             <PlusIcon aria-hidden="true" className="h-4 w-4" />
                             Poster
@@ -111,9 +114,7 @@ const Header = () => {
                                             width={32}
                                             height={32}
                                         />
-                                    )
-                                    }
-
+                                    )}
                                 </MenuButton>
                             </div>
                             <MenuItems
@@ -171,7 +172,7 @@ const Header = () => {
                     <div className="grid grid-cols-3 items-center gap-8">
                         <div className="col-span-2">
                             <nav className="flex space-x-4">
-                                {navigation.map((item) => {
+                                {filteredNavigation.map((item) => {
                                     const isCurrent = pathname === item.href;
                                     return (
                                         <Link
@@ -244,36 +245,15 @@ const Header = () => {
                                 </div>
                             </div>
                             <div className="mt-3 space-y-1 px-2">
-                                <Link
-                                    href="#"
-                                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
-                                >
-                                    Home
-                                </Link>
-                                <Link
-                                    href="#"
-                                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
-                                >
-                                    Profile
-                                </Link>
-                                <Link
-                                    href="#"
-                                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
-                                >
-                                    Resources
-                                </Link>
-                                <Link
-                                    href="#"
-                                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
-                                >
-                                    Company Directory
-                                </Link>
-                                <Link
-                                    href="#"
-                                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
-                                >
-                                    Openings
-                                </Link>
+                                {filteredNavigation.map((item) => (
+                                    <Link
+                                        key={item.name}
+                                        href={item.href}
+                                        className="block rounded-md px-3 py-2 text-base font-medium text-gray-900 hover:bg-gray-100 hover:text-gray-800"
+                                    >
+                                        {item.name}
+                                    </Link>
+                                ))}
                             </div>
                         </div>
                         <div className="pb-2 pt-4">

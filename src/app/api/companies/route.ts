@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { NextRequest } from "next/server"
+import { requiredAdmin } from "@/lib/auth-helper"
 
 export async function GET() {
     try {
@@ -15,13 +16,20 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-    const { name, slug, imageLink } = await request.json();
     try {
+        await requiredAdmin();
+        const { name, slug, imageLink } = await request.json();
         const newCompany = await prisma.company.create({
             data: { name, slug, imageLink },
         });
         return NextResponse.json(newCompany, { status: 201 });
-    } catch {
+    } catch (error) {
+        if (error instanceof Error && error.message.includes("redirect")) {
+            return NextResponse.json(
+                { error: "Accès non autorisé" },
+                { status: 403 }
+            );
+        }
         return NextResponse.json(
             { error: "Erreur lors de l'ajout de l'entreprise" },
             { status: 500 }
@@ -30,14 +38,21 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-    const { id, name, slug } = await request.json();
     try {
+        await requiredAdmin();
+        const { id, name, slug } = await request.json();
         const updatedCompany = await prisma.company.update({
             where: { id },
             data: { name, slug },
         });
         return NextResponse.json(updatedCompany);
-    } catch {
+    } catch (error) {
+        if (error instanceof Error && error.message.includes("redirect")) {
+            return NextResponse.json(
+                { error: "Accès non autorisé" },
+                { status: 403 }
+            );
+        }
         return NextResponse.json(
             { error: "Erreur lors de la mise à jour de l'entreprise" },
             { status: 500 }
@@ -46,13 +61,20 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-    const { id } = await request.json();
     try {
+        await requiredAdmin();
+        const { id } = await request.json();
         await prisma.company.delete({
             where: { id },
         });
         return NextResponse.json({ message: "Entreprise supprimée" });
-    } catch {
+    } catch (error) {
+        if (error instanceof Error && error.message.includes("redirect")) {
+            return NextResponse.json(
+                { error: "Accès non autorisé" },
+                { status: 403 }
+            );
+        }
         return NextResponse.json(
             { error: "Erreur lors de la suppression de l'entreprise" },
             { status: 500 }
