@@ -1,9 +1,10 @@
-import { BookmarkIcon, ChatBubbleOvalLeftIcon, MinusIcon, PlusIcon, PhoneIcon } from "@heroicons/react/24/solid";
+import { BookmarkIcon, ChatBubbleOvalLeftIcon, MinusIcon, PlusIcon } from "@heroicons/react/24/solid";
 import CategoryBadge from '@/components/ui/category-badge';
 import DueTypeBadge from "@/components/ui/duetype-badge";
 import CompanyBubble from '@/components/ui/company-bubble';
 import { Category, Company } from "@prisma/client";
 import Link from "next/link";
+import { getHeroIcon } from "@/lib/icon-helper";
 
 interface OfferListItemProps {
     slug?: string;
@@ -32,6 +33,8 @@ const OfferListItem: React.FC<OfferListItemProps> = ({
     onClick,
     preview = true
 }) => {
+    const CategoryIcon = category?.icon ? getHeroIcon(category.icon) : null;
+
     return (
         <Link href={slug ? `/offres/${slug}` : "#"} className="relative flex justify-center items-center w-full py-4 px-8 gap-8 hover:opacity-[0.75]" onClick={() => onClick && onClick()}>
             <CompanyBubble image={company?.imageLink ? company.imageLink : null} brandName={company?.name || undefined} altText={title || ''} variant="large" />
@@ -58,7 +61,7 @@ const OfferListItem: React.FC<OfferListItemProps> = ({
                             {company.name}
                         </div>
                     )}
-                    {category && <CategoryBadge icon={<PhoneIcon className="w-4" />} label={category.name} />}
+                    {category && <CategoryBadge icon={CategoryIcon ? <CategoryIcon className="w-4" /> : null} label={category.name} />}
                     {dueType && <DueTypeBadge type={dueType} />}
                 </div>
 

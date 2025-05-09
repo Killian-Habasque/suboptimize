@@ -111,6 +111,7 @@ model Category {
   id            String         @id @default(cuid())
   name          String
   slug          String         @unique
+  icon          String?        
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   offers        Offer[]        @relation("CategoryToOffer")

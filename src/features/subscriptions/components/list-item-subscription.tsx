@@ -1,4 +1,4 @@
-import { EllipsisVerticalIcon, PhoneIcon } from "@heroicons/react/24/solid";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
 import CategoryBadge from '@/components/ui/category-badge';
 import DueTypeBadge from "@/components/ui/duetype-badge";
 import CompanyBubble from '@/components/ui/company-bubble';
@@ -7,6 +7,7 @@ import { Description, DialogPanel, DialogTitle, Menu, MenuButton, MenuItem, Menu
 import { useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
+import { getHeroIcon } from "@/lib/icon-helper";
 
 interface SubscriptionListItemProps {
     id?: string;
@@ -34,6 +35,7 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
     onDelete,
 }) => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const CategoryIcon = category?.icon ? getHeroIcon(category.icon) : null;
 
     const handleEdit = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
@@ -62,7 +64,7 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
                 <div className="flex gap-2 items-center flex-wrap">
                     {company && <div className="text-sm flex gap-2 text-gray-500 items-center font-normal">{company.name}</div>}
                     {customCompany && <div className="text-sm flex gap-2 text-gray-500 items-center font-normal">{customCompany}</div>}
-                    {category && <CategoryBadge icon={<PhoneIcon className="w-4" />} label={category.name} />}
+                    {category && <CategoryBadge icon={CategoryIcon ? <CategoryIcon className="w-4" /> : null} label={category.name} />}
                     {dueType && <DueTypeBadge type={dueType} />}
                 </div>
                 <div className="flex gap-2 items-center flex-wrap">
