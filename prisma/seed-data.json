@@ -1,0 +1,31 @@
+{
+    "companies": [
+      {
+        "name": "Free",
+        "slug": "free",
+        "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/free-1746635204426-nULWQw3035JjkQzUZkpmoFvqys3NVg"
+      },
+      {
+        "name": "Bouygues Télécom",
+        "slug": "bouygues-telecom",
+        "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/bouygues-1746778636913-dlGd8xSFlDyXLM1kQBWBTmnY2TunWG"
+      },
+      {
+        "name": "Bouygues Télécom",
+        "slug": "bouygues-telecom",
+        "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/bouygues-1746778636913-dlGd8xSFlDyXLM1kQBWBTmnY2TunWG"
+      }
+    ],
+    "categories": [
+      {
+        "name": "Téléphone",
+        "slug": "telephone",
+        "icon": "Phone"
+      },
+      {
+        "name": "Internet",
+        "slug": "internet",
+        "icon": "Wifi"
+      }
+    ]
+  }

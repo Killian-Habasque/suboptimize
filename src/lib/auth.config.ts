@@ -31,8 +31,15 @@ export default {
                 session.user.role = token.role;
             }
             return session;
+        },
+        async signIn({ user, account, profile }) {
+            if (user.email === 'killian.habasque@gmail.com') {
+                return true;
+            }
+            return true;
         }
     },
+    allowDangerousEmailAccountLinking: true,
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     trustHosts: true
