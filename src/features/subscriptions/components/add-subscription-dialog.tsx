@@ -2,9 +2,6 @@
 
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { add_Subscription } from "@/features/subscriptions/subscription-service";
 import { useSubscription } from "@/features/subscriptions/subscription-context";
 import { Category, Company } from "@prisma/client";
@@ -12,35 +9,16 @@ import { useQuery } from "@tanstack/react-query";
 import OfferListItem from "@/features/offers/components/list-item-offer";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 import { fetchCommonData } from "@/features/common-service";
-import Field from "@/components/form/field";
-import SubmitButton from "@/components/form/submit-button";
 import Button from "@/components/ui/button";
-import ComboboxField from "@/components/form/combobox-field";
-import SelectField from "@/components/form/select-field";
+import SubscriptionForm, { SubscriptionFormData } from "./subscription-form";
 
 interface Offer {
     id: string;
     name: string;
     price: number;
-    categories: { id: string; name: string }[];
-    companies: { id: string; name: string }[];
+    categories: { id: string; name: string; slug: string; icon: string | null; createdAt: Date; updatedAt: Date; }[];
+    companies: { id: string; name: string; slug: string; imageLink: string | null; createdAt: Date; updatedAt: Date; }[];
 }
-
-const schema = z.object({
-    title: z.string().min(1, "Le titre est obligatoire"),
-    dueType: z.enum(["monthly", "yearly"]),
-    dueDate: z.string(),
-    endDate: z.string().optional(),
-    price: z.string()
-        .min(1, "Le prix est requis")
-        .refine((val) => {
-            const num = parseFloat(val.replace(',', '.'));
-            return !isNaN(num) && num >= 0;
-        }, "Le prix doit être un nombre positif"),
-    category: z.object({ id: z.string(), name: z.string() }).nullable(),
-    company: z.object({ id: z.string(), name: z.string() }).nullable(),
-    customCompany: z.string().optional(),
-});
 
 interface AddSubscriptionDialogProps {
     isOpen: boolean;
@@ -51,32 +29,11 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
     const { setSubscriptions } = useSubscription();
     const [categories, setCategories] = useState<Category[]>([]);
     const [companies, setCompanies] = useState<Company[]>([]);
-    const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
-    const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [searchOfferTerm, setSearchOfferTerm] = useState("");
     const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
     const [step, setStep] = useState<"search" | "custom">("search");
-
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        watch,
-        formState: { errors, isSubmitting },
-    } = useForm({
-        resolver: zodResolver(schema),
-        defaultValues: {
-            title: "",
-            dueType: "monthly",
-            dueDate: new Date().toISOString().split("T")[0],
-            endDate: "",
-            price: "",
-            category: null,
-            company: null,
-            customCompany: "",
-        },
-    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { data: offersData } = useQuery<{ offers: Offer[] }>({
         queryKey: ["offers", searchOfferTerm],
@@ -93,9 +50,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                 try {
                     const { categories: categoriesData, companies: companiesData } = await fetchCommonData();
                     setCategories(categoriesData);
-                    setFilteredCategories(categoriesData);
                     setCompanies(companiesData);
-                    setFilteredCompanies(companiesData);
                 } catch (error) {
                     console.error("Erreur lors du chargement des données :", error);
                 }
@@ -106,23 +61,21 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
 
     useEffect(() => {
         if (isOpen) {
-            setValue("title", "");
-            setValue("dueType", "monthly");
-            setValue("dueDate", new Date().toISOString().split("T")[0]);
-            setValue("endDate", "");
-            setValue("price", "");
-            setValue("category", null);
-            setValue("company", null);
-            setValue("customCompany", "");
             setSearchOfferTerm("");
             setSelectedOffer(null);
             setStep("search");
             setErrorMessage("");
         }
-    }, [isOpen, setValue]);
+    }, [isOpen]);
 
-    const onSubmit = async (data: z.infer<typeof schema>) => {
+    const handleOfferSelect = (offer: Offer) => {
+        setSelectedOffer(offer);
+        setStep("custom");
+    };
+
+    const onSubmit = async (data: SubscriptionFormData) => {
         setErrorMessage("");
+        setIsSubmitting(true);
         try {
             await add_Subscription(
                 data.title,
@@ -143,16 +96,9 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
         } catch (error: unknown) {
             console.error("Erreur lors de l'ajout de l'abonnement :", error);
             setErrorMessage((error as Error).message);
+        } finally {
+            setIsSubmitting(false);
         }
-    };
-
-    const handleOfferSelect = (offer: Offer) => {
-        setSelectedOffer(offer);
-        setValue("title", offer.name);
-        setValue("price", offer.price.toString());
-        setValue("category", offer.categories.length > 0 ? { id: offer.categories[0].id, name: offer.categories[0].name } : null);
-        setValue("company", offer.companies.length > 0 ? { id: offer.companies[0].id, name: offer.companies[0].name } : null);
-        setStep("custom");
     };
 
     return (
@@ -190,17 +136,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             </span>}
                         </ul>
                         <Button
-                            onClick={() => {
-                                setStep("custom");
-                                setValue("title", "");
-                                setValue("dueType", "monthly");
-                                setValue("dueDate", new Date().toISOString().split("T")[0]);
-                                setValue("endDate", "");
-                                setValue("price", "");
-                                setValue("category", null);
-                                setValue("company", null);
-                                setValue("customCompany", "");
-                            }}
+                            onClick={() => setStep("custom")}
                             variant="primary"
                             className="mt-4"
                         >
@@ -208,8 +144,8 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                         </Button>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-4 grid grid-cols-2 gap-4">
-                        <div className="col-span-2 flex gap-2 flex-col items-start">
+                    <div className="relative">
+                        <div className="flex gap-2 flex-col items-start mb-4">
                             <Button
                                 type="button"
                                 variant="light"
@@ -224,113 +160,27 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             </Button>
                         </div>
 
-                        <div className="space-y-4">
-                            <Field
-                                id="title"
-                                label="Titre"
-                                type="text"
-                                placeholder="Titre de l'abonnement"
-                                required
-                                register={register}
-                                name="title"
-                                errors={errors}
-                                disabled={!!selectedOffer}
-                            />
-
-                            <SelectField
-                                id="dueType"
-                                label="Type d'échéance"
-                                value={watch("dueType")}
-                                onChange={(value) => setValue("dueType", value)}
-                                options={[
-                                    { value: "monthly", label: "Mensuel" },
-                                    { value: "yearly", label: "Annuel" }
-                                ]}
-                                disabled={!!selectedOffer}
-                            />
-
-                            <Field
-                                id="dueDate"
-                                label="Date d&apos;échéance"
-                                type="date"
-                                required
-                                register={register}
-                                name="dueDate"
-                                errors={errors}
-                                disabled={!!selectedOffer}
-                            />
-
-                            <Field
-                                id="endDate"
-                                label="Date de fin (optionnelle)"
-                                type="date"
-                                register={register}
-                                name="endDate"
-                                errors={errors}
-                                disabled={!!selectedOffer}
-                            />
-
-                            <Field
-                                id="price"
-                                label="Prix"
-                                type="text"
-                                placeholder="Prix (ex: 10,99)"
-                                required
-                                register={register}
-                                name="price"
-                                errors={errors}
-                                disabled={!!selectedOffer}
-                            />
-                        </div>
-
-                        <div className="relative space-y-4">
-                            <ComboboxField
-                                id="category"
-                                label="Catégorie"
-                                value={watch("category")}
-                                onChange={(value) => setValue("category", value)}
-                                options={filteredCategories}
-                                displayValue={(cat) => cat?.name || ""}
-                                onSearch={(query) => {
-                                    setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
-                                }}
-                                placeholder="Rechercher ou saisir une catégorie..."
-                                disabled={!!selectedOffer}
-                            />
-
-                            <ComboboxField
-                                id="company"
-                                label="Entreprise"
-                                value={watch("company")}
-                                onChange={(value) => setValue("company", value)}
-                                options={filteredCompanies}
-                                displayValue={(com) => com?.name || ""}
-                                onSearch={(query) => {
-                                    setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
-                                }}
-                                placeholder="Rechercher ou saisir une entreprise..."
-                                disabled={!!selectedOffer}
-                            />
-
-                            <Field
-                                id="customCompany"
-                                label="Entreprise personnalisée"
-                                type="text"
-                                placeholder="Saisissez une nouvelle entreprise..."
-                                register={register}
-                                name="customCompany"
-                                errors={errors}
-                                disabled={!!selectedOffer}
-                            />
-                        </div>
-
-                        <div className="col-span-2">
-                            <SubmitButton loading={isSubmitting}>
-                                {isSubmitting ? "Ajout en cours..." : "Ajouter l'abonnement"}
-                            </SubmitButton>
-                            {errorMessage && <p className="text-red-600 mt-2">{errorMessage}</p>}
-                        </div>
-                    </form>
+                        <SubscriptionForm
+                            onSubmit={onSubmit}
+                            categories={categories}
+                            companies={companies}
+                            isSubmitting={isSubmitting}
+                            submitLabel={isSubmitting ? "Ajout en cours..." : "Ajouter l'abonnement"}
+                            defaultValues={selectedOffer ? {
+                                title: selectedOffer.name,
+                                price: selectedOffer.price.toString(),
+                                category: selectedOffer.categories.length > 0 ? { 
+                                    id: selectedOffer.categories[0].id, 
+                                    name: selectedOffer.categories[0].name 
+                                } : null,
+                                company: selectedOffer.companies.length > 0 ? { 
+                                    id: selectedOffer.companies[0].id, 
+                                    name: selectedOffer.companies[0].name 
+                                } : null,
+                            } : undefined}
+                        />
+                        {errorMessage && <p className="text-red-600 mt-2">{errorMessage}</p>}
+                    </div>
                 )}
             </DialogPanel>
         </Dialog>

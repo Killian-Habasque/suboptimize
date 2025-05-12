@@ -78,7 +78,7 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
                 <>
                     <div className="flex items-center">
                         <Link href={""}>
-                            <CategoryBadge icon={<MagnifyingGlassIcon className="w-4" />} label={"Optimiser"} />
+                            <CategoryBadge icon={<MagnifyingGlassIcon className="w-4" />} label={"Optimiser"} variant={"secondary"}/>
                         </Link>
 
                         <Menu as="div" className="relative ml-4 shrink-0">
