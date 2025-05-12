@@ -1,6 +1,5 @@
 "use client";
 
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { update_Subscription } from "@/features/subscriptions/subscription-service";
 import { useSubscription } from "@/features/subscriptions/subscription-context";
@@ -8,6 +7,7 @@ import { Category, Company } from "@prisma/client";
 import { Subscription } from "@/lib/types";
 import { fetchCommonData } from "@/features/common-service";
 import SubscriptionForm, { SubscriptionFormData } from "./subscription-form";
+import Modal from "@/components/ui/modal";
 
 interface EditSubscriptionDialogProps {
     isOpen: boolean;
@@ -66,43 +66,45 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
     };
 
     return (
-        <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 flex items-center justify-center z-50">
-            <DialogPanel className="w-5xl min-h-3/4 bg-white p-6 shadow-xl rounded-lg ring-1 ring-black/[5%]">
-                <DialogTitle className="mb-8 text-2xl font-semibold text-primary">Modifier l&apos;abonnement</DialogTitle>
-                <SubscriptionForm
-                    onSubmit={onSubmit}
-                    categories={categories}
-                    companies={companies}
-                    isSubmitting={isSubmitting}
-                    submitLabel={isSubmitting ? "Modification en cours..." : "Modifier l'abonnement"}
-                    defaultValues={{
-                        title: subscription.title || "",
-                        dueType: (subscription.dueType === "monthly" || subscription.dueType === "yearly") 
-                            ? subscription.dueType 
-                            : "monthly",
-                        dueDate: new Date(subscription.startDatetime).toISOString().split("T")[0],
-                        endDate: subscription.endDatetime 
-                            ? new Date(subscription.endDatetime).toISOString().split("T")[0]
-                            : "",
-                        price: subscription.price?.toString() || "",
-                        category: subscription.categories && subscription.categories.length > 0
-                            ? {
-                                id: subscription.categories[0].id,
-                                name: subscription.categories[0].name
-                            }
-                            : null,
-                        company: subscription.companies && subscription.companies.length > 0
-                            ? {
-                                id: subscription.companies[0].id,
-                                name: subscription.companies[0].name
-                            }
-                            : null,
-                        customCompany: subscription.customCompany || "",
-                    }}
-                />
-                {errorMessage && <p className="text-red-600 mt-2">{errorMessage}</p>}
-            </DialogPanel>
-        </Dialog>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Modifier l'abonnement"
+            size="5xl"
+        >
+            <SubscriptionForm
+                onSubmit={onSubmit}
+                categories={categories}
+                companies={companies}
+                isSubmitting={isSubmitting}
+                submitLabel={isSubmitting ? "Modification en cours..." : "Modifier l'abonnement"}
+                defaultValues={{
+                    title: subscription.title || "",
+                    dueType: (subscription.dueType === "monthly" || subscription.dueType === "yearly") 
+                        ? subscription.dueType 
+                        : "monthly",
+                    dueDate: new Date(subscription.startDatetime).toISOString().split("T")[0],
+                    endDate: subscription.endDatetime 
+                        ? new Date(subscription.endDatetime).toISOString().split("T")[0]
+                        : "",
+                    price: subscription.price?.toString() || "",
+                    category: subscription.categories && subscription.categories.length > 0
+                        ? {
+                            id: subscription.categories[0].id,
+                            name: subscription.categories[0].name
+                        }
+                        : null,
+                    company: subscription.companies && subscription.companies.length > 0
+                        ? {
+                            id: subscription.companies[0].id,
+                            name: subscription.companies[0].name
+                        }
+                        : null,
+                    customCompany: subscription.customCompany || "",
+                }}
+            />
+            {errorMessage && <p className="text-red-600 mt-2">{errorMessage}</p>}
+        </Modal>
     );
 };
 

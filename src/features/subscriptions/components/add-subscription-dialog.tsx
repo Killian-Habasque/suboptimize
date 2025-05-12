@@ -1,6 +1,5 @@
 "use client";
 
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { add_Subscription } from "@/features/subscriptions/subscription-service";
 import { useSubscription } from "@/features/subscriptions/subscription-context";
@@ -11,6 +10,7 @@ import { ArrowUturnLeftIcon } from "@heroicons/react/24/solid";
 import { fetchCommonData } from "@/features/common-service";
 import Button from "@/components/ui/button";
 import SubscriptionForm, { SubscriptionFormData } from "./subscription-form";
+import Modal from "@/components/ui/modal";
 
 interface Offer {
     id: string;
@@ -102,88 +102,89 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
     };
 
     return (
-        <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 flex items-center justify-center z-50">
-            <DialogPanel className="relative w-5xl min-h-3/4 bg-white p-6 shadow-xl rounded-lg ring-1 ring-black/[5%]">
-                <DialogTitle className="mb-8 text-2xl font-semibold text-primary">Ajouter un abonnement</DialogTitle>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Ajouter un abonnement"
+            size="5xl"
+        >
+            {step === "search" ? (
+                <div>
+                    <div className="flex flex-col gap-2 text-primary text-sm mb-4">
+                        Rechercher un abonnement parmis les offres existantes
+                        <input
+                            type="text"
+                            placeholder="Rechercher une offre..."
+                            value={searchOfferTerm}
+                            onChange={(e) => setSearchOfferTerm(e.target.value)}
+                            className="w-full p-2 ring-1 ring-inset ring-gray-300 rounded border-none text-sm"
+                        />
+                    </div>
 
-                {step === "search" ? (
-                    <div>
-                        <div className="flex flex-col gap-2 text-primary text-sm mb-4">
-                            Rechercher un abonnement parmis les offres existantes
-                            <input
-                                type="text"
-                                placeholder="Rechercher une offre..."
-                                value={searchOfferTerm}
-                                onChange={(e) => setSearchOfferTerm(e.target.value)}
-                                className="w-full p-2 ring-1 ring-inset ring-gray-300 rounded border-none text-sm"
-                            />
-                        </div>
-
-                        <ul className="ring-1 ring-inset ring-gray-300 rounded h-96 overflow-scroll">
-                            {offersData && offersData.offers.length > 0 ? (
-                                offersData.offers.map((offer: Offer) => (
-                                    <OfferListItem
-                                        key={offer.id}
-                                        price={offer.price}
-                                        title={offer.name}
-                                        company={offer.companies[0]}
-                                        category={offer.categories[0]}
-                                        onClick={() => handleOfferSelect(offer)}
-                                    />
-                                ))
-                            ) : <span className="w-full flex justify-center p-2 opacity-25">
-                                {searchOfferTerm ? "Aucun abonnement trouvé" : "Rechercher un abonnement"}
-                            </span>}
-                        </ul>
+                    <ul className="ring-1 ring-inset ring-gray-300 rounded h-96 overflow-scroll">
+                        {offersData && offersData.offers.length > 0 ? (
+                            offersData.offers.map((offer: Offer) => (
+                                <OfferListItem
+                                    key={offer.id}
+                                    price={offer.price}
+                                    title={offer.name}
+                                    company={offer.companies[0]}
+                                    category={offer.categories[0]}
+                                    onClick={() => handleOfferSelect(offer)}
+                                />
+                            ))
+                        ) : <span className="w-full flex justify-center p-2 opacity-25">
+                            {searchOfferTerm ? "Aucun abonnement trouvé" : "Rechercher un abonnement"}
+                        </span>}
+                    </ul>
+                    <Button
+                        onClick={() => setStep("custom")}
+                        variant="primary"
+                        className="mt-4"
+                    >
+                        Ajouter une offre personnalisée
+                    </Button>
+                </div>
+            ) : (
+                <div className="relative">
+                    <div className="flex gap-2 flex-col items-start mb-4">
                         <Button
-                            onClick={() => setStep("custom")}
-                            variant="primary"
-                            className="mt-4"
+                            type="button"
+                            variant="light"
+                            onClick={() => {
+                                setSelectedOffer(null);
+                                setStep("search");
+                            }}
+                            className="text-blue-600 hover:text-blue-400"
                         >
-                            Ajouter une offre personnalisée
+                            <ArrowUturnLeftIcon className="w-4 h-4 mr-1" />
+                            Retour à la recherche d&apos;offres
                         </Button>
                     </div>
-                ) : (
-                    <div className="relative">
-                        <div className="flex gap-2 flex-col items-start mb-4">
-                            <Button
-                                type="button"
-                                variant="light"
-                                onClick={() => {
-                                    setSelectedOffer(null);
-                                    setStep("search");
-                                }}
-                                className="text-blue-600 hover:text-blue-400"
-                            >
-                                <ArrowUturnLeftIcon className="w-4 h-4 mr-1" />
-                                Retour à la recherche d&apos;offres
-                            </Button>
-                        </div>
 
-                        <SubscriptionForm
-                            onSubmit={onSubmit}
-                            categories={categories}
-                            companies={companies}
-                            isSubmitting={isSubmitting}
-                            submitLabel={isSubmitting ? "Ajout en cours..." : "Ajouter l'abonnement"}
-                            defaultValues={selectedOffer ? {
-                                title: selectedOffer.name,
-                                price: selectedOffer.price.toString(),
-                                category: selectedOffer.categories.length > 0 ? { 
-                                    id: selectedOffer.categories[0].id, 
-                                    name: selectedOffer.categories[0].name 
-                                } : null,
-                                company: selectedOffer.companies.length > 0 ? { 
-                                    id: selectedOffer.companies[0].id, 
-                                    name: selectedOffer.companies[0].name 
-                                } : null,
-                            } : undefined}
-                        />
-                        {errorMessage && <p className="text-red-600 mt-2">{errorMessage}</p>}
-                    </div>
-                )}
-            </DialogPanel>
-        </Dialog>
+                    <SubscriptionForm
+                        onSubmit={onSubmit}
+                        categories={categories}
+                        companies={companies}
+                        isSubmitting={isSubmitting}
+                        submitLabel={isSubmitting ? "Ajout en cours..." : "Ajouter l'abonnement"}
+                        defaultValues={selectedOffer ? {
+                            title: selectedOffer.name,
+                            price: selectedOffer.price.toString(),
+                            category: selectedOffer.categories.length > 0 ? { 
+                                id: selectedOffer.categories[0].id, 
+                                name: selectedOffer.categories[0].name 
+                            } : null,
+                            company: selectedOffer.companies.length > 0 ? { 
+                                id: selectedOffer.companies[0].id, 
+                                name: selectedOffer.companies[0].name 
+                            } : null,
+                        } : undefined}
+                    />
+                    {errorMessage && <p className="text-red-600 mt-2">{errorMessage}</p>}
+                </div>
+            )}
+        </Modal>
     );
 };
 
