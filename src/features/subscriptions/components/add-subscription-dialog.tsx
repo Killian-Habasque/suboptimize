@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from "@headlessui/react";
 import { add_Subscription } from "@/features/subscriptions/subscription-service";
 import { useSubscription } from "@/features/subscriptions/subscription-context";
 import { Category, Company } from "@prisma/client";
@@ -16,6 +15,8 @@ import { fetchCommonData } from "@/features/common-service";
 import Field from "@/components/form/field";
 import SubmitButton from "@/components/form/submit-button";
 import Button from "@/components/ui/button";
+import ComboboxField from "@/components/form/combobox-field";
+import SelectField from "@/components/form/select-field";
 
 interface Offer {
     id: string;
@@ -130,7 +131,8 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                 parseFloat(data.price.replace(',', '.')),
                 data.category ? [data.category.id] : [],
                 data.company ? [data.company.id] : [],
-                data.customCompany || null
+                data.customCompany || null,
+                data.dueType
             );
 
             const response = await fetch("/api/subscriptions");
@@ -235,19 +237,22 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                                 disabled={!!selectedOffer}
                             />
 
-                            <div>
-                                <label className="text-sm font-bold">Type d&apos;échéance</label>
-                                <select {...register("dueType")} className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-100 cursor-not-allowed" : ""}`} disabled={!!selectedOffer}>
-                                    <option value="monthly">Mensuel</option>
-                                    <option value="yearly">Annuel</option>
-                                </select>
-                            </div>
+                            <SelectField
+                                id="dueType"
+                                label="Type d'échéance"
+                                value={watch("dueType")}
+                                onChange={(value) => setValue("dueType", value)}
+                                options={[
+                                    { value: "monthly", label: "Mensuel" },
+                                    { value: "yearly", label: "Annuel" }
+                                ]}
+                                disabled={!!selectedOffer}
+                            />
 
                             <Field
                                 id="dueDate"
                                 label="Date d&apos;échéance"
-                                type="text"
-                                placeholder="Date d'échéance"
+                                type="date"
                                 required
                                 register={register}
                                 name="dueDate"
@@ -258,8 +263,7 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                             <Field
                                 id="endDate"
                                 label="Date de fin (optionnelle)"
-                                type="text"
-                                placeholder="Date de fin"
+                                type="date"
                                 register={register}
                                 name="endDate"
                                 errors={errors}
@@ -280,51 +284,33 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
                         </div>
 
                         <div className="relative space-y-4">
-                            <div>
-                                <label className="text-sm font-bold">Catégorie</label>
-                                <Combobox value={watch("category")} onChange={(value) => setValue("category", value)}>
-                                    <ComboboxInput
-                                        className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-100 cursor-not-allowed" : ""}`}
-                                        displayValue={(cat: { name: string } | null) => cat?.name || ""}
-                                        onChange={(event) => {
-                                            const query = event.target.value.toLowerCase();
-                                            setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query)));
-                                        }}
-                                        placeholder="Rechercher ou saisir une catégorie..."
-                                        disabled={!!selectedOffer}
-                                    />
-                                    <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
-                                        {filteredCategories.map((cat) => (
-                                            <ComboboxOption key={cat.id} value={cat} className="px-4 py-2 cursor-pointer">
-                                                {cat.name}
-                                            </ComboboxOption>
-                                        ))}
-                                    </ComboboxOptions>
-                                </Combobox>
-                            </div>
+                            <ComboboxField
+                                id="category"
+                                label="Catégorie"
+                                value={watch("category")}
+                                onChange={(value) => setValue("category", value)}
+                                options={filteredCategories}
+                                displayValue={(cat) => cat?.name || ""}
+                                onSearch={(query) => {
+                                    setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
+                                }}
+                                placeholder="Rechercher ou saisir une catégorie..."
+                                disabled={!!selectedOffer}
+                            />
 
-                            <div>
-                                <label className="text-sm font-bold">Entreprise</label>
-                                <Combobox value={watch("company")} onChange={(value) => setValue("company", value)}>
-                                    <ComboboxInput
-                                        className={`w-full px-3 py-2 border rounded-lg ${!!selectedOffer ? "bg-gray-100 cursor-not-allowed" : ""}`}
-                                        displayValue={(com: { name: string } | null) => com?.name || ""}
-                                        onChange={(event) => {
-                                            const query = event.target.value.toLowerCase();
-                                            setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query)));
-                                        }}
-                                        placeholder="Rechercher ou saisir une entreprise..."
-                                        disabled={!!selectedOffer}
-                                    />
-                                    <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
-                                        {filteredCompanies.map((com) => (
-                                            <ComboboxOption key={com.id} value={com} className="px-4 py-2 cursor-pointer">
-                                                {com.name}
-                                            </ComboboxOption>
-                                        ))}
-                                    </ComboboxOptions>
-                                </Combobox>
-                            </div>
+                            <ComboboxField
+                                id="company"
+                                label="Entreprise"
+                                value={watch("company")}
+                                onChange={(value) => setValue("company", value)}
+                                options={filteredCompanies}
+                                displayValue={(com) => com?.name || ""}
+                                onSearch={(query) => {
+                                    setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
+                                }}
+                                placeholder="Rechercher ou saisir une entreprise..."
+                                disabled={!!selectedOffer}
+                            />
 
                             <Field
                                 id="customCompany"

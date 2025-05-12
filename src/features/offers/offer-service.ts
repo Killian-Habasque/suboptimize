@@ -7,6 +7,10 @@ export interface OfferFormData {
     price: string;
     normalPrice: string;
     imageLink?: string;
+    promoCode?: string;
+    expirationDate?: string;
+    category: { id: string; name: string } | null;
+    company: { id: string; name: string } | null;
 }
 
 export interface OfferApiData {
@@ -15,8 +19,12 @@ export interface OfferApiData {
     price: number;
     normalPrice: number;
     imageLink?: string;
+    promoCode?: string;
+    expirationDate?: string;
     slug: string;
     userId: string;
+    categoryIds: string[];
+    companyIds: string[];
 }
 
 export const get_all_Offers = async (page: number, limit: number, searchTerm: string): Promise<{ offers: Offer[], lastDocId?: string | undefined, totalOffers?: number | undefined }> => {
@@ -60,19 +68,18 @@ export const get_all_Offers = async (page: number, limit: number, searchTerm: st
     }
 };
 
-export const add_Offer = async (offerData: OfferApiData) => {
+export const add_Offer = async (data: OfferApiData): Promise<void> => {
     const response = await fetch('/api/offers', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(offerData),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Erreur lors de l'ajout de l'offre");
+        throw new Error('Erreur lors de l\'ajout de l\'offre');
     }
-
-    return response.json();
 };
 
 export const get_popular_companies = async () => {

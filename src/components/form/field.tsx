@@ -6,7 +6,7 @@ import { UseFormRegister, FieldValues, FieldErrors, Path } from 'react-hook-form
 interface FieldProps<T extends FieldValues> {
     id: string;
     label: string;
-    type?: 'text' | 'number' | 'email' | 'password' | 'file' | 'textarea';
+    type?: 'text' | 'number' | 'email' | 'password' | 'file' | 'textarea' | 'date';
     placeholder?: string;
     required?: boolean;
     accept?: string;

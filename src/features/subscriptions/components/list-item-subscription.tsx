@@ -1,4 +1,4 @@
-import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
+import { EllipsisVerticalIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import CategoryBadge from '@/components/ui/category-badge';
 import DueTypeBadge from "@/components/ui/duetype-badge";
 import CompanyBubble from '@/components/ui/company-bubble';
@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { getHeroIcon } from "@/lib/icon-helper";
+import Link from "next/link";
 
 interface SubscriptionListItemProps {
     id?: string;
@@ -58,7 +59,7 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
 
     return (
         <div className={`relative flex justify-center items-center w-full gap-8`}>
-            <CompanyBubble image={company?.imageLink ? company.imageLink : null}  brandName={company?.name || customCompany || undefined} altText={title} />
+            <CompanyBubble image={company?.imageLink ? company.imageLink : null} brandName={company?.name || customCompany || undefined} altText={title} />
             <div className="w-full">
                 {title && <h3 className="text-xl font-semibold">{title}</h3>}
                 <div className="flex gap-2 items-center flex-wrap">
@@ -72,9 +73,14 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
                 </div>
                 {price && <span className="text-lg font-semibold">{price} €</span>}
             </div>
+
             {onEdit && onDelete ?
                 <>
                     <div className="flex items-center">
+                        <Link href={""}>
+                            <CategoryBadge icon={<MagnifyingGlassIcon className="w-4" />} label={"Optimiser"} />
+                        </Link>
+
                         <Menu as="div" className="relative ml-4 shrink-0">
                             <div>
                                 <MenuButton className="relative flex rounded-full bg-white text-sm ring-2 ring-white/25 focus:outline-none focus:ring-gray/100 cursor-pointer">

@@ -26,7 +26,8 @@ export const add_Subscription = async (
   price: number,
   categoryIds: string[],
   companyIds: string[],
-  customCompany: string | null
+  customCompany: string | null,
+  dueType: "monthly" | "yearly"
 ) => {
   const response = await fetch('/api/subscriptions', {
     method: 'POST',
@@ -41,7 +42,8 @@ export const add_Subscription = async (
       price,
       categoryIds,
       companyIds,
-      customCompany
+      customCompany,
+      dueType
     }),
   });
 
@@ -62,7 +64,8 @@ export const update_Subscription = async (
   price: number,
   categoryIds: string[],
   companyIds: string[],
-  customCompany: string | null
+  customCompany: string | null,
+  dueType: "monthly" | "yearly"
 ) => {
   const response = await fetch(`/api/subscriptions/${id}`, {
     method: 'PUT',
@@ -77,7 +80,8 @@ export const update_Subscription = async (
       price,
       categoryIds,
       companyIds,
-      customCompany
+      customCompany,
+      dueType
     }),
   });
 
@@ -118,6 +122,18 @@ export const filter_Subscriptions_by_month = (
       const day = parse(dayString, 'yyyy-MM-dd', new Date());
       const billingDate = new Date(day);
       billingDate.setHours(0, 0, 0, 0);
+
+      if (sub.dueType === "yearly") {
+        const startMonth = startDate.getMonth();
+        const currentMonth = billingDate.getMonth();
+        return (
+          billingDate >= startDate &&
+          (endDate ? billingDate <= endDate : true) &&
+          String(sub.dueDay) === format(billingDate, 'd') &&
+          startMonth === currentMonth
+        );
+      }
+
       return (
         billingDate >= startDate &&
         (endDate ? billingDate <= endDate : true) &&

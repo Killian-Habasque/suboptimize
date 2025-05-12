@@ -4,13 +4,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
-import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/react';
-import { add_Offer, OfferFormData, OfferApiData } from '../offer-service';
+import { add_Offer, OfferApiData } from '../offer-service';
 import { fetchCommonData } from '@/features/common-service';
 import Field from '@/components/form/field';
 import SubmitButton from '@/components/form/submit-button';
 import Button from '@/components/ui/button';
 import { Category, Company } from '@prisma/client';
+import ComboboxField from "@/components/form/combobox-field";
 
 interface AddOfferDialogProps {
     isOpen: boolean;
@@ -38,6 +38,8 @@ const offerSchema = z.object({
     category: z.object({ id: z.string(), name: z.string() }).nullable(),
     company: z.object({ id: z.string(), name: z.string() }).nullable(),
 });
+
+type OfferFormData = z.infer<typeof offerSchema>;
 
 const AddOfferDialog: React.FC<AddOfferDialogProps> = ({ isOpen, onClose }) => {
     const { data: session } = useSession();
@@ -122,11 +124,11 @@ const AddOfferDialog: React.FC<AddOfferDialogProps> = ({ isOpen, onClose }) => {
 
     return (
         <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 flex items-center justify-center z-50">
-            <DialogPanel className="w-[600px] bg-white p-6 shadow-xl rounded-lg">
+            <DialogPanel className="w-5xl min-h-3/4 bg-white p-6 shadow-xl rounded-lg">
                 <DialogTitle className="text-xl font-semibold text-gray-800 mb-6">Ajouter une offre</DialogTitle>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-4">
+                        <div className="relative space-y-4">
                             <Field
                                 id="name"
                                 label="Nom"
@@ -168,7 +170,7 @@ const AddOfferDialog: React.FC<AddOfferDialogProps> = ({ isOpen, onClose }) => {
                                 errors={errors}
                             />
                         </div>
-                        <div className="space-y-4">
+                        <div className="relative space-y-4">
                             <Field
                                 id="imageLink"
                                 label="Lien de l'image"
@@ -195,48 +197,30 @@ const AddOfferDialog: React.FC<AddOfferDialogProps> = ({ isOpen, onClose }) => {
                                 name="expirationDate"
                                 errors={errors}
                             />
-                            <div>
-                                <label className="text-sm font-bold">Catégorie</label>
-                                <Combobox value={watch("category")} onChange={(value) => setValue("category", value)}>
-                                    <ComboboxInput
-                                        className="w-full px-3 py-2 border rounded-lg"
-                                        displayValue={(cat: { name: string } | null) => cat?.name || ""}
-                                        onChange={(event) => {
-                                            const query = event.target.value.toLowerCase();
-                                            setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query)));
-                                        }}
-                                        placeholder="Rechercher ou saisir une catégorie..."
-                                    />
-                                    <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
-                                        {filteredCategories.map((cat) => (
-                                            <ComboboxOption key={cat.id} value={cat} className="px-4 py-2 cursor-pointer">
-                                                {cat.name}
-                                            </ComboboxOption>
-                                        ))}
-                                    </ComboboxOptions>
-                                </Combobox>
-                            </div>
-                            <div>
-                                <label className="text-sm font-bold">Entreprise</label>
-                                <Combobox value={watch("company")} onChange={(value) => setValue("company", value)}>
-                                    <ComboboxInput
-                                        className="w-full px-3 py-2 border rounded-lg"
-                                        displayValue={(com: { name: string } | null) => com?.name || ""}
-                                        onChange={(event) => {
-                                            const query = event.target.value.toLowerCase();
-                                            setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query)));
-                                        }}
-                                        placeholder="Rechercher ou saisir une entreprise..."
-                                    />
-                                    <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
-                                        {filteredCompanies.map((com) => (
-                                            <ComboboxOption key={com.id} value={com} className="px-4 py-2 cursor-pointer">
-                                                {com.name}
-                                            </ComboboxOption>
-                                        ))}
-                                    </ComboboxOptions>
-                                </Combobox>
-                            </div>
+                            <ComboboxField
+                                id="category"
+                                label="Catégorie"
+                                value={watch("category")}
+                                onChange={(value) => setValue("category", value)}
+                                options={filteredCategories}
+                                displayValue={(cat) => cat?.name || ""}
+                                onSearch={(query) => {
+                                    setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
+                                }}
+                                placeholder="Rechercher ou saisir une catégorie..."
+                            />
+                            <ComboboxField
+                                id="company"
+                                label="Entreprise"
+                                value={watch("company")}
+                                onChange={(value) => setValue("company", value)}
+                                options={filteredCompanies}
+                                displayValue={(com) => com?.name || ""}
+                                onSearch={(query) => {
+                                    setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
+                                }}
+                                placeholder="Rechercher ou saisir une entreprise..."
+                            />
                         </div>
                     </div>
                     <div className="flex gap-2">

@@ -1,22 +1,31 @@
 "use client";
 
-import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from "@headlessui/react";
 import { update_Subscription } from "@/features/subscriptions/subscription-service";
 import { useSubscription } from "@/features/subscriptions/subscription-context";
 import { Category, Company } from "@prisma/client";
 import { Subscription } from "@/lib/types";
+import Field from "@/components/form/field";
+import SubmitButton from "@/components/form/submit-button";
+import ComboboxField from "@/components/form/combobox-field";
+import SelectField from "@/components/form/select-field";
+import { fetchCommonData } from "@/features/common-service";
 
 const schema = z.object({
     title: z.string().min(1, "Le titre est obligatoire"),
     dueType: z.enum(["monthly", "yearly"]),
     dueDate: z.string(),
     endDate: z.string().optional(),
-    price: z.coerce.number().min(0, "Le prix doit être positif"),
+    price: z.string()
+        .min(1, "Le prix est requis")
+        .refine((val) => {
+            const num = parseFloat(val.replace(',', '.'));
+            return !isNaN(num) && num >= 0;
+        }, "Le prix doit être un nombre positif"),
     category: z.object({ id: z.string(), name: z.string() }).nullable(),
     company: z.object({ id: z.string(), name: z.string() }).nullable(),
     customCompany: z.string().optional(),
@@ -49,7 +58,7 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
             dueType: "monthly",
             dueDate: new Date().toISOString().split("T")[0],
             endDate: "",
-            price: 0,
+            price: "",
             category: null,
             company: null,
             customCompany: "",
@@ -58,29 +67,18 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
 
     useEffect(() => {
         if (isOpen) {
-            const fetchData = async () => {
+            const loadData = async () => {
                 try {
-                    const [categoriesRes, companiesRes] = await Promise.all([
-                        fetch("/api/categories"),
-                        fetch("/api/companies"),
-                    ]);
-
-                    if (categoriesRes.ok && companiesRes.ok) {
-                        const [categoriesData, companiesData] = await Promise.all([
-                            categoriesRes.json(),
-                            companiesRes.json(),
-                        ]);
-
-                        setCategories(categoriesData);
-                        setFilteredCategories(categoriesData);
-                        setCompanies(companiesData);
-                        setFilteredCompanies(companiesData);
-                    }
+                    const { categories: categoriesData, companies: companiesData } = await fetchCommonData();
+                    setCategories(categoriesData);
+                    setFilteredCategories(categoriesData);
+                    setCompanies(companiesData);
+                    setFilteredCompanies(companiesData);
                 } catch (error) {
                     console.error("Erreur lors du chargement des données :", error);
                 }
             };
-            fetchData();
+            loadData();
         }
     }, [isOpen]);
 
@@ -91,7 +89,6 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
                 ? subscription.dueType 
                 : "monthly");
 
-            // Format date for the input
             const startDate = new Date(subscription.startDatetime);
             setValue("dueDate", startDate.toISOString().split("T")[0]);
 
@@ -102,7 +99,7 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
                 setValue("endDate", "");
             }
 
-            setValue("price", subscription.price || 0);
+            setValue("price", subscription.price?.toString() || "");
 
             if (subscription.categories && subscription.categories.length > 0) {
                 setValue("category", {
@@ -135,10 +132,11 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
                 data.title,
                 new Date(data.dueDate),
                 data.endDate ? new Date(data.endDate) : null,
-                data.price,
+                parseFloat(data.price.replace(',', '.')),
                 data.category ? [data.category.id] : [],
                 data.company ? [data.company.id] : [],
-                data.customCompany || null
+                data.customCompany || null,
+                data.dueType,
             );
 
             setSubscriptions((prev) =>
@@ -152,144 +150,111 @@ const EditSubscriptionDialog: React.FC<EditSubscriptionDialogProps> = ({ isOpen,
     };
 
     return (
+        <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 flex items-center justify-center z-50">
+            <DialogPanel className="w-5xl min-h-3/4 bg-white p-6 shadow-xl rounded-lg ring-1 ring-black/[5%]">
+                <DialogTitle className="mb-8 text-2xl font-semibold text-primary">Modifier l&apos;abonnement</DialogTitle>
+                <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-4 grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                        <Field
+                            id="title"
+                            label="Titre"
+                            type="text"
+                            placeholder="Titre de l'abonnement"
+                            required
+                            register={register}
+                            name="title"
+                            errors={errors}
+                        />
 
-        <Transition appear show={isOpen} as={Fragment}>
-            <Dialog as="div" className="relative z-50" onClose={onClose}>
-                <TransitionChild
-                    as={Fragment}
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0"
-                    enterTo="opacity-100"
-                    leave="ease-in duration-200"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                >
-                    <div className="fixed inset-0 bg-black/25" />
-                </TransitionChild>
+                        <SelectField
+                            id="dueType"
+                            label="Type d'échéance"
+                            value={watch("dueType")}
+                            onChange={(value) => setValue("dueType", value)}
+                            options={[
+                                { value: "monthly", label: "Mensuel" },
+                                { value: "yearly", label: "Annuel" }
+                            ]}
+                        />
 
-                <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center">
-                        <TransitionChild
-                            as={Fragment}
-                            enter="ease-out duration-300"
-                            enterFrom="opacity-0 scale-95"
-                            enterTo="opacity-100 scale-100"
-                            leave="ease-in duration-200"
-                            leaveFrom="opacity-100 scale-100"
-                            leaveTo="opacity-0 scale-95"
-                        >
-                            <DialogPanel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                <DialogTitle className="text-xl font-semibold text-gray-800">Modifier l&apos;abonnement</DialogTitle>
-                                <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-4 mt-4">
-                                    <div>
-                                        <label className="text-sm font-bold">Titre*</label>
-                                        <input {...register("title")} className="w-full px-3 py-2 border rounded-lg" />
-                                        {errors.title && <p className="text-red-600">{errors.title.message}</p>}
-                                    </div>
+                        <Field
+                            id="dueDate"
+                            label="Date d'échéance"
+                            type="date"
+                            required
+                            register={register}
+                            name="dueDate"
+                            errors={errors}
+                        />
 
-                                    <div>
-                                        <label className="text-sm font-bold">Type d&apos;échéance</label>
-                                        <select {...register("dueType")} className="w-full px-3 py-2 border rounded-lg">
-                                            <option value="monthly">Mensuel</option>
-                                            <option value="yearly">Annuel</option>
-                                        </select>
-                                    </div>
+                        <Field
+                            id="endDate"
+                            label="Date de fin (optionnelle)"
+                            type="date"
+                            register={register}
+                            name="endDate"
+                            errors={errors}
+                        />
 
-                                    <div>
-                                        <label className="text-sm font-bold">Date d&apos;échéance</label>
-                                        <input type="date" {...register("dueDate")} className="w-full px-3 py-2 border rounded-lg" />
-                                    </div>
-
-                                    <div>
-                                        <label className="text-sm font-bold">Date de fin (optionnelle)</label>
-                                        <input type="date" {...register("endDate")} className="w-full px-3 py-2 border rounded-lg" />
-                                    </div>
-
-                                    <div>
-                                        <label className="text-sm font-bold">Prix</label>
-                                        <input type="number" step="0.01" {...register("price")} className="w-full px-3 py-2 border rounded-lg" />
-                                        {errors.price && <p className="text-red-600">{errors.price.message}</p>}
-                                    </div>
-
-                                    <div>
-                                        <label className="text-sm font-bold">Catégorie</label>
-                                        <Combobox value={watch("category")} onChange={(value) => setValue("category", value)}>
-                                            <ComboboxInput
-                                                className="w-full px-3 py-2 border rounded-lg"
-                                                displayValue={(cat: { name: string } | null) => cat?.name || ""}
-                                                onChange={(event) => {
-                                                    const query = event.target.value.toLowerCase();
-                                                    setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query)));
-                                                }}
-                                                placeholder="Rechercher ou saisir une catégorie..."
-                                            />
-                                            <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
-                                                {filteredCategories.map((cat) => (
-                                                    <ComboboxOption key={cat.id} value={cat} className="px-4 py-2 cursor-pointer">
-                                                        {cat.name}
-                                                    </ComboboxOption>
-                                                ))}
-                                            </ComboboxOptions>
-                                        </Combobox>
-                                    </div>
-
-                                    <div>
-                                        <label className="text-sm font-bold">Entreprise</label>
-                                        <Combobox value={watch("company")} onChange={(value) => setValue("company", value)}>
-                                            <ComboboxInput
-                                                className="w-full px-3 py-2 border rounded-lg"
-                                                displayValue={(com: { name: string } | null) => com?.name || ""}
-                                                onChange={(event) => {
-                                                    const query = event.target.value.toLowerCase();
-                                                    setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query)));
-                                                }}
-                                                placeholder="Rechercher ou saisir une entreprise..."
-                                            />
-                                            <ComboboxOptions className="absolute z-10 w-full mt-1 bg-white border rounded-lg max-h-40 overflow-y-auto">
-                                                {filteredCompanies.map((com) => (
-                                                    <ComboboxOption key={com.id} value={com} className="px-4 py-2 cursor-pointer">
-                                                        {com.name}
-                                                    </ComboboxOption>
-                                                ))}
-                                            </ComboboxOptions>
-                                        </Combobox>
-                                    </div>
-
-                                    <div>
-                                        <label className="text-sm font-bold">Entreprise personnalisée</label>
-                                        <input
-                                            type="text"
-                                            {...register("customCompany")}
-                                            className="w-full px-3 py-2 border rounded-lg"
-                                            placeholder="Saisissez une nouvelle entreprise..."
-                                        />
-                                    </div>
-
-                                    <div className="flex justify-end gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={onClose}
-                                            className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer"
-                                        >
-                                            Annuler
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            disabled={isSubmitting}
-                                            className={`px-4 py-2 text-white font-medium rounded-lg ${isSubmitting ? "bg-gray-300" : "bg-primary hover:bg-secondary cursor-pointer"}`}
-                                        >
-                                            {isSubmitting ? "Modification en cours..." : "Modifier l'abonnement"}
-                                        </button>
-                                    </div>
-
-                                    {errorMessage && <p className="text-red-600">{errorMessage}</p>}
-                                </form>
-                            </DialogPanel>
-                        </TransitionChild>
+                        <Field
+                            id="price"
+                            label="Prix"
+                            type="text"
+                            placeholder="Prix (ex: 10,99)"
+                            required
+                            register={register}
+                            name="price"
+                            errors={errors}
+                        />
                     </div>
-                </div>
-            </Dialog>
-        </Transition>
+
+                    <div className="relative space-y-4">
+                        <ComboboxField
+                            id="category"
+                            label="Catégorie"
+                            value={watch("category")}
+                            onChange={(value) => setValue("category", value)}
+                            options={filteredCategories}
+                            displayValue={(cat) => cat?.name || ""}
+                            onSearch={(query) => {
+                                setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
+                            }}
+                            placeholder="Rechercher ou saisir une catégorie..."
+                        />
+
+                        <ComboboxField
+                            id="company"
+                            label="Entreprise"
+                            value={watch("company")}
+                            onChange={(value) => setValue("company", value)}
+                            options={filteredCompanies}
+                            displayValue={(com) => com?.name || ""}
+                            onSearch={(query) => {
+                                setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
+                            }}
+                            placeholder="Rechercher ou saisir une entreprise..."
+                        />
+
+                        <Field
+                            id="customCompany"
+                            label="Entreprise personnalisée"
+                            type="text"
+                            placeholder="Saisissez une nouvelle entreprise..."
+                            register={register}
+                            name="customCompany"
+                            errors={errors}
+                        />
+                    </div>
+
+                    <div className="col-span-2">
+                        <SubmitButton loading={isSubmitting}>
+                            {isSubmitting ? "Modification en cours..." : "Modifier l'abonnement"}
+                        </SubmitButton>
+                        {errorMessage && <p className="text-red-600 mt-2">{errorMessage}</p>}
+                    </div>
+                </form>
+            </DialogPanel>
+        </Dialog>
     );
 };
 
