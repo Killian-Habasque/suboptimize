@@ -18,6 +18,8 @@ import { useSession, signOut } from 'next-auth/react'
 import Image from 'next/image'
 import Button from '../ui/button'
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import SearchSubscriptionDialog from '../../features/subscriptions/components/search-subscription-dialog';
 
 const defaultUser = {
     name: 'Tom Cook',
@@ -42,6 +44,7 @@ const userNavigation = [
 const Header = () => {
     const { data: session } = useSession()
     const pathname = usePathname();
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     const handleSignOut = async () => {
         await signOut({ redirect: true, callbackUrl: '/' })
@@ -163,6 +166,8 @@ const Header = () => {
                                     type="search"
                                     placeholder="Rechercher"
                                     className="block w-full rounded-md border-0 bg-white/20 py-1.5 pl-10 pr-3 text-white placeholder:text-white focus:bg-white focus:text-gray-900 focus:ring-0 focus:placeholder:text-gray-500 sm:text-sm sm:leading-6"
+                                    onClick={() => setIsSearchOpen(true)}
+                                    readOnly
                                 />
                             </div>
                         </div>
@@ -216,6 +221,8 @@ const Header = () => {
                                         type="search"
                                         placeholder="Rechercher"
                                         className="block w-full rounded-md border-0 bg-white/20 py-1.5 pl-10 pr-3 text-white placeholder:text-white focus:bg-white focus:text-gray-900 focus:ring-0 focus:placeholder:text-gray-500 sm:text-sm sm:leading-6"
+                                        onClick={() => setIsSearchOpen(true)}
+                                        readOnly
                                     />
                                 </div>
                             </div>
@@ -309,6 +316,11 @@ const Header = () => {
                     </div>
                 </PopoverPanel>
             </div>
+
+            <SearchSubscriptionDialog 
+                isOpen={isSearchOpen}
+                onClose={() => setIsSearchOpen(false)}
+            />
         </Popover>
     )
 }

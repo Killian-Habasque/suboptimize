@@ -172,6 +172,7 @@ function EventListItem({ subscribe }: EventListItemProps) {
     <div className='py-4 px-8'>
       <SubscriptionListItem
         key={subscribe.id}
+        id={subscribe.id}
         price={subscribe.price}
         title={subscribe.title}
         description={subscribe.description}

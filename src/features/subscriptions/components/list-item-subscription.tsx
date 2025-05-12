@@ -76,7 +76,7 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
             {onEdit && onDelete ?
                 <>
                     <div className="flex items-center">
-                        <Link href={""}>
+                        <Link href={`/abonnements/${id}`}>                     
                             <CategoryBadge icon={<MagnifyingGlassIcon className="w-4" />} label={"Optimiser"} variant={"secondary"}/>
                         </Link>
 

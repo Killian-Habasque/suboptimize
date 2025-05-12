@@ -3,7 +3,6 @@ import { useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { add_Offer, OfferApiData } from '../offer-service';
 import { fetchCommonData } from '@/features/common-service';
 import Field from '@/components/form/field';
@@ -11,6 +10,7 @@ import SubmitButton from '@/components/form/submit-button';
 import Button from '@/components/ui/button';
 import { Category, Company } from '@prisma/client';
 import ComboboxField from "@/components/form/combobox-field";
+import Modal from "@/components/ui/modal";
 
 interface AddOfferDialogProps {
     isOpen: boolean;
@@ -123,124 +123,126 @@ const AddOfferDialog: React.FC<AddOfferDialogProps> = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 flex items-center justify-center z-50">
-            <DialogPanel className="w-5xl min-h-3/4 bg-white p-6 shadow-xl rounded-lg">
-                <DialogTitle className="text-xl font-semibold text-gray-800 mb-6">Ajouter une offre</DialogTitle>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="relative space-y-4">
-                            <Field
-                                id="name"
-                                label="Nom"
-                                type="text"
-                                placeholder="Nom de l'offre"
-                                required
-                                register={register}
-                                name="name"
-                                errors={errors}
-                            />
-                            <Field
-                                id="description"
-                                label="Description"
-                                type="textarea"
-                                placeholder="Description de l'offre"
-                                required
-                                register={register}
-                                name="description"
-                                errors={errors}
-                            />
-                            <Field
-                                id="price"
-                                label="Prix"
-                                type="text"
-                                placeholder="Prix (ex: 10,99)"
-                                required
-                                register={register}
-                                name="price"
-                                errors={errors}
-                            />
-                            <Field
-                                id="normalPrice"
-                                label="Prix normal"
-                                type="text"
-                                placeholder="Prix normal (ex: 10,99)"
-                                required
-                                register={register}
-                                name="normalPrice"
-                                errors={errors}
-                            />
-                        </div>
-                        <div className="relative space-y-4">
-                            <Field
-                                id="imageLink"
-                                label="Lien de l'image"
-                                type="text"
-                                placeholder="URL de l'image"
-                                register={register}
-                                name="imageLink"
-                                errors={errors}
-                            />
-                            <Field
-                                id="promoCode"
-                                label="Code promo"
-                                type="text"
-                                placeholder="Code promo"
-                                register={register}
-                                name="promoCode"
-                                errors={errors}
-                            />
-                            <Field
-                                id="expirationDate"
-                                label="Date d'expiration"
-                                type="date"
-                                register={register}
-                                name="expirationDate"
-                                errors={errors}
-                            />
-                            <ComboboxField
-                                id="category"
-                                label="Catégorie"
-                                value={watch("category")}
-                                onChange={(value) => setValue("category", value)}
-                                options={filteredCategories}
-                                displayValue={(cat) => cat?.name || ""}
-                                onSearch={(query) => {
-                                    setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
-                                }}
-                                placeholder="Rechercher ou saisir une catégorie..."
-                            />
-                            <ComboboxField
-                                id="company"
-                                label="Entreprise"
-                                value={watch("company")}
-                                onChange={(value) => setValue("company", value)}
-                                options={filteredCompanies}
-                                displayValue={(com) => com?.name || ""}
-                                onSearch={(query) => {
-                                    setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
-                                }}
-                                placeholder="Rechercher ou saisir une entreprise..."
-                            />
-                        </div>
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Ajouter une offre"
+            size="5xl"
+        >
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="relative space-y-4">
+                        <Field
+                            id="name"
+                            label="Nom"
+                            type="text"
+                            placeholder="Nom de l'offre"
+                            required
+                            register={register}
+                            name="name"
+                            errors={errors}
+                        />
+                        <Field
+                            id="description"
+                            label="Description"
+                            type="textarea"
+                            placeholder="Description de l'offre"
+                            required
+                            register={register}
+                            name="description"
+                            errors={errors}
+                        />
+                        <Field
+                            id="price"
+                            label="Prix"
+                            type="text"
+                            placeholder="Prix (ex: 10,99)"
+                            required
+                            register={register}
+                            name="price"
+                            errors={errors}
+                        />
+                        <Field
+                            id="normalPrice"
+                            label="Prix normal"
+                            type="text"
+                            placeholder="Prix normal (ex: 10,99)"
+                            required
+                            register={register}
+                            name="normalPrice"
+                            errors={errors}
+                        />
                     </div>
-                    <div className="flex gap-2">
-                        <Button
-                            type="button"
-                            variant="light"
-                            onClick={onClose}
-                        >
-                            Annuler
-                        </Button>
-                        <SubmitButton loading={isSubmitting}>
-                            Ajouter
-                        </SubmitButton>
+                    <div className="relative space-y-4">
+                        <Field
+                            id="imageLink"
+                            label="Lien de l'image"
+                            type="text"
+                            placeholder="URL de l'image"
+                            register={register}
+                            name="imageLink"
+                            errors={errors}
+                        />
+                        <Field
+                            id="promoCode"
+                            label="Code promo"
+                            type="text"
+                            placeholder="Code promo"
+                            register={register}
+                            name="promoCode"
+                            errors={errors}
+                        />
+                        <Field
+                            id="expirationDate"
+                            label="Date d'expiration"
+                            type="date"
+                            register={register}
+                            name="expirationDate"
+                            errors={errors}
+                        />
+                        <ComboboxField
+                            id="category"
+                            label="Catégorie"
+                            value={watch("category")}
+                            onChange={(value) => setValue("category", value)}
+                            options={filteredCategories}
+                            displayValue={(cat) => cat?.name || ""}
+                            onSearch={(query) => {
+                                setFilteredCategories(categories.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
+                            }}
+                            placeholder="Rechercher ou saisir une catégorie..."
+                        />
+                        <ComboboxField
+                            id="company"
+                            label="Entreprise"
+                            value={watch("company")}
+                            onChange={(value) => setValue("company", value)}
+                            options={filteredCompanies}
+                            displayValue={(com) => com?.name || ""}
+                            onSearch={(query) => {
+                                setFilteredCompanies(companies.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())));
+                            }}
+                            placeholder="Rechercher ou saisir une entreprise..."
+                        />
                     </div>
-                    {errorMessage && (
-                        <p className="text-sm text-red-600 mt-2">{errorMessage}</p>
-                    )}
-                </form>
-            </DialogPanel>
-        </Dialog>
+                </div>
+                <div className="flex gap-2">
+                    <Button
+                        type="button"
+                        variant="light"
+                        onClick={onClose}
+                    >
+                        Annuler
+                    </Button>
+                    <SubmitButton loading={isSubmitting}>
+                        Ajouter
+                    </SubmitButton>
+                </div>
+                {errorMessage && (
+                    <p className="text-sm text-red-600 mt-2">{errorMessage}</p>
+                )}
+            </form>
+        </Modal>
     );
 };
 

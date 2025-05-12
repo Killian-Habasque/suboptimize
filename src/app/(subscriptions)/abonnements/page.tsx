@@ -26,6 +26,11 @@ const SubscriptionsPage = () => {
             <UpcomingSubscriptions subscriptions={subscriptions} />
           </Card>
         </GridItem>
+        <GridItem colSpan={3}>
+          <Card>
+            Synthese
+          </Card>
+        </GridItem>
       </Grid>
     </Container>
   )

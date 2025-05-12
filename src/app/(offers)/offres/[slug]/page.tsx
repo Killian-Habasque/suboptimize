@@ -49,7 +49,13 @@ const OfferDetailsPage = () => {
     if (loading) {
         return (
             <Container>
-                <div className="text-center py-8">Chargement...</div>
+                <Grid columns={3}>
+                    <GridItem colSpan={3}>
+                        <Card>
+                            <div className="h-96 text-center py-8">Chargement...</div>
+                        </Card>
+                    </GridItem>
+                </Grid>
             </Container>
         );
     }
@@ -57,7 +63,7 @@ const OfferDetailsPage = () => {
     if (!offer) {
         return (
             <Container>
-                <div className="text-center py-8">Offre non trouvée</div>
+                <div className="text-center py-8 text-white">Offre non trouvée</div>
             </Container>
         );
     }

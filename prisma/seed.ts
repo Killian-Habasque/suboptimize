@@ -6,10 +6,10 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('Seeding database...');
 
-    // await prisma.offer.deleteMany();
-    // await prisma.user.deleteMany();
-    // await prisma.category.deleteMany();
-    // await prisma.company.deleteMany();
+    await prisma.offer.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.category.deleteMany();
+    await prisma.company.deleteMany();
 
     // Seed des companies
     for (const company of seedData.companies) {

@@ -11,7 +11,8 @@ export const get_all_user_Subscriptions = async (): Promise<Subscription[]> => {
       throw new Error('Erreur lors de la récupération des abonnements');
     }
 
-    return response.json();
+    const data = await response.json();
+    return data.subscriptions;
   } catch (error) {
     console.error("Erreur lors de la récupération des abonnements:", error);
     throw error;
