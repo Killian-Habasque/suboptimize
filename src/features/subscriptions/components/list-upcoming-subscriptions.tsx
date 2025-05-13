@@ -6,11 +6,10 @@ import SubscriptionListItem from './list-item-subscription'
 import {
     addDays,
     format,
-    endOfMonth,
     startOfToday
 } from 'date-fns'
 import { CalendarDaysIcon, ClockIcon } from '@heroicons/react/24/outline'
-import { filter_Subscriptions_by_month } from '../subscription-service'
+import { filter_Subscriptions_by_month, get_visible_days } from '../subscription-service'
 
 interface UpcomingSubscriptionsProps {
     subscriptions: Subscription[]
@@ -29,13 +28,8 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
 
         const today = startOfToday()
         const tomorrow = addDays(today, 1)
-        const monthEnd = endOfMonth(today)
 
-        const visibleDays = []
-        for (let i = 1; i <= monthEnd.getDate(); i++) {
-            const day = new Date(today.getFullYear(), today.getMonth(), i)
-            visibleDays.push(format(day, 'yyyy-MM-dd'))
-        }
+        const visibleDays = get_visible_days()
         const filteredSubs = filter_Subscriptions_by_month(subscriptions, visibleDays)
         const todaySubs = filteredSubs.filter(sub => {
             const todayStr = format(today, 'd')
@@ -66,11 +60,11 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
-                        <ClockIcon className="h-5 w-5 text-indigo-600 mr-2" />
-                        <h2 className="text-lg font-medium text-gray-900">Aujourd&apos;hui</h2>
+                        <ClockIcon className="h-5 w-5 text-secondary mr-2" />
+                        <h2 className="text-lg font-medium text-gray-700">Aujourd&apos;hui</h2>
                     </div>
                     {todaySubscriptions.length > 0 && (
-                        <div className="text-base font-semibold text-indigo-600">
+                        <div className="text-base font-semibold text-gray-500">
                             Total: {todayTotal.toFixed(2)}€
                         </div>
                     )}
@@ -99,11 +93,11 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
-                        <ClockIcon className="h-5 w-5 text-indigo-600 mr-2" />
-                        <h2 className="text-lg font-medium text-gray-900">Demain</h2>
+                        <ClockIcon className="h-5 w-5 text-secondary mr-2" />
+                        <h2 className="text-lg font-medium text-gray-700">Demain</h2>
                     </div>
                     {tomorrowSubscriptions.length > 0 && (
-                        <div className="text-base font-semibold text-indigo-600">
+                        <div className="text-base font-semibold text-gray-500">
                             Total: {tomorrowTotal.toFixed(2)}€
                         </div>
                     )}
@@ -131,11 +125,11 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
-                        <CalendarDaysIcon className="h-5 w-5 text-indigo-600 mr-2" />
-                        <h2 className="text-lg font-medium text-gray-900">Ce mois-ci</h2>
+                        <CalendarDaysIcon className="h-5 w-5 text-secondary mr-2" />
+                        <h2 className="text-lg font-medium text-gray-700">Ce mois-ci</h2>
                     </div>
                     {monthSubscriptions.length > 0 && (
-                        <div className="text-base font-semibold text-indigo-600">
+                        <div className="text-base font-semibold text-gray-500">
                             Total: {monthTotal.toFixed(2)}€
                         </div>
                     )}

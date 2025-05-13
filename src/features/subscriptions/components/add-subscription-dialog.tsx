@@ -73,24 +73,24 @@ const AddSubscriptionDialog: React.FC<AddSubscriptionDialogProps> = ({ isOpen, o
         setStep("custom");
     };
 
-    const onSubmit = async (data: SubscriptionFormData) => {
+    const onSubmit = async (formData: SubscriptionFormData) => {
         setErrorMessage("");
         setIsSubmitting(true);
         try {
             await add_Subscription(
-                data.title,
-                new Date(data.dueDate),
-                data.endDate ? new Date(data.endDate) : null,
-                parseFloat(data.price.replace(',', '.')),
-                data.category ? [data.category.id] : [],
-                data.company ? [data.company.id] : [],
-                data.customCompany || null,
-                data.dueType
+                formData.title,
+                new Date(formData.dueDate),
+                formData.endDate ? new Date(formData.endDate) : null,
+                parseFloat(formData.price.replace(',', '.')),
+                formData.category ? [formData.category.id] : [],
+                formData.company ? [formData.company.id] : [],
+                formData.customCompany || null,
+                formData.dueType
             );
 
             const response = await fetch("/api/subscriptions");
-            const updatedSubscriptions = await response.json();
-            setSubscriptions(updatedSubscriptions);
+            const data = await response.json();
+            setSubscriptions(data.subscriptions);
             
             onClose();
         } catch (error: unknown) {

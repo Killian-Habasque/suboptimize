@@ -1,4 +1,4 @@
-import { format, parse } from 'date-fns';
+import { format, parse, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { Subscription } from "@/lib/types";
 
 export const get_all_user_Subscriptions = async (): Promise<Subscription[]> => {
@@ -142,4 +142,11 @@ export const filter_Subscriptions_by_month = (
       );
     });
   });
+};
+
+export const get_visible_days = () => {
+  const now = new Date();
+  const start = startOfMonth(now);
+  const end = endOfMonth(now);
+  return eachDayOfInterval({ start, end }).map(day => format(day, 'yyyy-MM-dd'));
 };

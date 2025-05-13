@@ -8,6 +8,7 @@ import Calendar from "@/features/subscriptions/components/calendar";
 import { useSubscription } from "@/features/subscriptions/subscription-context";
 import UpcomingSubscriptions from "@/features/subscriptions/components/list-upcoming-subscriptions";
 import LoginCard from "@/features/auth/components/login-card";
+import SummaryCard from "../../../features/subscriptions/components/summary-card";
 
 const SubscriptionsPage = () => {
   const { subscriptions } = useSubscription();
@@ -28,7 +29,7 @@ const SubscriptionsPage = () => {
         </GridItem>
         <GridItem colSpan={3}>
           <Card>
-            Synthese
+            <SummaryCard subscriptions={subscriptions} />
           </Card>
         </GridItem>
       </Grid>
