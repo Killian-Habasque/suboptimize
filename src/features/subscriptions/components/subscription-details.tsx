@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Button from "@/components/ui/button";
 
 interface SubscriptionDetailsProps {
@@ -13,10 +14,20 @@ interface SubscriptionDetailsProps {
 }
 
 const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ id }) => {
+    const router = useRouter();
+
     const { data: subscription, isLoading, error } = useQuery<Subscription>({
         queryKey: ["subscription", id],
         queryFn: async () => {
             const response = await fetch(`/api/subscriptions/${id}`);
+            if (response.status === 401) {
+                router.push('/connexion');
+                throw new Error("Vous devez être connecté pour accéder à cette page");
+            }
+            if (response.status === 403) {
+                router.push('/abonnements');
+                throw new Error("Vous n'avez pas l'autorisation d'accéder à cet abonnement");
+            }
             if (!response.ok) {
                 throw new Error("Erreur lors de la récupération de l'abonnement");
             }
@@ -35,7 +46,13 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ id }) => {
     if (error) {
         return (
             <div className="text-center py-8">
-                <p className="text-red-500">Une erreur est survenue lors du chargement de l&apos;abonnement</p>
+                <p className="text-red-500 mb-4">{error instanceof Error ? error.message : "Une erreur est survenue lors du chargement de l'abonnement"}</p>
+                <Link href="/abonnements">
+                    <Button variant="light" className="text-blue-600 hover:text-blue-400">
+                        <ArrowLeftIcon className="w-4 h-4 mr-1" />
+                        Retour aux abonnements
+                    </Button>
+                </Link>
             </div>
         );
     }
