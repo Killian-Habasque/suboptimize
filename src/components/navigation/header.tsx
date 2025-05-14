@@ -97,12 +97,12 @@ const Header = () => {
                                     <BellIcon aria-hidden="true" className="h-6 w-6" />
                                 </button>
                             </>
-                        ) : <>
+                        ) : session === null ? (
                             <Button href="/connexion" variant="secondary">
                                 <UserIcon aria-hidden="true" className="h-4 w-4" />
                                 Se connecter
                             </Button>
-                        </>}
+                        ) : null}
 
                         {/* Profile dropdown */}
                         {session?.user ? (
@@ -151,27 +151,29 @@ const Header = () => {
                     </div>
 
                     {/* Search */}
-                    <div className="min-w-0 flex-1 px-12 lg:hidden">
-                        <div className="mx-auto w-full max-w-xs">
-                            <label htmlFor="desktop-search" className="sr-only">
-                                Rechercher
-                            </label>
-                            <div className="relative text-white focus-within:text-gray-600">
-                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <MagnifyingGlassIcon aria-hidden="true" className="h-5 w-5" />
+                    {pathname === '/abonnements' && (
+                        <div className="min-w-0 flex-1 px-12 lg:hidden">
+                            <div className="mx-auto w-full max-w-xs">
+                                <label htmlFor="desktop-search" className="sr-only">
+                                    Rechercher
+                                </label>
+                                <div className="relative text-white focus-within:text-gray-600">
+                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <MagnifyingGlassIcon aria-hidden="true" className="h-5 w-5" />
+                                    </div>
+                                    <input
+                                        id="desktop-search"
+                                        name="search"
+                                        type="search"
+                                        placeholder="Rechercher"
+                                        className="block w-full rounded-md border-0 bg-white/20 py-1.5 pl-10 pr-3 text-white placeholder:text-white focus:bg-white focus:text-gray-900 focus:ring-0 focus:placeholder:text-gray-500 sm:text-sm sm:leading-6"
+                                        onClick={() => setIsSearchOpen(true)}
+                                        readOnly
+                                    />
                                 </div>
-                                <input
-                                    id="desktop-search"
-                                    name="search"
-                                    type="search"
-                                    placeholder="Rechercher"
-                                    className="block w-full rounded-md border-0 bg-white/20 py-1.5 pl-10 pr-3 text-white placeholder:text-white focus:bg-white focus:text-gray-900 focus:ring-0 focus:placeholder:text-gray-500 sm:text-sm sm:leading-6"
-                                    onClick={() => setIsSearchOpen(true)}
-                                    readOnly
-                                />
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Menu button */}
                     <div className="absolute right-0 shrink-0 lg:hidden">
@@ -207,25 +209,27 @@ const Header = () => {
                             </nav>
                         </div>
                         <div>
-                            <div className="mx-auto w-full max-w-md">
-                                <label htmlFor="mobile-search" className="sr-only">
-                                    Rechercher
-                                </label>
-                                <div className="relative text-white focus-within:text-gray-600">
-                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <MagnifyingGlassIcon aria-hidden="true" className="h-5 w-5" />
+                            {pathname === '/abonnements' && (
+                                <div className="mx-auto w-full max-w-md">
+                                    <label htmlFor="mobile-search" className="sr-only">
+                                        Rechercher
+                                    </label>
+                                    <div className="relative text-white focus-within:text-gray-600">
+                                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <MagnifyingGlassIcon aria-hidden="true" className="h-5 w-5" />
+                                        </div>
+                                        <input
+                                            id="mobile-search"
+                                            name="search"
+                                            type="search"
+                                            placeholder="Rechercher"
+                                            className="block w-full rounded-md border-0 bg-white/20 py-1.5 pl-10 pr-3 text-white placeholder:text-white focus:bg-white focus:text-gray-900 focus:ring-0 focus:placeholder:text-gray-500 sm:text-sm sm:leading-6"
+                                            onClick={() => setIsSearchOpen(true)}
+                                            readOnly
+                                        />
                                     </div>
-                                    <input
-                                        id="mobile-search"
-                                        name="search"
-                                        type="search"
-                                        placeholder="Rechercher"
-                                        className="block w-full rounded-md border-0 bg-white/20 py-1.5 pl-10 pr-3 text-white placeholder:text-white focus:bg-white focus:text-gray-900 focus:ring-0 focus:placeholder:text-gray-500 sm:text-sm sm:leading-6"
-                                        onClick={() => setIsSearchOpen(true)}
-                                        readOnly
-                                    />
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>

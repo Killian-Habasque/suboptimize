@@ -4,6 +4,7 @@ import CategoryBadge from '@/components/ui/category-badge';
 import { getHeroIcon } from '@/lib/icon-helper';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { buildUrlWithParams } from '@/services/utils';
 
 interface Category {
     id: string;
@@ -56,8 +57,8 @@ const CategoryList = () => {
         <div className="space-y-4">
             <h2 className="text-xl font-semibold mb-4">Catégories d&apos;offres</h2>
             <div className="flex flex-wrap gap-2">
-                <Link 
-                    href="/offres"
+                <Link
+                    href={buildUrlWithParams('/offres', searchParams, 'category', undefined)}
                     className={!currentCategory ? 'opacity-50' : ''}
                 >
                     <CategoryBadge
@@ -70,9 +71,9 @@ const CategoryList = () => {
                     const Icon = getHeroIcon(category.icon);
                     const isActive = currentCategory === category.slug;
                     return (
-                        <Link 
-                            key={category.id} 
-                            href={isActive ? '/offres' : `/offres?category=${category.slug}`}
+                        <Link
+                            key={category.id}
+                            href={buildUrlWithParams('/offres', searchParams, 'category', isActive ? undefined : category.slug)}
                             className={isActive ? 'opacity-50' : ''}
                         >
                             <CategoryBadge

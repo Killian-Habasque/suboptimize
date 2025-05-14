@@ -4,6 +4,7 @@ import { Company } from '@prisma/client';
 import CompanyBubble from '@/components/ui/company-bubble';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { buildUrlWithParams } from '@/services/utils';
 
 
 const FIRST_LIMIT = 8;
@@ -94,7 +95,7 @@ const PopularCompanies = () => {
             return (
                 <Link
                     key={company.id}
-                    href="/offres"
+                    href={buildUrlWithParams('/offres', searchParams, 'company', undefined)}
                     className={`flex flex-col items-center justify-center bg-white rounded-lg ${!currentCompany ? 'opacity-25' : ''}`}
                 >
                     <CompanyBubble
@@ -111,7 +112,7 @@ const PopularCompanies = () => {
             return (
                 <Link
                     key={company.id}
-                    href={isActive ? '/offres' : `/offres?company=${company.slug}`}
+                    href={buildUrlWithParams('/offres', searchParams, 'company', isActive ? undefined : company.slug)}
                     className={`flex flex-col items-center justify-center bg-white rounded-lg ${isActive ? 'opacity-25' : ''}`}
                 >
                     <CompanyBubble

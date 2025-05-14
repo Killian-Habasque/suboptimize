@@ -6,7 +6,7 @@ import Modal from "@/components/ui/modal";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { Subscription } from "@/lib/types";
 import { debounce } from "lodash";
-import Link from "next/link";
+import SubscriptionListItem from "./list-item-subscription";
 
 interface SearchSubscriptionDialogProps {
     isOpen: boolean;
@@ -68,31 +68,17 @@ const SearchSubscriptionDialog: React.FC<SearchSubscriptionDialogProps> = ({ isO
                             {subscriptionsData.subscriptions.map((subscription) => (
                                 <li
                                     key={subscription.id}
-                                    className="flex items-center justify-between gap-x-6 py-5 hover:bg-gray-50 px-4 rounded-md"
+                                    className="hover:bg-gray-50 px-4 rounded-md"
                                 >
-                                    <Link 
-                                        href={`/abonnements/${subscription.id}`}
-                                        className="w-full"
-                                        onClick={onClose}
-                                    >
-                                        <div className="min-w-0">
-                                            <div className="flex items-start gap-x-3">
-                                                <p className="text-sm font-semibold leading-6 text-gray-900">
-                                                    {subscription.title}
-                                                </p>
-                                            </div>
-                                            <div className="mt-1 flex items-center gap-x-2 text-xs leading-5 text-gray-500">
-                                                <p className="whitespace-nowrap">
-                                                    {subscription.price}€ / {subscription.dueType === "monthly" ? "mois" : "an"}
-                                                </p>
-                                                {subscription.companies[0] && (
-                                                    <p className="whitespace-nowrap">
-                                                        • {subscription.companies[0].name}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </Link>
+                                    <SubscriptionListItem
+                                        id={subscription.id}
+                                        title={subscription.title}
+                                        price={subscription.price}
+                                        description={subscription.description}
+                                        category={subscription.category}
+                                        company={subscription.companies[0]}
+                                        dueType={subscription.dueType === "monthly" ? "mensuel" : "annuel"}
+                                    />
                                 </li>
                             ))}
                         </ul>
