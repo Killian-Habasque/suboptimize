@@ -32,7 +32,7 @@ const offerSchema = z.object({
             const num = parseFloat(val.replace(',', '.'));
             return !isNaN(num) && num > 0;
         }, "Le prix normal doit être un nombre positif"),
-    imageLink: z.string().optional(),
+    link: z.string().url("L'URL doit être valide").optional(),
     promoCode: z.string().optional(),
     expirationDate: z.string().optional(),
     category: z.object({ id: z.string(), name: z.string() }).nullable(),
@@ -56,7 +56,7 @@ const AddOfferDialog: React.FC<AddOfferDialogProps> = ({ isOpen, onClose }) => {
             description: '',
             price: '',
             normalPrice: '',
-            imageLink: '',
+            link: '',
             promoCode: '',
             expirationDate: '',
             category: null,
@@ -175,12 +175,12 @@ const AddOfferDialog: React.FC<AddOfferDialogProps> = ({ isOpen, onClose }) => {
                     </div>
                     <div className="relative space-y-4">
                         <Field
-                            id="imageLink"
-                            label="Lien de l'image"
+                            id="link"
+                            label="Lien de l'offre"
                             type="text"
-                            placeholder="URL de l'image"
+                            placeholder="URL de l'offre"
                             register={register}
-                            name="imageLink"
+                            name="link"
                             errors={errors}
                         />
                         <Field

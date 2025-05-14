@@ -103,6 +103,18 @@ const OfferDetailsPage = () => {
                                         {offer.price} €
                                     </span>
                                 </div>
+                                {offer.link && (
+                                    <div className="mt-4">
+                                        <a 
+                                            href={offer.link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-block bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                                        >
+                                            Voir l&apos;offre
+                                        </a>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="mb-8">

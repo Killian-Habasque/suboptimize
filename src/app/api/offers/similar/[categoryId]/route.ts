@@ -3,14 +3,15 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
     request: Request,
-    { params }: { params: { categoryId: string } }
+    { params }: { params: Promise<{ categoryId: string }> }
 ) {
     try {
+        const { categoryId } = await params;
         const offers = await prisma.offer.findMany({
             where: {
                 categories: {
                     some: {
-                        id: params.categoryId,
+                        id: categoryId,
                     },
                 },
             },

@@ -6,7 +6,7 @@ export interface OfferFormData {
     description: string;
     price: string;
     normalPrice: string;
-    imageLink?: string;
+    link?: string;
     promoCode?: string;
     expirationDate?: string;
     category: { id: string; name: string } | null;
@@ -18,7 +18,7 @@ export interface OfferApiData {
     description: string;
     price: number;
     normalPrice: number;
-    imageLink?: string;
+    link?: string;
     promoCode?: string;
     expirationDate?: string;
     slug: string;

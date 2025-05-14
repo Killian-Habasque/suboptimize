@@ -81,7 +81,7 @@ model Offer {
   name           String
   slug           String         @unique
   description    String
-  imageLink      String?
+  link           String?
   promoCode      String?
   price          Float
   normalPrice    Float
