@@ -1,24 +1,29 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "8", 10);
+    const skip = (page - 1) * limit;
+
     try {
-        const companies = await prisma.company.findMany({
-            take: 10,
-            orderBy: {
-                offers: {
-                    _count: 'desc'
+        const [companies, totalCompanies] = await Promise.all([
+            prisma.company.findMany({
+                skip,
+                take: limit,
+                orderBy: {
+                    name: 'asc'
                 }
-            },
-            include: {
-                _count: {
-                    select: {
-                        offers: true
-                    }
-                }
-            }
+            }),
+            prisma.company.count()
+        ]);
+
+        return NextResponse.json({
+            companies,
+            total: totalCompanies,
+            hasMore: skip + limit < totalCompanies
         });
-        return NextResponse.json(companies);
     } catch (error) {
         console.error("Error fetching popular companies:", error);
         return NextResponse.json(

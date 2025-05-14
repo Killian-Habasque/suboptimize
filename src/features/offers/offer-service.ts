@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Offer } from "@prisma/client";
+import { Offer, Prisma } from "@prisma/client";
 
 export interface OfferFormData {
     name: string;
@@ -27,38 +27,51 @@ export interface OfferApiData {
     companyIds: string[];
 }
 
-export const get_all_Offers = async (page: number, limit: number, searchTerm: string, sortBy: 'recent' | 'ranking' = 'recent'): Promise<{ offers: Offer[], lastDocId?: string | undefined, totalOffers?: number | undefined }> => {
+export const get_all_Offers = async (page: number, limit: number, searchTerm: string, sortBy: 'recent' | 'ranking' = 'recent', categorySlug?: string | null, companySlug?: string | null): Promise<{ offers: Offer[], lastDocId?: string | undefined, totalOffers?: number | undefined }> => {
     try {
         const skip = (page - 1) * limit;
 
+        const whereClause: Prisma.OfferWhereInput = {
+            name: {
+                contains: searchTerm,
+                mode: 'insensitive',
+            },
+        };
+
+        if (categorySlug) {
+            whereClause.categories = {
+                some: {
+                    slug: categorySlug
+                }
+            };
+        }
+
+        if (companySlug) {
+            whereClause.companies = {
+                some: {
+                    slug: companySlug
+                }
+            };
+        }
+
         const [offers, totalOffers] = await Promise.all([
             prisma.offer.findMany({
-                where: {
-                    name: {
-                        contains: searchTerm,
-                        mode: 'insensitive',
-                    },
-                },
+                where: whereClause,
                 skip,
                 take: limit,
-                orderBy: sortBy === 'recent' 
+                orderBy: sortBy === 'recent'
                     ? { createdAt: 'desc' }
                     : [
                         { rankingScore: 'desc' },
                         { createdAt: 'desc' }
-                      ],
+                    ],
                 include: {
                     companies: true,
                     categories: true,
                 },
             }),
             prisma.offer.count({
-                where: {
-                    name: {
-                        contains: searchTerm,
-                        mode: 'insensitive',
-                    },
-                },
+                where: whereClause,
             }),
         ]);
 
@@ -93,9 +106,9 @@ export const add_Offer = async (data: OfferApiData): Promise<void> => {
     }
 };
 
-export const get_popular_companies = async () => {
+export const get_popular_companies = async (page: number = 1, limit: number = 8) => {
     try {
-        const response = await fetch('/api/companies/popular');
+        const response = await fetch(`/api/companies/popular?page=${page}&limit=${limit}`);
         if (!response.ok) {
             throw new Error('Failed to fetch popular companies');
         }

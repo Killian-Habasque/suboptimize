@@ -11,15 +11,20 @@ interface OfferWithRelations extends Offer {
     categories: Category[];
 }
 
-const fetchOffers = async (page: number, limit: number, searchTerm: string, sortBy: 'recent' | 'ranking') => {
-    const response = await fetch(`/api/offers?page=${page}&limit=${limit + 1}&searchTerm=${encodeURIComponent(searchTerm)}&sortBy=${sortBy}`);
+interface OfferListProps {
+    categorySlug?: string | null;
+    companySlug?: string | null;
+}
+
+const fetchOffers = async (page: number, limit: number, searchTerm: string, sortBy: 'recent' | 'ranking', categorySlug?: string | null, companySlug?: string | null) => {
+    const response = await fetch(`/api/offers?page=${page}&limit=${limit + 1}&searchTerm=${encodeURIComponent(searchTerm)}&sortBy=${sortBy}${categorySlug ? `&category=${encodeURIComponent(categorySlug)}` : ''}${companySlug ? `&company=${encodeURIComponent(companySlug)}` : ''}`);
     if (!response.ok) {
         throw new Error("Network response was not ok");
     }
     return response.json();
 };
 
-const OfferList = () => {
+const OfferList: React.FC<OfferListProps> = ({ categorySlug, companySlug }) => {
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -36,8 +41,8 @@ const OfferList = () => {
     }, [searchTerm]);
 
     const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ["offers", page, debouncedSearchTerm, sortBy],
-        queryFn: () => fetchOffers(page, limit, debouncedSearchTerm, sortBy),
+        queryKey: ["offers", page, debouncedSearchTerm, sortBy, categorySlug, companySlug],
+        queryFn: () => fetchOffers(page, limit, debouncedSearchTerm, sortBy, categorySlug, companySlug),
         placeholderData: (previousData) => previousData,
         staleTime: 10000,
         gcTime: 60000,
