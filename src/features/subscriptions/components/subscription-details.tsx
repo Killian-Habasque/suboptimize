@@ -8,6 +8,13 @@ import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/button";
+import OfferListItem from "@/features/offers/components/list-item-offer";
+import { Offer, Category, Company } from "@prisma/client";
+
+interface OfferWithRelations extends Offer {
+    companies: Company[];
+    categories: Category[];
+}
 
 interface SubscriptionDetailsProps {
     id: string;
@@ -33,6 +40,18 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ id }) => {
             }
             return response.json();
         },
+    });
+
+    const { data: similarOffers, isLoading: isLoadingOffers } = useQuery<OfferWithRelations[]>({
+        queryKey: ["similar-offers", id],
+        queryFn: async () => {
+            const response = await fetch(`/api/subscriptions/${id}/similar-offers`);
+            if (!response.ok) {
+                throw new Error("Erreur lors de la récupération des offres similaires");
+            }
+            return response.json();
+        },
+        enabled: !!subscription,
     });
 
     if (isLoading) {
@@ -139,6 +158,34 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ id }) => {
                         <p className="text-gray-600">{subscription.customCompany}</p>
                     </div>
                 )}
+
+                <div className="mb-8">
+                    <h2 className="text-xl font-semibold mb-4">Offres similaires pour optimiser votre abonnement</h2>
+                    {isLoadingOffers ? (
+                        <div className="flex justify-center items-center min-h-[200px]">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        </div>
+                    ) : similarOffers && similarOffers.length > 0 ? (
+                        <div className="space-y-4">
+                            {similarOffers.map((offer) => (
+                                <div key={offer.id} className="ring-1 ring-inset ring-gray-300 rounded-lg">
+                                    <OfferListItem
+                                        slug={offer.slug}
+                                        title={offer.name}
+                                        price={offer.price}
+                                        normalPrice={offer.normalPrice}
+                                        description={offer.description}
+                                        company={offer.companies[0]}
+                                        category={offer.categories[0]}
+                                        preview={true}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-gray-500">Aucune offre similaire trouvée</p>
+                    )}
+                </div>
             </div>
         </div>
     );

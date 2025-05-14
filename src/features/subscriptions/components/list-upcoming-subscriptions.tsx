@@ -64,7 +64,7 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                         <h2 className="text-lg font-medium text-gray-700">Aujourd&apos;hui</h2>
                     </div>
                     {todaySubscriptions.length > 0 && (
-                        <div className="text-base font-semibold text-gray-500">
+                        <div className="text-base font-semibold text-gray-500 text-sm">
                             Total: {todayTotal.toFixed(2)}€
                         </div>
                     )}
@@ -97,7 +97,7 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                         <h2 className="text-lg font-medium text-gray-700">Demain</h2>
                     </div>
                     {tomorrowSubscriptions.length > 0 && (
-                        <div className="text-base font-semibold text-gray-500">
+                        <div className="text-base font-semibold text-gray-500 text-sm">
                             Total: {tomorrowTotal.toFixed(2)}€
                         </div>
                     )}
@@ -129,8 +129,8 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                         <h2 className="text-lg font-medium text-gray-700">Ce mois-ci</h2>
                     </div>
                     {monthSubscriptions.length > 0 && (
-                        <div className="text-base font-semibold text-gray-500">
-                            Total: {monthTotal.toFixed(2)}€
+                        <div className="text-base font-semibold text-gray-500 text-sm">
+                            Total restant: {monthTotal.toFixed(2)}€
                         </div>
                     )}
                 </div>
