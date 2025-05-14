@@ -9,6 +9,10 @@ import Card from "@/components/layout/card";
 import OfferListItem from "@/features/offers/components/list-item-offer";
 import { Offer, Category, Company } from "@prisma/client";
 import LoginCard from "@/features/auth/components/login-card";
+import LoadingCursor from "@/components/ui/loading-cursor";
+import Link from "next/link";
+import Button from "@/components/ui/button";
+import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 
 interface OfferWithRelations extends Offer {
     companies: Company[];
@@ -52,7 +56,12 @@ const OfferDetailsPage = () => {
                 <Grid columns={3}>
                     <GridItem colSpan={3}>
                         <Card>
-                            <div className="h-96 text-center py-8">Chargement...</div>
+                            <div className="h-96 text-center py-8">
+                                <div className="flex justify-center items-center">
+                                    <LoadingCursor />
+                                    Chargement...
+                                </div>
+                            </div>
                         </Card>
                     </GridItem>
                 </Grid>
@@ -74,6 +83,14 @@ const OfferDetailsPage = () => {
                 <GridItem colSpan={3}>
                     <Card>
                         <div className="p-6">
+                            <div className="mb-8">
+                                <Link href="/offres">
+                                    <Button variant="light" className="text-blue-600 hover:text-blue-400">
+                                        <ArrowLeftIcon className="w-4 h-4 mr-1" />
+                                        Retour aux offres
+                                    </Button>
+                                </Link>
+                            </div>
                             <div className="mb-8">
                                 <h1 className="text-3xl font-bold mb-4">{offer.name}</h1>
                                 <div className="flex items-center gap-4 mb-4">
@@ -105,7 +122,7 @@ const OfferDetailsPage = () => {
                                 </div>
                                 {offer.link && (
                                     <div className="mt-4">
-                                        <a 
+                                        <a
                                             href={offer.link}
                                             target="_blank"
                                             rel="noopener noreferrer"

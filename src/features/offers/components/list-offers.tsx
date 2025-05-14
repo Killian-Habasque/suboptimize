@@ -4,14 +4,15 @@ import { useQuery } from '@tanstack/react-query';
 import { debounce } from "lodash";
 import { Offer, Category, Company } from "@prisma/client";
 import AddOfferDialog from './add-offer-dialog';
+import LoadingCursor from '@/components/ui/loading-cursor';
 
 interface OfferWithRelations extends Offer {
     companies: Company[];
     categories: Category[];
 }
 
-const fetchOffers = async (page: number, limit: number, searchTerm: string) => {
-    const response = await fetch(`/api/offers?page=${page}&limit=${limit + 1}&searchTerm=${encodeURIComponent(searchTerm)}`);
+const fetchOffers = async (page: number, limit: number, searchTerm: string, sortBy: 'recent' | 'ranking') => {
+    const response = await fetch(`/api/offers?page=${page}&limit=${limit + 1}&searchTerm=${encodeURIComponent(searchTerm)}&sortBy=${sortBy}`);
     if (!response.ok) {
         throw new Error("Network response was not ok");
     }
@@ -22,6 +23,7 @@ const OfferList = () => {
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+    const [sortBy, setSortBy] = useState<'recent' | 'ranking'>('recent');
     const limit = 10;
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -34,18 +36,21 @@ const OfferList = () => {
     }, [searchTerm]);
 
     const { data, isLoading, error, refetch } = useQuery({
-        queryKey: ["offers", page, debouncedSearchTerm],
-        queryFn: () => fetchOffers(page, limit, debouncedSearchTerm),
+        queryKey: ["offers", page, debouncedSearchTerm, sortBy],
+        queryFn: () => fetchOffers(page, limit, debouncedSearchTerm, sortBy),
         placeholderData: (previousData) => previousData,
         staleTime: 10000,
         gcTime: 60000,
     });
 
-    if (isLoading && !data) return <div className="text-center py-4">Chargement...</div>;
+    if (isLoading && !data) return <div className="text-center py-4 h-[700px]">
+        <div className="flex justify-center items-center">
+            <LoadingCursor />
+            Chargement...
+        </div></div>;
     if (error) return <div className="text-center py-4 text-red-500">Une erreur est survenue</div>;
 
     const totalPages = Math.ceil((data?.total || 0) / limit);
-    // const hasNextPage = data?.offers?.length > limit;
     const displayedOffers = data?.offers?.slice(0, limit) || [];
 
     const renderPageNumbers = () => {
@@ -63,11 +68,10 @@ const OfferList = () => {
                 <button
                     key={i}
                     onClick={() => setPage(i)}
-                    className={`px-3 py-1 rounded-md cursor-pointer ${
-                        page === i
+                    className={`px-3 py-1 rounded-md cursor-pointer ${page === i
                             ? 'bg-primary text-white'
                             : 'bg-gray-100 hover:bg-gray-200'
-                    }`}
+                        }`}
                 >
                     {i}
                 </button>
@@ -95,6 +99,35 @@ const OfferList = () => {
                 </button>
             </div>
 
+            <div className="flex space-x-4 mb-6">
+                <button
+                    onClick={() => {
+                        setSortBy('recent');
+                        setPage(1);
+                    }}
+                    className={`px-4 py-2 rounded-md ${
+                        sortBy === 'recent'
+                            ? 'bg-primary text-white'
+                            : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
+                >
+                    Les plus récentes
+                </button>
+                <button
+                    onClick={() => {
+                        setSortBy('ranking');
+                        setPage(1);
+                    }}
+                    className={`px-4 py-2 rounded-md ${
+                        sortBy === 'ranking'
+                            ? 'bg-primary text-white'
+                            : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
+                >
+                    Les mieux notées
+                </button>
+            </div>
+
             {displayedOffers.map((offer: OfferWithRelations) => (
                 <div key={offer.id} className='ring-1 ring-inset ring-gray-300 rounded-lg'>
                     <OfferListItem
@@ -106,6 +139,8 @@ const OfferList = () => {
                         category={offer.categories[0]}
                         preview={false}
                         slug={offer.slug}
+                        rankingScore={offer.rankingScore}
+                        createdAt={offer.createdAt}
                     />
                 </div>
             ))}

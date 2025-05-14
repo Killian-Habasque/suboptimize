@@ -1,16 +1,16 @@
 "use client";
 
-import { Subscription } from "@/lib/types";
 import Image from "next/image";
 import { useSubscription } from "@/features/subscriptions/subscription-context";
+import LoadingCursor from "@/components/ui/loading-cursor";
 
 const ProfileSubscriptions = () => {
     const { subscriptions = [], loading } = useSubscription();
-    
+
     return (
         <div className="p-6">
             <h2 className="text-2xl font-bold mb-6">Mes Abonnements</h2>
-            
+
             <div className="flex justify-between mb-4">
                 <div className="flex space-x-2">
                     <button className="bg-primary text-white px-3 py-1 rounded-md text-sm">
@@ -27,34 +27,37 @@ const ProfileSubscriptions = () => {
                     Trier par prix
                 </button>
             </div>
-            
+
             {loading ? (
                 <div className="text-center py-8 text-gray-500">
-                    Chargement des abonnements...
+                    <div className="flex justify-center items-center">
+                        <LoadingCursor />
+                        Chargement des abonnements...
+                    </div>
                 </div>
             ) : subscriptions.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                    Vous n'avez pas encore d'abonnements.
+                    Vous n&apos;avez pas encore d&apos;abonnements.
                 </div>
             ) : (
                 <div className="space-y-4">
                     {subscriptions.map((subscription, index) => {
                         // Récupérer la première entreprise associée pour l'affichage
-                        const company = subscription.companies && subscription.companies.length > 0 
-                            ? subscription.companies[0] 
+                        const company = subscription.companies && subscription.companies.length > 0
+                            ? subscription.companies[0]
                             : null;
-                        
+
                         // Récupérer la première catégorie associée pour l'affichage
-                        const category = subscription.categories && subscription.categories.length > 0 
-                            ? subscription.categories[0] 
+                        const category = subscription.categories && subscription.categories.length > 0
+                            ? subscription.categories[0]
                             : null;
-                        
+
                         return (
                             <div key={subscription.id || index} className="border rounded-lg p-4 flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     {company?.imageLink ? (
-                                        <Image 
-                                            src={company.imageLink} 
+                                        <Image
+                                            src={company.imageLink}
                                             alt={subscription.title || "Abonnement"}
                                             width={48}
                                             height={48}
@@ -65,7 +68,7 @@ const ProfileSubscriptions = () => {
                                             <span>{subscription.title ? subscription.title.charAt(0) : "?"}</span>
                                         </div>
                                     )}
-                                    
+
                                     <div>
                                         <h3 className="font-semibold">{subscription.title || "Abonnement sans nom"}</h3>
                                         <div className="flex items-center text-sm text-gray-600 space-x-2">
@@ -75,7 +78,7 @@ const ProfileSubscriptions = () => {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div className="text-right">
                                     <p className="font-bold">{subscription.price?.toFixed(2) || "0.00"} €</p>
                                     <p className="text-sm text-gray-600">
@@ -87,7 +90,7 @@ const ProfileSubscriptions = () => {
                     })}
                 </div>
             )}
-            
+
             <div className="mt-6 flex justify-center">
                 <button className="flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full hover:bg-purple-200 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

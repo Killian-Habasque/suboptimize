@@ -27,7 +27,7 @@ export interface OfferApiData {
     companyIds: string[];
 }
 
-export const get_all_Offers = async (page: number, limit: number, searchTerm: string): Promise<{ offers: Offer[], lastDocId?: string | undefined, totalOffers?: number | undefined }> => {
+export const get_all_Offers = async (page: number, limit: number, searchTerm: string, sortBy: 'recent' | 'ranking' = 'recent'): Promise<{ offers: Offer[], lastDocId?: string | undefined, totalOffers?: number | undefined }> => {
     try {
         const skip = (page - 1) * limit;
 
@@ -41,9 +41,12 @@ export const get_all_Offers = async (page: number, limit: number, searchTerm: st
                 },
                 skip,
                 take: limit,
-                orderBy: {
-                    createdAt: 'desc',
-                },
+                orderBy: sortBy === 'recent' 
+                    ? { createdAt: 'desc' }
+                    : [
+                        { rankingScore: 'desc' },
+                        { createdAt: 'desc' }
+                      ],
                 include: {
                     companies: true,
                     categories: true,
@@ -58,6 +61,14 @@ export const get_all_Offers = async (page: number, limit: number, searchTerm: st
                 },
             }),
         ]);
+
+        if (sortBy === 'ranking') {
+            offers.sort((a, b) => {
+                const scoreA = a.rankingScore || 0;
+                const scoreB = b.rankingScore || 0;
+                return scoreB - scoreA;
+            });
+        }
 
         const lastDocId = (skip + limit < totalOffers) ? offers[offers.length - 1]?.id : undefined;
 

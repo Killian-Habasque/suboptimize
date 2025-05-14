@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/button";
 import OfferListItem from "@/features/offers/components/list-item-offer";
 import { Offer, Category, Company } from "@prisma/client";
+import LoadingCursor from "@/components/ui/loading-cursor";
 
 interface OfferWithRelations extends Offer {
     companies: Company[];
@@ -57,7 +58,7 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ id }) => {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <LoadingCursor />
             </div>
         );
     }
@@ -162,8 +163,8 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ id }) => {
                 <div className="mb-8">
                     <h2 className="text-xl font-semibold mb-4">Offres similaires pour optimiser votre abonnement</h2>
                     {isLoadingOffers ? (
-                        <div className="flex justify-center items-center min-h-[200px]">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        <div className="flex justify-center items-center">
+                            <LoadingCursor />
                         </div>
                     ) : similarOffers && similarOffers.length > 0 ? (
                         <div className="space-y-4">

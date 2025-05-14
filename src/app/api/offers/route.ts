@@ -9,9 +9,10 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
     const searchTerm = searchParams.get("searchTerm") || "";
+    const sortBy = (searchParams.get("sortBy") || "recent") as 'recent' | 'ranking';
 
     try {
-        const { offers, lastDocId, totalOffers } = await get_all_Offers(page, limit, searchTerm);
+        const { offers, lastDocId, totalOffers } = await get_all_Offers(page, limit, searchTerm, sortBy);
         return NextResponse.json({
             offers,
             lastDoc: lastDocId,

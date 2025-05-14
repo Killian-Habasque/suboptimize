@@ -5,10 +5,12 @@ import CompanyBubble from '@/components/ui/company-bubble';
 import { Category, Company } from "@prisma/client";
 import Link from "next/link";
 import { getHeroIcon } from "@/lib/icon-helper";
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 interface OfferListItemProps {
     slug?: string;
-    rankingScore?: number;
+    rankingScore?: number | null;
     price?: number;
     normalPrice?: number;
     title?: string;
@@ -18,6 +20,7 @@ interface OfferListItemProps {
     dueType?: 'mensuel' | 'annuel';
     onClick?: () => void;
     preview?: boolean;
+    createdAt?: Date;
 }
 
 const OfferListItem: React.FC<OfferListItemProps> = ({
@@ -31,9 +34,11 @@ const OfferListItem: React.FC<OfferListItemProps> = ({
     category,
     dueType,
     onClick,
-    preview = true
+    preview = true,
+    createdAt
 }) => {
     const CategoryIcon = category?.icon ? getHeroIcon(category.icon) : null;
+    const formattedDate = createdAt ? formatDistanceToNow(new Date(createdAt), { addSuffix: true, locale: fr }) : '';
 
     return (
         <Link href={slug ? `/offres/${slug}` : "#"} className="relative flex justify-center items-center w-full py-4 px-8 gap-8 hover:opacity-[0.75]" onClick={() => onClick && onClick()}>
@@ -48,9 +53,8 @@ const OfferListItem: React.FC<OfferListItemProps> = ({
                             {rankingScore || 0}
                             <PlusIcon className="w-5 h-5 bg-white rounded-full text-secondary cursor-pointer" />
                         </div>
-                        <p className="text-sm text-primary">Posté il y a 3 jours</p>
+                        <p className="text-sm text-primary">{formattedDate}</p>
                     </div>
-
                 )}
 
                 {title && <h3 className="text-xl font-semibold">{title}</h3>}

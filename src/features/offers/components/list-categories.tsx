@@ -33,7 +33,19 @@ const CategoryList = () => {
     }, []);
 
     if (loading) {
-        return <div>Chargement des catégories...</div>;
+        return <div className="space-y-4">
+            <h2 className="text-xl font-semibold mb-4">Catégories d&apos;offres</h2>
+            <div className="flex flex-wrap gap-2">
+                {[...Array(8)].map((_, index) => (
+                    <div
+                        key={index}
+                        className="flex flex-wrap bg-white animate-pulse"
+                    >
+                        <div className="w-20 h-6 bg-gray-200 rounded-full mt-2" />
+                    </div>
+                ))}
+            </div>
+        </div>;
     }
 
     return (
@@ -51,15 +63,7 @@ const CategoryList = () => {
                         />
                     );
                 })}
-                {categories.length > 10 && (
-                    <button className="text-gray-600">
-                        + {categories.length - 10} autres
-                    </button>
-                )}
             </div>
-            <button className='w-full justify-center border border-gray-300 rounded-md py-2 px-4 text-sm flex gap-2 items-center font-medium shadow-xs cursor-pointer text-gray-700 hover:bg-gray-100 transition duration-200'>
-                En voir plus
-            </button>
         </div>
     );
 };
