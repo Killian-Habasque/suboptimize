@@ -26,7 +26,7 @@ const CompanyBubble: React.FC<CompanyBubbleProps> = ({
 
   const imageSize =
     variant === 'small' ? 16 :
-    variant === 'medium' ? 40 :
+    variant === 'medium' ? 35 :
     56; 
 
   const iconSizeClasses =

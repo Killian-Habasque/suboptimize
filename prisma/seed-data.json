@@ -1,31 +1,276 @@
 {
-    "companies": [
-      {
-        "name": "Free",
-        "slug": "free",
-        "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/free-1746635204426-nULWQw3035JjkQzUZkpmoFvqys3NVg"
-      },
-      {
-        "name": "Bouygues Télécom",
-        "slug": "bouygues-telecom",
-        "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/bouygues-1746778636913-dlGd8xSFlDyXLM1kQBWBTmnY2TunWG"
-      },
-      {
-        "name": "Bouygues Télécom",
-        "slug": "bouygues-telecom",
-        "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/bouygues-1746778636913-dlGd8xSFlDyXLM1kQBWBTmnY2TunWG"
-      }
-    ],
-    "categories": [
-      {
-        "name": "Téléphone",
-        "slug": "telephone",
-        "icon": "Phone"
-      },
-      {
-        "name": "Internet",
-        "slug": "internet",
-        "icon": "Wifi"
-      }
-    ]
-  }
+  "companies": [
+    {
+      "name": "Netflix",
+      "slug": "netflix",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/netflix-1747299893669-eUgdw6FcQv7R0A6fjQZ63UubI1ZcFU"
+    },
+    {
+      "name": "Spotify",
+      "slug": "spotify",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/spotify-1747298269177-o8TR94XE6JjWTu9WTUv5hOKOfWNriP"
+    },
+    {
+      "name": "Disney+",
+      "slug": "disney-plus",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/disney-plus-1747298790025-CBSNrykIu67K1ANUGcO9XGOFTTKp8C"
+    },
+    {
+      "name": "Amazon",
+      "slug": "amazon",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/amazon-prime-1747298074772-22Prf0DW3NOVzdDMqWelag0mc0Pglp"
+    },
+    {
+      "name": "Apple",
+      "slug": "apple",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/apple-music-1747298607228-RJCIjiIcKbdASIFYqucZu8ax21syTQ"
+    },
+    {
+      "name": "Microsoft",
+      "slug": "microsoft",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/microsoft-365-1747298092482-OSnrEW5DezDyDpxaW6Wd1pcnpNrzx1"
+    },
+    {
+      "name": "Adobe",
+      "slug": "adobe",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/adobe-1747298048982-K0Gom9FSm7B0rWA2CbGgJoP3eGs6A4"
+    },
+    {
+      "name": "Uber Eats",
+      "slug": "uber-eats",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/uber-eats-1747298256908-kMHnUGTg56Uq5Ii9iNBLnQq4XkfEKp"
+    },
+    {
+      "name": "Deliveroo",
+      "slug": "deliveroo",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/deliveroo-1747299568654-y22rcs5AT4xefp6da7wTNW4kVdOxtv"
+    },
+    {
+      "name": "Sosh",
+      "slug": "sosh",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/sosh-1747298295180-ZrYJKS1ffVQ25Xi7u1LUwIQWPvTpfs"
+    },
+    {
+      "name": "Free",
+      "slug": "free",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/free-1746635204426-nULWQw3035JjkQzUZkpmoFvqys3NVg"
+    },
+    {
+      "name": "Bouygues Telecom",
+      "slug": "bouygues-telecom",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/bouygues-1746778636913-dlGd8xSFlDyXLM1kQBWBTmnY2TunWG"
+    },
+    {
+      "name": "SFR",
+      "slug": "sfr",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/sfr-1747298309392-r8WkEO1l7ZLfxCuJHEKVtgwJ2Vbx9C"
+    },
+    {
+      "name": "Orange",
+      "slug": "orange",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/orange-1747298826633-VgDJbtluXtdUTSeK1ppTUFAsZMjnqb"
+    },
+    {
+      "name": "HBO Max",
+      "slug": "hbo-max",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/hbo-max-1747298724649-j4c6hTnvGvHsB5OAvHB2zEmoXlhWnO"
+    },
+    {
+      "name": "Canal+",
+      "slug": "canal-plus",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/canal-plus-1747298167102-rgn12J6T21VTsA0j0saVZALirnKVxN"
+    },
+    {
+      "name": "Deezer",
+      "slug": "deezer",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/deezer-1747298150382-RrwFpFWn3eM2ZEwGeNQ7yyCRoIuIlT"
+    },
+    {
+      "name": "Google",
+      "slug": "google",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/google-1747299878626-Oqym2UW1S9q5CGm6yxrKdF8WrPSvA4"
+    },
+    {
+      "name": "Dropbox",
+      "slug": "dropbox",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/dropbox-1747298187439-MTWXsIXKaMv38bvfhUR6xtEZcEtfql"
+    },
+    {
+      "name": "MAIF",
+      "slug": "maif",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/maif-1747298199195-77DV40as5XXciX8zzNv4EBftdamsaj"
+    },
+    {
+      "name": "AXA",
+      "slug": "axa",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/axa-1747298206811-NZOxjvraHdXYQEYO55TfnNuHS1okAI"
+    },
+    {
+      "name": "Allianz",
+      "slug": "allianz",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/allianz-1747298214927-TtkWQQCblRvsXgNAXDsglZflKaaWLA"
+    },
+    {
+      "name": "SNCF",
+      "slug": "sncf",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/sncf-1747298343974-b9hb5u49ROW84fizeDS135wfODrgEX"
+    },
+    {
+      "name": "RATP",
+      "slug": "ratp",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/ratp-1747299607091-AjXzJtcCCvhoK4FaV449HmDaptBI8I"
+    },
+    {
+      "name": "Uber",
+      "slug": "uber",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/uber-1747298245280-doHA2ejNnQKfwNPF6lRCZJgVUppD3A"
+    },
+    {
+      "name": "Bolt",
+      "slug": "bolt",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/bolt-1747298520479-LGV3Og0vmfAQ2foAqPTvNnG4Irc6Dq"
+    },
+    {
+      "name": "Le Monde",
+      "slug": "le-monde",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/le-monde-1747298706405-gBy8CL7PLS26UW6DfOAv29FRVEkdu7"
+    },
+    {
+      "name": "Le Figaro",
+      "slug": "le-figaro",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/le-figaro-1747298369246-KxnwSQbBdqRHU12C6O1gIlnAIYAYVy"
+    },
+    {
+      "name": "L'Équipe",
+      "slug": "lequipe",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/lequipe-1747298376971-F208ohkzk6ty1GeTFrPpyZY9EzMNm9"
+    },
+    {
+      "name": "LinkedIn",
+      "slug": "linkedin",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/linkedin-1747298398805-PxDULBJiQjYRZSQ7Q7fhNAevo56eef"
+    },
+    {
+      "name": "Xbox",
+      "slug": "xbox",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/xbox-1747298408070-xfol2aTrR9BvSBrZtOnQTSIJiDlDBy"
+    },
+    {
+      "name": "PlayStation",
+      "slug": "playstation",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/playstation-1747298430954-UOaBvzcjL8ZFRyuleXeaoUojmYt0Ry"
+    },
+    {
+      "name": "Nintendo",
+      "slug": "nintendo",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/nintendo-1747298448022-iVyAli7Y0FQ7todtylxGdKOsPXE5eO"
+    },
+    {
+      "name": "Steam",
+      "slug": "steam",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/steam-1747298483677-u7NbfHyo7lKoTEI4rtSBx3imxQFvXS"
+    },
+    {
+      "name": "Fitness Park",
+      "slug": "fitness-park",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/fitness-park-1747298458434-2GAKmIPaaYFMqBflVsxYs3R8A02ydA"
+    },
+    {
+      "name": "Basic-Fit",
+      "slug": "basic-fit",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/basic-fit-1747298469165-VX3oC57BhfaJ72trGCSy0eDHv8ogr9"
+    },
+    {
+      "name": "Keep Cool",
+      "slug": "keep-cool",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/keep-cool-1747298494781-dxIgBUrYUdXiwoakZphUGBxCmc591A"
+    },
+    {
+      "name": "HelloFresh",
+      "slug": "hellofresh",
+      "imageLink": "https://v9aolganobwwpe19.public.blob.vercel-storage.com/companies/hellofresh-1747298504469-3V1x7XbwCIHfJNUbT9ugOLhx63LoZk"
+    }
+  ],
+  "categories": [
+    {
+      "name": "Streaming",
+      "slug": "streaming",
+      "icon": "Film"
+    },
+    {
+      "name": "Musique",
+      "slug": "musique",
+      "icon": "MusicalNote"
+    },
+    {
+      "name": "Téléphonie",
+      "slug": "telephonie",
+      "icon": "DevicePhoneMobile"
+    },
+    {
+      "name": "Internet",
+      "slug": "internet",
+      "icon": "Wifi"
+    },
+    {
+      "name": "Logiciels",
+      "slug": "logiciels",
+      "icon": "ComputerDesktop"
+    },
+    {
+      "name": "Livraison",
+      "slug": "livraison",
+      "icon": "Truck"
+    },
+    {
+      "name": "Shopping",
+      "slug": "shopping",
+      "icon": "ShoppingCart"
+    },
+    {
+      "name": "Assurance",
+      "slug": "assurance",
+      "icon": "ShieldCheck"
+    },
+    {
+      "name": "Transport",
+      "slug": "transport",
+      "icon": "Bus"
+    },
+    {
+      "name": "Sport",
+      "slug": "sport",
+      "icon": "Trophy"
+    },
+    {
+      "name": "Jeux vidéo",
+      "slug": "jeux-video",
+      "icon": "VideoCamera"
+    },
+    {
+      "name": "Presse",
+      "slug": "presse",
+      "icon": "Newspaper"
+    },
+    {
+      "name": "Formation",
+      "slug": "formation",
+      "icon": "AcademicCap"
+    },
+    {
+      "name": "Stockage",
+      "slug": "stockage",
+      "icon": "Cloud"
+    },
+    {
+      "name": "Santé",
+      "slug": "sante",
+      "icon": "Heart"
+    },
+    {
+      "name": "Maison",
+      "slug": "maison",
+      "icon": "Home"
+    }
+  ]
+}
