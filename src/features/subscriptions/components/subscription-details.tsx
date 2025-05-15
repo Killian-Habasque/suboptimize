@@ -58,7 +58,10 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ id }) => {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-[400px]">
-                <LoadingCursor />
+                <div className="flex justify-center items-center">
+                    <LoadingCursor />
+                    Chargement...
+                </div>
             </div>
         );
     }
@@ -165,6 +168,7 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ id }) => {
                     {isLoadingOffers ? (
                         <div className="flex justify-center items-center">
                             <LoadingCursor />
+                            Chargement...
                         </div>
                     ) : similarOffers && similarOffers.length > 0 ? (
                         <div className="space-y-4">

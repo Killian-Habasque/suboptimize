@@ -121,7 +121,7 @@ const PopularCompanies = () => {
                         altText={company.name}
                         variant="medium"
                     />
-                    <span className="text-xs text-gray-400 mt-2 font-medium">{company.name}</span>
+                    <span className="text-xs text-gray-400 mt-2 font-medium text-center">{company.name}</span>
                 </Link>
             );
         }

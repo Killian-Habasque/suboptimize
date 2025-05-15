@@ -7,6 +7,7 @@ import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { Subscription } from "@/lib/types";
 import { debounce } from "lodash";
 import SubscriptionListItem from "./list-item-subscription";
+import Link from "next/link";
 
 interface SearchSubscriptionDialogProps {
     isOpen: boolean;
@@ -64,21 +65,27 @@ const SearchSubscriptionDialog: React.FC<SearchSubscriptionDialogProps> = ({ isO
 
                 <div className="mt-2 max-h-96 overflow-y-auto">
                     {subscriptionsData?.subscriptions && subscriptionsData.subscriptions.length > 0 ? (
-                        <ul className="divide-y divide-gray-100">
+                        <ul className="divide-y divide-gray-100 rounded-lg">
                             {subscriptionsData.subscriptions.map((subscription) => (
                                 <li
                                     key={subscription.id}
-                                    className="hover:bg-gray-50 px-4 rounded-md"
+                                    className="hover:bg-gray-50 rounded-md py-4 px-8"
                                 >
-                                    <SubscriptionListItem
-                                        id={subscription.id}
-                                        title={subscription.title}
-                                        price={subscription.price}
-                                        description={subscription.description}
-                                        category={subscription.category}
-                                        company={subscription.companies[0]}
-                                        dueType={subscription.dueType === "monthly" ? "mensuel" : "annuel"}
-                                    />
+                                    <Link 
+                                        href={`/abonnements/${subscription.id}`}
+                                        onClick={onClose}
+                                    >
+                                        <SubscriptionListItem
+                                            id={subscription.id}
+                                            price={subscription.price}
+                                            title={subscription.title}
+                                            description={subscription.description}
+                                            company={subscription.companies ? subscription.companies[0] : null}
+                                            customCompany={subscription.customCompany}
+                                            category={subscription.categories ? subscription.categories[0] : null}
+                                            dueType={subscription.dueType === "monthly" ? "mensuel" : "annuel"}
+                                        />
+                                    </Link>
                                 </li>
                             ))}
                         </ul>

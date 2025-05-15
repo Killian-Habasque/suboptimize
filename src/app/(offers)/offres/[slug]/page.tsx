@@ -56,7 +56,7 @@ const OfferDetailsPage = () => {
                 <Grid columns={3}>
                     <GridItem colSpan={3}>
                         <Card>
-                            <div className="h-96 text-center py-8">
+                            <div className="h-96 text-center py-8 flex justify-center">
                                 <div className="flex justify-center items-center">
                                     <LoadingCursor />
                                     Chargement...
