@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import CategoryBadge from '@/components/ui/category-badge';
 import { Subscription, Category } from '@/lib/types';
 import { getHeroIcon } from '@/lib/icon-helper';
@@ -25,6 +25,7 @@ interface LabelProps {
   innerRadius: number;
   outerRadius: number;
   index: number;
+  value: number;
 }
 
 interface CategoryDataItem {
@@ -32,12 +33,16 @@ interface CategoryDataItem {
   value: number;
 }
 
-function renderCustomizedLabel({ cx, cy, midAngle, innerRadius, outerRadius, index }: LabelProps, data: CategoryDataItem[]) {
+function renderCustomizedLabel({ cx, cy, midAngle, innerRadius, outerRadius, index, value }: LabelProps, data: CategoryDataItem[]) {
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
   const cat = data[index]?.category;
   const Icon = getHeroIcon(cat?.icon);
+
+  if (value < 40) {
+    return null;
+  }
 
   return (
     <g>
@@ -96,7 +101,7 @@ const SummaryCard: React.FC<{ subscriptions: Subscription[] }> = ({ subscription
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={props => renderCustomizedLabel(props, categoryData)}
+              label={(props) => renderCustomizedLabel(props, categoryData)}
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"
@@ -105,6 +110,18 @@ const SummaryCard: React.FC<{ subscriptions: Subscription[] }> = ({ subscription
                 <Cell key={`cell-${entry.category.id}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
+            <Tooltip content={({ payload }) => {
+              if (payload && payload.length > 0) {
+                const { category, value } = payload[0].payload;
+                const Icon = getHeroIcon(category?.icon);
+                return (
+                  <div className="p-2 bg-white shadow-md rounded flex items-center justify-center">
+                       {Icon ? <Icon className="w-5 h-5 text-primary" /> : null}: {value}€
+                  </div>
+                );
+              }
+              return null;
+            }} />
           </PieChart>
         </ResponsiveContainer>
       </div>

@@ -90,7 +90,7 @@ export async function POST() {
                 dueDay: 4,
                 startDatetime: new Date(2024, 10, 4),
                 categories: [categories.find(c => c.slug === "assurance")?.id],
-                customCompany: "AXA"
+                companies: [companies.find(c => c.slug === "axa")?.id]
             },
             {
                 title: "Abonnement Navigo",
@@ -100,7 +100,7 @@ export async function POST() {
                 dueDay: 25,
                 startDatetime: new Date(2025, 4, 25),
                 categories: [categories.find(c => c.slug === "transport")?.id],
-                customCompany: "RATP"
+                companies: [companies.find(c => c.slug === "ratp")?.id]
             },
             {
                 title: "Salle de sport",
@@ -110,7 +110,7 @@ export async function POST() {
                 dueDay: 24,
                 startDatetime: new Date(2025, 3, 24),
                 categories: [categories.find(c => c.slug === "sport")?.id],
-                customCompany: "Keep Cool"
+                companies: [companies.find(c => c.slug === "keep-cool")?.id]
             },
             {
                 title: "Cours de piano",
@@ -180,7 +180,7 @@ export async function POST() {
                 dueDay: 20,
                 startDatetime: new Date(2025, 0, 20),
                 categories: [categories.find(c => c.slug === "presse")?.id],
-                customCompany: "Le Monde"
+                companies: [companies.find(c => c.slug === "le-monde")?.id]
             }
         ];
 
