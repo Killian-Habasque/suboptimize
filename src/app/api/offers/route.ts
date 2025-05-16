@@ -9,9 +9,12 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
     const searchTerm = searchParams.get("searchTerm") || "";
+    const sortBy = (searchParams.get("sortBy") || "recent") as 'recent' | 'ranking';
+    const categorySlug = searchParams.get("category");
+    const companySlug = searchParams.get("company");
 
     try {
-        const { offers, lastDocId, totalOffers } = await get_all_Offers(page, limit, searchTerm);
+        const { offers, lastDocId, totalOffers } = await get_all_Offers(page, limit, searchTerm, sortBy, categorySlug, companySlug);
         return NextResponse.json({
             offers,
             lastDoc: lastDocId,
@@ -32,7 +35,17 @@ export async function POST(request: Request) {
             return new NextResponse("Non autorisé - Utilisateur non connecté", { status: 401 });
         }
 
-        const { name, description, price, normalPrice, imageLink } = await request.json();
+        const {
+            name,
+            description,
+            price,
+            normalPrice,
+            link,
+            promoCode,
+            expirationDate,
+            categoryIds,
+            companyIds
+        } = await request.json();
 
         const newOffer = await prisma.offer.create({
             data: {
@@ -40,10 +53,22 @@ export async function POST(request: Request) {
                 description,
                 price,
                 normalPrice,
-                imageLink,
-                slug: name.toLowerCase().replace(/ /g, '-'), 
-                userId: session.user.id, 
+                link,
+                promoCode,
+                expirationDate: expirationDate ? new Date(expirationDate) : null,
+                slug: name.toLowerCase().replace(/ /g, '-'),
+                userId: session.user.id,
+                categories: {
+                    connect: categoryIds?.map((id: string) => ({ id })) || []
+                },
+                companies: {
+                    connect: companyIds?.map((id: string) => ({ id })) || []
+                }
             },
+            include: {
+                categories: true,
+                companies: true
+            }
         });
 
         return NextResponse.json(newOffer);

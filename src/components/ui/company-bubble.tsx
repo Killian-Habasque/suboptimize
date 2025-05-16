@@ -7,7 +7,7 @@ interface CompanyBubbleProps {
   altText?: string;
   className?: string;
   brandName?: string;
-  variant?: 'small' | 'medium' | 'large'; 
+  variant?: 'small' | 'medium' | 'large' | 'extra-large'; 
 }
 
 const CompanyBubble: React.FC<CompanyBubbleProps> = ({
@@ -22,19 +22,24 @@ const CompanyBubble: React.FC<CompanyBubbleProps> = ({
       ? 'min-w-4 w-4 h-4 rounded-full text-xs'
       : variant === 'medium'
       ? 'min-w-14 w-14 h-14 rounded-xl text-lg' 
-      : 'min-w-24 w-24 h-24 rounded-2xl text-2xl';
+      : variant === 'large'
+      ? 'min-w-24 w-24 h-24 rounded-2xl text-2xl'
+      : 'min-w-32 w-32 h-32 rounded-3xl text-3xl';
 
   const imageSize =
     variant === 'small' ? 16 :
-    variant === 'medium' ? 40 :
-    56; 
+    variant === 'medium' ? 35 :
+    variant === 'large' ? 56 :
+    80; 
 
   const iconSizeClasses =
     variant === 'small'
       ? 'w-4 h-4'
       : variant === 'medium'
       ? 'w-8 h-8'
-      : 'w-14 h-14'; 
+      : variant === 'large'
+      ? 'w-14 h-14'
+      : 'w-20 h-20';
 
   return (
     <div className={`${sizeClasses} shadow-lg flex items-center justify-center ${className}`}>

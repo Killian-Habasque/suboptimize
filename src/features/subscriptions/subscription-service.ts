@@ -1,4 +1,4 @@
-import { format, parse } from 'date-fns';
+import { format, parse, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { Subscription } from "@/lib/types";
 
 export const get_all_user_Subscriptions = async (): Promise<Subscription[]> => {
@@ -11,7 +11,8 @@ export const get_all_user_Subscriptions = async (): Promise<Subscription[]> => {
       throw new Error('Erreur lors de la récupération des abonnements');
     }
 
-    return response.json();
+    const data = await response.json();
+    return data.subscriptions;
   } catch (error) {
     console.error("Erreur lors de la récupération des abonnements:", error);
     throw error;
@@ -26,7 +27,8 @@ export const add_Subscription = async (
   price: number,
   categoryIds: string[],
   companyIds: string[],
-  customCompany: string | null
+  customCompany: string | null,
+  dueType: "monthly" | "yearly"
 ) => {
   const response = await fetch('/api/subscriptions', {
     method: 'POST',
@@ -41,7 +43,8 @@ export const add_Subscription = async (
       price,
       categoryIds,
       companyIds,
-      customCompany
+      customCompany,
+      dueType
     }),
   });
 
@@ -62,7 +65,8 @@ export const update_Subscription = async (
   price: number,
   categoryIds: string[],
   companyIds: string[],
-  customCompany: string | null
+  customCompany: string | null,
+  dueType: "monthly" | "yearly"
 ) => {
   const response = await fetch(`/api/subscriptions/${id}`, {
     method: 'PUT',
@@ -77,7 +81,8 @@ export const update_Subscription = async (
       price,
       categoryIds,
       companyIds,
-      customCompany
+      customCompany,
+      dueType
     }),
   });
 
@@ -118,6 +123,18 @@ export const filter_Subscriptions_by_month = (
       const day = parse(dayString, 'yyyy-MM-dd', new Date());
       const billingDate = new Date(day);
       billingDate.setHours(0, 0, 0, 0);
+
+      if (sub.dueType === "yearly") {
+        const startMonth = startDate.getMonth();
+        const currentMonth = billingDate.getMonth();
+        return (
+          billingDate >= startDate &&
+          (endDate ? billingDate <= endDate : true) &&
+          String(sub.dueDay) === format(billingDate, 'd') &&
+          startMonth === currentMonth
+        );
+      }
+
       return (
         billingDate >= startDate &&
         (endDate ? billingDate <= endDate : true) &&
@@ -125,4 +142,11 @@ export const filter_Subscriptions_by_month = (
       );
     });
   });
+};
+
+export const get_visible_days = () => {
+  const now = new Date();
+  const start = startOfMonth(now);
+  const end = endOfMonth(now);
+  return eachDayOfInterval({ start, end }).map(day => format(day, 'yyyy-MM-dd'));
 };

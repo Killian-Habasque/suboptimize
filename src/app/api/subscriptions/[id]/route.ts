@@ -10,13 +10,13 @@ export async function GET(
   try {
     const session = await baseAuth();
 
-    
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+      return NextResponse.json({ error: "Vous devez être connecté pour accéder à cette page" }, { status: 401 });
     }
-    const id = (await params).id; 
 
-    const subscription = await prisma.subscription.findUnique({
+    const id = (await params).id;
+
+    const subscription = await prisma.subscription.findFirst({
       where: {
         id: id,
         userId: session.user.id,
@@ -28,7 +28,7 @@ export async function GET(
     });
 
     if (!subscription) {
-      return NextResponse.json({ error: "Abonnement non trouvé" }, { status: 404 });
+      return NextResponse.json({ error: "Vous n'avez pas l'autorisation d'accéder à cet abonnement" }, { status: 403 });
     }
 
     return NextResponse.json(subscription);
@@ -68,6 +68,7 @@ export async function PUT(
       title,
       dueDate,
       endDate,
+      dueType,
       price,
       categoryIds,
       companyIds,
@@ -82,7 +83,7 @@ export async function PUT(
         title,
         slug: title.toLowerCase().replace(/ /g, '-'),
         price,
-        dueType: "monthly", 
+        dueType: dueType, 
         dueDay: new Date(dueDate).getDate(),
         startDatetime: new Date(dueDate),
         endDatetime: endDate ? new Date(endDate) : null,

@@ -4,16 +4,25 @@ import { baseAuth } from "@/lib/auth"
 import { Prisma } from "@prisma/client"
 
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
         const session = await baseAuth()
         if (!session?.user?.id) {
             return new NextResponse("Non autorisé", { status: 401 })
         }
 
+        const { searchParams } = new URL(request.url);
+        const searchTerm = searchParams.get("searchTerm") || "";
+
         const subscriptions = await prisma.subscription.findMany({
             where: {
-                userId: session.user.id
+                userId: session.user.id,
+                ...(searchTerm ? {
+                    title: {
+                        contains: searchTerm,
+                        mode: 'insensitive',
+                    }
+                } : {})
             },
             include: {
                 categories: true,
@@ -21,7 +30,7 @@ export async function GET() {
             }
         })
 
-        return NextResponse.json(subscriptions)
+        return NextResponse.json({ subscriptions })
     } catch (error) {
         console.error("Erreur lors de la récupération des abonnements:", error)
         if (error instanceof Error) {
@@ -50,6 +59,7 @@ export async function POST(request: Request) {
             title,
             dueDate,
             endDate,
+            dueType,
             price,
             categoryIds,
             companyIds,
@@ -61,7 +71,7 @@ export async function POST(request: Request) {
                 title,
                 slug: title.toLowerCase().replace(/ /g, '-'),
                 price,
-                dueType: "monthly",
+                dueType: dueType,
                 dueDay: new Date(dueDate).getDate(),
                 startDatetime: new Date(dueDate),
                 endDatetime: endDate ? new Date(endDate) : null,

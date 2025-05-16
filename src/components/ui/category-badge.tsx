@@ -17,7 +17,7 @@ const variantClasses: Record<string, string> = {
 const CategoryBadge: React.FC<CategoryBadgeProps> = ({ icon, label, className = '', variant = 'light' }) => {
     return (
         <div
-            className={`text-sm py-1 px-3 rounded-full flex gap-2 items-center font-normal ${variantClasses[variant]} ${className}`}
+            className={`text-xs py-1 px-3 rounded-full flex gap-2 items-center font-normal ${variantClasses[variant]} ${className}`}
         >
             {icon}
             {label}

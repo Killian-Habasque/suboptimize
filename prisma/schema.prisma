@@ -81,10 +81,10 @@ model Offer {
   name           String
   slug           String         @unique
   description    String
-  imageLink      String?
+  link           String?
   promoCode      String?
   price          Float
-  normalPrice    Float
+  normalPrice    Float?
   expirationDate DateTime?
   rankingScore   Float?
   userId         String
@@ -111,6 +111,7 @@ model Category {
   id            String         @id @default(cuid())
   name          String
   slug          String         @unique
+  icon          String?        
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   offers        Offer[]        @relation("CategoryToOffer")

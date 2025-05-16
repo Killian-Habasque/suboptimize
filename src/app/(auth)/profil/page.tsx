@@ -4,7 +4,6 @@ import Container from "@/components/layout/container";
 import Grid from "@/components/layout/grid";
 import GridItem from "@/components/layout/grid-item";
 import ProfileInfo from "@/features/auth/components/profile-info";
-import ProfileStats from "@/features/auth/components/profile-stats";
 import ProfileSubscriptions from "@/features/auth/components/profile-subscriptions";
 
 export default async function ProfilePage() {
@@ -13,17 +12,12 @@ export default async function ProfilePage() {
   return (
     <Container>
       <Grid columns={3}>
-        <GridItem colSpan={2}>
+        <GridItem colSpan={3}>
           <Card>
             <ProfileInfo user={user} />
           </Card>
           <Card className="mt-6">
             <ProfileSubscriptions />
-          </Card>
-        </GridItem>
-        <GridItem colSpan={1}>
-          <Card>
-            <ProfileStats />
           </Card>
         </GridItem>
       </Grid>
