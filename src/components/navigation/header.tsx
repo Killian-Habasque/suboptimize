@@ -20,6 +20,8 @@ import Button from '../ui/button'
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import SearchSubscriptionDialog from '../../features/subscriptions/components/search-subscription-dialog';
+import NotificationDialog from '../notification/notification-dialog';
+import AddOfferDialog from '@/features/offers/components/add-offer-dialog';
 
 const defaultUser = {
     name: 'Tom Cook',
@@ -45,6 +47,8 @@ const Header = () => {
     const { data: session } = useSession()
     const pathname = usePathname();
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [isAddOfferOpen, setIsAddOfferOpen] = useState(false);
 
     const handleSignOut = async () => {
         await signOut({ redirect: true, callbackUrl: '/' })
@@ -84,13 +88,14 @@ const Header = () => {
                     <div className="hidden lg:ml-4 lg:flex lg:items-center lg:pr-0.5">
                         {session?.user ? (
                             <>
-                                <Button variant="secondary">
+                                <Button variant="secondary" onClick={() => setIsAddOfferOpen(true)}>
                                     <PlusIcon aria-hidden="true" className="h-4 w-4" />
                                     Poster
                                 </Button>
                                 <button
                                     type="button"
-                                    className="relative shrink-0 ml-4 rounded-full p-1 text-indigo-200 hover:bg-white/[0] hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
+                                    className="relative shrink-0 ml-4 cursor-pointer rounded-full p-1 text-indigo-200 hover:bg-white/[0] hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
+                                    onClick={() => setIsNotificationOpen(true)}
                                 >
                                     <span className="absolute -inset-1.5" />
                                     <span className="sr-only">View notifications</span>
@@ -297,6 +302,7 @@ const Header = () => {
                                     <button
                                         type="button"
                                         className="relative ml-auto shrink-0 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                        onClick={() => setIsNotificationOpen(true)}
                                     >
                                         <span className="absolute -inset-1.5" />
                                         <span className="sr-only">View notifications</span>
@@ -324,6 +330,14 @@ const Header = () => {
             <SearchSubscriptionDialog 
                 isOpen={isSearchOpen}
                 onClose={() => setIsSearchOpen(false)}
+            />
+            <NotificationDialog
+                isOpen={isNotificationOpen}
+                onClose={() => setIsNotificationOpen(false)}
+            />
+            <AddOfferDialog
+                isOpen={isAddOfferOpen}
+                onClose={() => setIsAddOfferOpen(false)}
             />
         </Popover>
     )
