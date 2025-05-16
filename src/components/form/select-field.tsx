@@ -54,13 +54,13 @@ const SelectField = <T extends string>({
                                 <Listbox.Option
                                     key={option.value}
                                     value={option.value}
-                                    className={({ active }) =>
+                                    className={({ active: isActive }) =>
                                         `relative cursor-pointer select-none py-2 pl-4 pr-4 ${
-                                            active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                                            isActive ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
                                         }`
                                     }
                                 >
-                                    {({ selected, active }) => (
+                                    {({ selected }) => (
                                         <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
                                             {option.label}
                                         </span>

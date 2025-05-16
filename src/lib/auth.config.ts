@@ -4,6 +4,11 @@ import type { NextAuthConfig } from "next-auth"
 import type { JWT } from "next-auth/jwt"
 import type { Session } from "next-auth"
 
+interface ExtendedNextAuthConfig extends NextAuthConfig {
+    allowDangerousEmailAccountLinking?: boolean;
+    trustHosts?: boolean;
+}
+
 export default {
     providers: [
         Github({
@@ -32,7 +37,7 @@ export default {
             }
             return session;
         },
-        async signIn({ user, account, profile }) {
+        async signIn({ user }) {
             if (user.email === 'killian.habasque@gmail.com') {
                 return true;
             }
@@ -40,7 +45,5 @@ export default {
         }
     },
     allowDangerousEmailAccountLinking: true,
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     trustHosts: true
-} satisfies NextAuthConfig
+} satisfies ExtendedNextAuthConfig

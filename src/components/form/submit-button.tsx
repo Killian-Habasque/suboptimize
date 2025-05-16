@@ -27,7 +27,7 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({
             size={size}
             fullWidth
             className={className}
-            onClick={(e: MouseEvent<HTMLButtonElement>) => {
+            onClick={(e: MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
                 if (loading) {
                     e.preventDefault();
                 }
