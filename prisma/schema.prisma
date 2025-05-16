@@ -84,7 +84,7 @@ model Offer {
   link           String?
   promoCode      String?
   price          Float
-  normalPrice    Float
+  normalPrice    Float?
   expirationDate DateTime?
   rankingScore   Float?
   userId         String

@@ -75,14 +75,20 @@ const OfferListItem: React.FC<OfferListItemProps> = ({
 
                 {price && (
                     <div className="flex items-center gap-2">
-                        {normalPrice && (
-                            <span className="text-gray-400 line-through text-md">
-                                {normalPrice} €
+                        {normalPrice ? (
+                            <>
+                                <span className="text-gray-400 line-through text-md">
+                                    {normalPrice} €
+                                </span>
+                                <span className="text-lg font-semibold">
+                                    {price} €
+                                </span>
+                            </>
+                        ) : (
+                            <span className="text-lg font-semibold">
+                                {price} €
                             </span>
                         )}
-                        <span className="text-lg font-semibold">
-                            {price} €
-                        </span>
                     </div>
                 )}
 
