@@ -13,6 +13,7 @@ import LoadingCursor from "@/components/ui/loading-cursor";
 import Link from "next/link";
 import Button from "@/components/ui/button";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import CompanyBubble from "@/components/ui/company-bubble";
 
 interface OfferWithRelations extends Offer {
     companies: Company[];
@@ -92,46 +93,50 @@ const OfferDetailsPage = () => {
                                 </Link>
                             </div>
                             <div className="mb-8">
-                                <h1 className="text-3xl font-bold mb-4">{offer.name}</h1>
-                                <div className="flex items-center gap-4 mb-4">
-                                    {offer.companies[0] && (
-                                        <div className="flex items-center gap-2">
-                                            <img
-                                                src={offer.companies[0].imageLink || ''}
-                                                alt={offer.companies[0].name}
-                                                className="w-8 h-8 rounded-full"
-                                            />
-                                            <span className="font-medium">{offer.companies[0].name}</span>
+                                <div className="flex items-center gap-8 mb-4">
+                                    {offer.companies?.[0] && (
+                                        <CompanyBubble
+                                            image={offer.companies[0].imageLink}
+                                            altText={offer.companies[0].name}
+                                            variant="extra-large"
+                                        />
+                                    )}
+                                    <div className="w-full">
+                                        <h1 className="text-3xl font-bold mb-4">{offer.name}</h1>
+                                        <div className="flex gap-4 items-center">
+                                            {offer.companies?.[0] && (
+                                                <span className="font-medium">{offer.companies[0].name}</span>
+                                            )}
+                                            {offer.categories?.[0] && (
+                                                <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                                                    {offer.categories[0].name}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            {offer.normalPrice && (
+                                                <span className="text-gray-400 line-through text-xl">
+                                                    {offer.normalPrice} €
+                                                </span>
+                                            )}
+                                            <span className="text-2xl font-bold text-primary">
+                                                {offer.price} €
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {offer.link && (
+                                        <div className="mt-4">
+                                            <a
+                                                href={offer.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-block whitespace-nowrap bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                                            >
+                                                Voir l&apos;offre
+                                            </a>
                                         </div>
                                     )}
-                                    {offer.categories[0] && (
-                                        <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
-                                            {offer.categories[0].name}
-                                        </span>
-                                    )}
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    {offer.normalPrice && (
-                                        <span className="text-gray-400 line-through text-xl">
-                                            {offer.normalPrice} €
-                                        </span>
-                                    )}
-                                    <span className="text-2xl font-bold text-primary">
-                                        {offer.price} €
-                                    </span>
-                                </div>
-                                {offer.link && (
-                                    <div className="mt-4">
-                                        <a
-                                            href={offer.link}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-block bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
-                                        >
-                                            Voir l&apos;offre
-                                        </a>
-                                    </div>
-                                )}
                             </div>
 
                             <div className="mb-8">

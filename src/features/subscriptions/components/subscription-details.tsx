@@ -11,6 +11,7 @@ import Button from "@/components/ui/button";
 import OfferListItem from "@/features/offers/components/list-item-offer";
 import { Offer, Category, Company } from "@prisma/client";
 import LoadingCursor from "@/components/ui/loading-cursor";
+import CompanyBubble from "@/components/ui/company-bubble";
 
 interface OfferWithRelations extends Offer {
     companies: Company[];
@@ -100,35 +101,38 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ id }) => {
             </div>
 
             <div>
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold mb-4">{subscription.title}</h1>
-                    <div className="flex items-center gap-4 mb-4">
-                        {subscription.companies?.[0] && (
-                            <div className="flex items-center gap-2">
-                                {subscription.companies[0].imageLink && (
-                                    <img
-                                        src={subscription.companies[0].imageLink}
-                                        alt={subscription.companies[0].name}
-                                        className="w-8 h-8 rounded-full"
-                                    />
-                                )}
+                <div className="flex items-center gap-8 mb-4">
+                    {subscription.companies?.[0] && (
+                        <CompanyBubble
+                            image={subscription.companies[0].imageLink}
+                            altText={subscription.companies[0].name}
+                            variant="extra-large"
+                        />
+                    )}
+                    <div className="w-full">
+                        <h1 className="text-3xl font-bold mb-4">{subscription.title}</h1>
+                        <div className="flex gap-4 items-center">
+                            {subscription.companies?.[0] && (
                                 <span className="font-medium">{subscription.companies[0].name}</span>
-                            </div>
-                        )}
-                        {subscription.categories?.[0] && (
-                            <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
-                                {subscription.categories[0].name}
+                            )}
+                            {subscription.customCompany && (
+                                <span className="font-medium">{subscription.customCompany}</span>
+                            )}
+                            {subscription.categories?.[0] && (
+                                <span className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                                    {subscription.categories[0].name}
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <span className="text-2xl font-bold text-primary">
+                                {subscription.price}€ / {subscription.dueType === "monthly" ? "mois" : "an"}
                             </span>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <span className="text-2xl font-bold text-primary">
-                            {subscription.price}€ / {subscription.dueType === "monthly" ? "mois" : "an"}
-                        </span>
+                        </div>
                     </div>
                 </div>
 
-                <div className="mb-8">
+                <div className="mt-8 mb-8">
                     <h2 className="text-xl font-semibold mb-4">Détails de l&apos;abonnement</h2>
                     <div className="grid grid-cols-2 gap-6">
                         <div>
@@ -156,41 +160,38 @@ const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ id }) => {
                     </div>
                 </div>
 
-                {subscription.customCompany && (
+
+                {!subscription.customCompany && (
                     <div className="mb-8">
-                        <h2 className="text-xl font-semibold mb-4">Entreprise personnalisée</h2>
-                        <p className="text-gray-600">{subscription.customCompany}</p>
+                        <h2 className="text-xl font-semibold mb-4">Offres similaires pour optimiser votre abonnement</h2>
+                        {isLoadingOffers ? (
+                            <div className="flex justify-center items-center">
+                                <LoadingCursor />
+                                Chargement...
+                            </div>
+                        ) : similarOffers && similarOffers.length > 0 ? (
+                            <div className="space-y-4">
+                                {similarOffers.map((offer) => (
+                                    <div key={offer.id} className="ring-1 ring-inset ring-gray-300 rounded-lg">
+                                        <OfferListItem
+                                            slug={offer.slug}
+                                            title={offer.name}
+                                            price={offer.price}
+                                            normalPrice={offer.normalPrice}
+                                            description={offer.description}
+                                            company={offer.companies[0]}
+                                            category={offer.categories[0]}
+                                            preview={true}
+                                            currentPrice={subscription.price}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-gray-500">Aucune offre similaire trouvée</p>
+                        )}
                     </div>
                 )}
-
-                <div className="mb-8">
-                    <h2 className="text-xl font-semibold mb-4">Offres similaires pour optimiser votre abonnement</h2>
-                    {isLoadingOffers ? (
-                        <div className="flex justify-center items-center">
-                            <LoadingCursor />
-                            Chargement...
-                        </div>
-                    ) : similarOffers && similarOffers.length > 0 ? (
-                        <div className="space-y-4">
-                            {similarOffers.map((offer) => (
-                                <div key={offer.id} className="ring-1 ring-inset ring-gray-300 rounded-lg">
-                                    <OfferListItem
-                                        slug={offer.slug}
-                                        title={offer.name}
-                                        price={offer.price}
-                                        normalPrice={offer.normalPrice}
-                                        description={offer.description}
-                                        company={offer.companies[0]}
-                                        category={offer.categories[0]}
-                                        preview={true}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-gray-500">Aucune offre similaire trouvée</p>
-                    )}
-                </div>
             </div>
         </div>
     );
