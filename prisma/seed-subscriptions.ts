@@ -202,6 +202,7 @@ async function main() {
                 dueDay: subscription.dueDay,
                 startDatetime: subscription.startDatetime,
                 userId: adminUser.id,
+                customCompany: subscription.customCompany,
                 categories: {
                     connect: subscription.categories.map(id => ({ id }))
                 },
