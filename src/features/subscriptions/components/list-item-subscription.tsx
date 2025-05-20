@@ -60,17 +60,17 @@ const SubscriptionListItem: React.FC<SubscriptionListItemProps> = ({
         <div className={`relative flex justify-center items-center w-full gap-8`}>
             <CompanyBubble image={company?.imageLink ? company.imageLink : null} brandName={company?.name || customCompany || undefined} altText={title} />
             <div className="w-full">
-                {title && <h3 className="text-xl font-semibold">{title}</h3>}
-                <div className="flex gap-2 items-center flex-wrap">
-                    {company && <div className="text-sm flex gap-2 text-gray-500 items-center font-normal">{company.name}</div>}
-                    {customCompany && <div className="text-sm flex gap-2 text-gray-500 items-center font-normal">{customCompany}</div>}
+                {title && <h3 className="text-md font-semibold">{title}</h3>}
+                <div className="flex gap-1 items-center flex-wrap">
+                    {company && <div className="text-xs flex gap-2 text-gray-500 items-center font-normal">{company.name}</div>}
+                    {customCompany && <div className="text-xs flex gap-2 text-gray-500 items-center font-normal">{customCompany}</div>}
                     {category && <CategoryBadge icon={CategoryIcon ? <CategoryIcon className="w-4" /> : null} label={category.name} />}
                     {dueType && <DueTypeBadge type={dueType} />}
                 </div>
                 <div className="flex gap-2 items-center flex-wrap">
                     {description && <p className="text-xs text-gray-500 font-normal">{description}</p>}
                 </div>
-                {price && <span className="text-lg font-semibold">{price} €</span>}
+                {price && <span className="text-md font-semibold">{price} €</span>}
             </div>
 
             {onEdit && onDelete ?

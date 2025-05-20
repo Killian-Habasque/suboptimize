@@ -227,7 +227,7 @@ function DayView({ currentDate, filteredSubscriptions }: DayViewProps) {
             {capitalizeFirstLetter(format(currentDate, 'EEEE d MMMM yyyy', { locale }))}
           </h2>
         </div>
-        <ol className="divide-y divide-gray-100 rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
+        <ol className="divide-y divide-gray-100 rounded-lg bg-white shadow ring-1 ring-black/[5%]">
           {filteredSubscriptions
             .filter((subscribe) => {
               const selectedDate = currentDate
@@ -678,7 +678,7 @@ export default function Calendar({ subscriptions }: CalendarProps) {
 
       {(viewMode !== 'day') && (
         <div className="px-4 py-10 sm:px-6">
-          <ol className="divide-y divide-gray-100 rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
+          <ol className="divide-y divide-gray-100 rounded-lg bg-white shadow ring-1 ring-black/[5%]">
             {filteredSubscriptions
               .filter((subscribe) => {
                 const selectedDate = parse(selectedDay, 'yyyy-MM-dd', new Date())

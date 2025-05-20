@@ -77,6 +77,7 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                                     id={subscription.id}
                                     price={subscription.price}
                                     title={subscription.title}
+                                    dueType={subscription.dueType === "monthly" ? "mensuel" : "annuel"}
                                     description={subscription.description}
                                     company={subscription.companies && subscription.companies.length > 0 ? subscription.companies[0] : null}
                                     customCompany={subscription.customCompany}
@@ -110,6 +111,7 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                                     id={subscription.id}
                                     price={subscription.price}
                                     title={subscription.title}
+                                    dueType={subscription.dueType === "monthly" ? "mensuel" : "annuel"}
                                     description={subscription.description}
                                     company={subscription.companies && subscription.companies.length > 0 ? subscription.companies[0] : null}
                                     customCompany={subscription.customCompany}
@@ -142,6 +144,7 @@ export default function UpcomingSubscriptions({ subscriptions }: UpcomingSubscri
                                     id={subscription.id}
                                     price={subscription.price}
                                     title={subscription.title}
+                                    dueType={subscription.dueType === "monthly" ? "mensuel" : "annuel"}
                                     description={subscription.description}
                                     company={subscription.companies && subscription.companies.length > 0 ? subscription.companies[0] : null}
                                     customCompany={subscription.customCompany}

@@ -67,7 +67,7 @@ const ProfileSubscriptions = () => {
                         : "Aucun abonnement trouvé pour ce filtre."}
                 </div>
             ) : (
-                <div className="divide-y divide-gray-100 rounded-lg bg-white text-sm shadow ring-1 ring-black/[5%]">
+                <div className="divide-y divide-gray-100 rounded-lg bg-white shadow ring-1 ring-black/[5%]">
                     {filteredSubscriptions.map((subscription) => (
                         <div key={subscription.id} className="hover:bg-gray-50 rounded-md py-4 px-8">
                             <Link
