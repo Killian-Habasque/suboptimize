@@ -5,6 +5,7 @@ import { debounce } from "lodash";
 import { Offer, Category, Company } from "@prisma/client";
 import AddOfferDialog from './add-offer-dialog';
 import LoadingCursor from '@/components/ui/loading-cursor';
+import { useSession } from 'next-auth/react';
 
 interface OfferWithRelations extends Offer {
     companies: Company[];
@@ -31,6 +32,7 @@ const OfferList: React.FC<OfferListProps> = ({ categorySlug, companySlug }) => {
     const [sortBy, setSortBy] = useState<'recent' | 'ranking'>('recent');
     const limit = 10;
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const { data: session } = useSession();
 
     useEffect(() => {
         const handler = debounce((value: string) => {
@@ -96,12 +98,14 @@ const OfferList: React.FC<OfferListProps> = ({ categorySlug, companySlug }) => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full outline-none ring-1 ring-inset ring-gray-300 border-none rounded-lg"
                 />
-                <button
-                    onClick={() => setIsDialogOpen(true)}
-                    className="cursor-pointer whitespace-nowrap ml-6 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                >
-                    Ajouter une offre
-                </button>
+                {session?.user && (
+                    <button
+                        onClick={() => setIsDialogOpen(true)}
+                        className="cursor-pointer whitespace-nowrap ml-6 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    >
+                        Ajouter une offre
+                    </button>
+                )}
             </div>
 
             <div className="flex space-x-4 mb-6">
